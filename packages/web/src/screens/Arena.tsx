@@ -31,7 +31,7 @@ function Hero() {
         </div>
       </section>
       <div className="stats3" role="list" aria-label="Live arena numbers">
-        <div className="stat stat--wait" role="listitem"><Big value={String(waiting)} loading={open.loading} error={open.error} tone="ivory" /><span className="label">{waiting === 1 ? 'Match open' : 'Matches open'}</span></div>
+        <div className="stat stat--wait" role="listitem"><Big value={String(waiting)} loading={open.loading} error={open.error} tone="ivory" /><span className="label">Open</span></div>
         <div className="stat stat--burn" role="listitem"><Big value={totals.data?.settled} loading={totals.loading} error={totals.error} tone="ember" /><span className="label">Refereed</span></div>
         <div className="stat stat--season" role="listitem"><Big value={season.data ? formatNear(season.data.info.pool) : undefined} loading={season.loading} error={season.error} tone="sapphire" /><span className="label">Season Ⓝ</span></div>
       </div>

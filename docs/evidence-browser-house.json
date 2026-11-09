@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-09T17:19:18.561Z",
+  "account": "browser-2520.mempire-relay-41966.testnet",
+  "match": "7",
+  "drops": 5,
+  "result": "Defeat",
+  "verify": "Verified: this browser's replay matches the referee",
+  "txs": [
+    {
+      "label": "Session key deleted from your account",
+      "url": "https://testnet.nearblocks.io/txns/6Lc58MpQSt56gawZbchG7aQZDnJD6czNXxgkBFw8Vo8"
+    },
+    {
+      "label": "Referee settled #7",
+      "url": "https://testnet.nearblocks.io/txns/EYtKyi65943gKdSDg9Qcf9cAPYg1NyqqiquYjY1e3tZQ"
+    }
+  ],
+  "pageErrors": []
+}
