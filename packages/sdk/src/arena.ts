@@ -90,6 +90,8 @@ export async function settleUntilDone(signer: KeySigner, arena: string, id: stri
 export const YOCTO = 10n ** 24n;
 export function formatNear(yocto: string | bigint, digits = 3): string {
   const v = BigInt(yocto);
+  // small testnet amounts (a 0.0006 NEAR season share) keep four decimals instead of rounding to 0
+  if (v > 0n && v < YOCTO) digits = Math.max(digits, 4);
   const whole = v / YOCTO;
   const frac = (v % YOCTO).toString().padStart(24, '0').slice(0, digits).replace(/0+$/, '');
   return frac ? `${whole.toLocaleString('en-US')}.${frac}` : whole.toLocaleString('en-US');

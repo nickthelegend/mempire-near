@@ -97,7 +97,7 @@ export function SeasonPanel() {
                 return (
                   <li key={i} className="race-row" data-rank={i + 1} data-you={you}>
                     <span className="race-rank">{i + 1}</span>
-                    <div className="race-bar"><i style={{ width: t ? `${(t.points / max) * 100}%` : '0%' }} /><span>{!t ? <span className="fine">Open seat</span> : <>{you ? 'You' : shortAcct(t.account)} <span className="fine">{t.points} pts</span></>}</span></div>
+                    <div className="race-bar"><i style={{ width: t ? `${(t.points / max) * 100}%` : '0%' }} /><span>{!t ? 'Open seat' : `${you ? 'You' : shortAcct(t.account)} · ${t.points} pt${t.points === 1 ? '' : 's'}`}</span></div>
                     <span className="num" style={{ fontWeight: 700, fontSize: 13, color: 'var(--sapphire)' }}>{formatNear((BigInt(info.pool) * SHARES[i]) / 10000n)}</span>
                   </li>
                 );
