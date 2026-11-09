@@ -27,10 +27,11 @@
   --ember-hi: #ffb067;
   --sapphire: #7cb8ff;
   --sapphire-deep: #173a66;
-  --display: 'Big Shoulders Display', 'Barlow Condensed', system-ui, sans-serif;
-  --ui: 'Barlow', system-ui, -apple-system, sans-serif;
-  --cond: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
-  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --display: 'Urbanist', system-ui, sans-serif;
+  --ui: 'Urbanist', system-ui, -apple-system, sans-serif;
+  --cond: 'Urbanist', system-ui, sans-serif;
+  --mono: 'Space Mono', ui-monospace, Menlo, Consolas, monospace;
+  --sans: var(--ui);
   --r-sm: 10px;
   --r: 16px;
   --r-lg: 22px;
@@ -67,7 +68,7 @@ ul, ol { list-style: none; }
 .grow { flex: 1; min-width: 0; }
 .fine { font-size: 13.5px; line-height: 1.45; color: var(--dim); font-weight: 500; }
 .label { font-family: var(--cond); font-weight: 600; font-size: 12.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
-.display { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.005em; line-height: 0.92; }
+.display { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.95; }
 .h1 { font-size: clamp(40px, 11vw, 58px); }
 .h2 { font-size: 30px; }
 .h3 { font-size: 22px; }
@@ -552,3 +553,36 @@ table.plain td { padding: 9px 6px; border-bottom: 1px solid var(--line); font-va
 .mstrip .move svg { display: none; }
 .mstrip .move--sm { font-size: 10px; padding: 0 4px; }
 .mslot { flex: 1 1 0; min-width: 0; }
+
+/* ── NEAR additions: inputs, houses, podium ─────────────────────────────── */
+.input { width: 100%; min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(3,12,13,.55); color: var(--text); font: 600 16px/1 var(--ui); transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+.input::placeholder { color: var(--mute); font-weight: 500; }
+.input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,182,76,.18); }
+.house { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(180deg, rgba(255,77,109,.06), rgba(3,12,13,.35)); }
+.house-name { font-family: var(--display); font-weight: 800; font-size: 19px; letter-spacing: .02em; text-transform: uppercase; color: var(--ivory); }
+.house .key { min-width: 92px; }
+.podium { display: grid; gap: 8px; }
+.podium-row { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(3,12,13,.4); }
+.podium-row[data-rank="1"] { border-color: var(--hair-hi); background: linear-gradient(90deg, rgba(232,182,76,.18), rgba(3,12,13,.4) 70%); }
+.podium-row[data-you="true"] { box-shadow: inset 3px 0 0 var(--jade); }
+.podium-rank { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 18px; background: var(--surface-2); color: var(--ivory); }
+.podium-row[data-rank="1"] .podium-rank { background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: var(--gold-ink); }
+.podium-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.podium-share { display: grid; justify-items: end; line-height: 1.1; }
+.podium-share b { font-family: var(--display); font-weight: 900; font-size: 20px; color: var(--sapphire); }
+.podium-share small { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+
+/* Urbanist is wider than the condensed face the game first shipped with: let every grid track
+   shrink below its content so nothing pushes past the phone column. */
+.stack > *, .section, .page, .panel, .phone { min-width: 0; }
+.tiers { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tier .tname { font-size: 13px; letter-spacing: .02em; }
+.seg { grid-auto-columns: minmax(0, 1fr); }
+.seg button { font-size: 16px; letter-spacing: .02em; }
+.stats3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.deck-slots { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.hero-title { letter-spacing: -0.02em; }
+.label { letter-spacing: .08em; }
+.chip { letter-spacing: .03em; }
+.key { letter-spacing: .03em; }
+.brand-word { letter-spacing: .06em; }

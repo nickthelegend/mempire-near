@@ -1,11 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { explorer, isFork } from '../chain/wallet';
-import { artOf, artSmallOf, characterOf, costOf, fighter, pct, rarityOf, shortAddr, CLASS_NAMES } from '../lib/fighters';
+import { accountUrl, txUrl } from '../lib/net';
+import { artOf, artSmallOf, characterOf, costOf, fighter, pct, rarityOf, shortAcct, CLASS_NAMES } from '../lib/fighters';
 import type { PulseState } from '../state/market';
 
 /* ── Icons: line glyphs drawn here ─────────────────────────────────────── */
 type IconName = 'swords' | 'cards' | 'trophy' | 'scroll' | 'flame' | 'lock' | 'out' | 'wallet' | 'clock' | 'check' | 'x'
-  | 'share' | 'replay' | 'shield' | 'up' | 'down' | 'play' | 'pause' | 'crown' | 'bolt';
+  | 'share' | 'replay' | 'shield' | 'up' | 'down' | 'play' | 'pause' | 'crown' | 'bolt' | 'key' | 'mail' | 'cpu' | 'layers' | 'arrow';
 const PATHS: Record<IconName, ReactNode> = {
   swords: <><path d="M4 4l9 9M4 4h4M4 4v4" /><path d="M20 4l-9 9M20 4h-4M20 4v4" /><path d="M7 17l-3 3M17 17l3 3M9 15l-2 2M15 15l2 2" /></>,
   cards: <><rect x="3" y="5" width="11" height="15" rx="2" /><path d="M10 4.5l7.5-1.4a2 2 0 0 1 2.3 1.6l2 10.9a2 2 0 0 1-1.6 2.3L17 18.6" /></>,
@@ -27,6 +27,11 @@ const PATHS: Record<IconName, ReactNode> = {
   pause: <path d="M8 5v14M16 5v14" />,
   crown: <path d="M3 18h18M4 8l4 4 4-7 4 7 4-4-1.5 10h-13L4 8z" />,
   bolt: <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />,
+  key: <><circle cx="8" cy="15" r="4" /><path d="M11 12l9-9M16 7l3 3M14 9l2 2" /></>,
+  mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></>,
+  cpu: <><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" /></>,
+  layers: <><path d="M12 3l9 5-9 5-9-5 9-5z" /><path d="M3 13l9 5 9-5" /></>,
+  arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
 };
 export function Icon({ name, size = 20, title }: { name: IconName; size?: number; title?: string }) {
   return (
@@ -45,14 +50,14 @@ export function BrandMark({ size = 36 }: { size?: number }) {
 
 /* ── Market chips ──────────────────────────────────────────────────────── */
 export function MoveChip({ statBps, state, small }: { statBps: number | null | undefined; state?: PulseState | 'stored' | null; small?: boolean }) {
-  if (state === 'house') return <span className={`move move--flat${small ? ' move--sm' : ''}`} title="House fighter: no price feed, always neutral">House</span>;
-  if (state === 'closed') return <span className={`move move--flat${small ? ' move--sm' : ''}`} title="Feed older than 25 h (market closed): neutral">Closed</span>;
-  if (state === 'paused') return <span className={`move move--flat${small ? ' move--sm' : ''}`} title="Oracle paused: neutral">Paused</span>;
-  if (state === 'nohistory') return <span className={`move move--flat${small ? ' move--sm' : ''}`} title="No 24 h history: neutral">New</span>;
-  if (statBps == null) return <span className={`move move--flat${small ? ' move--sm' : ''}`} aria-label="Market loading">…</span>;
+  const sm = small ? ' move--sm' : '';
+  if (state === 'house') return <span className={`move move--flat${sm}`} title="House fighter: no price, always neutral">House</span>;
+  if (state === 'stale') return <span className={`move move--flat${sm}`} title="Relayer price older than 6 h: neutral">Stale</span>;
+  if (state === 'noprice') return <span className={`move move--flat${sm}`} title="No signed price yet: neutral">No price</span>;
+  if (statBps == null) return <span className={`move move--flat${sm}`} aria-label="Market loading">…</span>;
   const dir = statBps > 0 ? 'up' : statBps < 0 ? 'down' : 'flat';
   return (
-    <span className={`move move--${dir}${small ? ' move--sm' : ''}`} title="Stat change: twice the 24 h Chainlink move, capped at ±15%">
+    <span className={`move move--${dir}${sm}`} title="Stat change: twice the 24 h move (relayer price, testnet), capped at ±15%">
       {dir !== 'flat' && <Icon name={dir === 'up' ? 'up' : 'down'} size={small ? 11 : 13} />}{pct(statBps)}
     </span>
   );
@@ -129,16 +134,14 @@ export function StateBox({ kind = 'empty', title, children, action, art }: {
 
 /* ── Chain links ───────────────────────────────────────────────────────── */
 export function TxLink({ hash, children }: { hash: string; children?: ReactNode }) {
-  const text = children ?? `${hash.slice(0, 10)}…${hash.slice(-6)}`;
-  if (isFork) return <span className="mono" title={`Fork transaction ${hash} (local Anvil fork, not on the public explorer)`}>{text}</span>;
-  return <a className="mono" href={`${explorer}/tx/${hash}`} target="_blank" rel="noreferrer">{text}</a>;
+  const text = children ?? `${hash.slice(0, 8)}…${hash.slice(-4)}`;
+  return <a className="mono" href={txUrl(hash)} target="_blank" rel="noreferrer">{text}</a>;
 }
 export function AddrLink({ address, full }: { address: string; full?: boolean }) {
-  const text = full ? address : shortAddr(address);
-  if (isFork) return <span className="mono addr" title={address}>{text}</span>;
-  return <a className="mono addr" href={`${explorer}/address/${address}`} target="_blank" rel="noreferrer">{text}</a>;
+  return <a className="mono addr" href={accountUrl(address)} target="_blank" rel="noreferrer" title={address}>{full ? address : shortAcct(address)}</a>;
 }
 
+/** `to` in unix seconds. */
 export function Countdown({ to, prefix }: { to: number; prefix?: string }) {
   const [now, setNow] = useState(() => Date.now() / 1000);
   useEffect(() => { const t = setInterval(() => setNow(Date.now() / 1000), 1000); return () => clearInterval(t); }, []);

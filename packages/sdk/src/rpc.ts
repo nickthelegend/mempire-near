@@ -15,7 +15,38 @@ export class RpcError extends Error {
 }
 
 let rpcId = 0;
+// Public RPCs rate-limit bursts (a 429 arrives without CORS headers, so a browser sees a failed
+// fetch). Keep at most MAX_IN_FLIGHT requests open and share identical reads made within 1.5 s.
+const MAX_IN_FLIGHT = 4;
+let inFlight = 0;
+const waiters: (() => void)[] = [];
+async function slot() {
+  if (inFlight < MAX_IN_FLIGHT) { inFlight++; return; }
+  await new Promise<void>((r) => waiters.push(r));
+  inFlight++;
+}
+function release() { inFlight--; waiters.shift()?.(); }
+const recent = new Map<string, { at: number; p: Promise<unknown> }>();
+
 export async function rpc<T>(url: string, method: string, params: unknown): Promise<T> {
+  const cacheable = method === 'query' || method === 'block';
+  if (!cacheable) return rpcRaw<T>(url, method, params);
+  const key = `${url}|${method}|${JSON.stringify(params)}`;
+  const hit = recent.get(key);
+  if (hit && Date.now() - hit.at < 1500) return hit.p as Promise<T>;
+  const p = rpcRaw<T>(url, method, params);
+  recent.set(key, { at: Date.now(), p });
+  if (recent.size > 200) for (const [k, v] of recent) if (Date.now() - v.at > 1500) recent.delete(k);
+  p.catch(() => recent.delete(key));
+  return p;
+}
+
+async function rpcRaw<T>(url: string, method: string, params: unknown): Promise<T> {
+  await slot();
+  try { return await rpcOnce<T>(url, method, params); } finally { release(); }
+}
+
+async function rpcOnce<T>(url: string, method: string, params: unknown): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt < 6; attempt++) {
     try {
