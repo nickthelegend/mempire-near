@@ -26,3 +26,17 @@ and finished in a second call.
   public RPC returned 429s; the arena refusing them is the intended behaviour.
 - Matches #3 and #5 (vs house Tora): the referee ran Tora's bot; #3 Tora won (treasury +0.018), #5 a draw.
 - Match #1: settled later with the replayed result, 11.0 TGas.
+
+## Browser end-to-end (headless Chrome, NEAR testnet)
+
+`node scripts/e2e/browser-house.mjs` with the relayer and `vite preview` running (evidence:
+`docs/evidence-browser-house.json`). Match #8: guest sign-in → session key by meta tx → stake against house Kumo →
+9 drops clicked, **8 landed** from the session key (2.2–12 s to land under RPC 429s; one landed after the 5 s window and the
+arena refused it) → the page asked the referee to settle (meta tx) → **Replay & verify: this browser's replay matches the
+referee** → session key deleted. No uncaught page errors.
+
+## Route QA (headless Chrome, 1440×900 and 375×812)
+
+`/`, `/app`, `/app/deck`, `/app/season`, `/app/practice`, `/app/battle/2`: root renders, no uncaught page errors,
+`scrollWidth - innerWidth = 0` at both widths. The console can show "Failed to load resource" when the shared public RPC
+answers 429 (requests are retried). `vite build` passes.
