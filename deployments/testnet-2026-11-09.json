@@ -267,5 +267,32 @@
       "plays": 12,
       "house": null
     }
-  ]
+  ],
+  "seasonPayout": {
+    "step": "aiko finalizes season 0: pool 0.0048 NEAR paid 50/30/20 to the top three, unearned shares roll over",
+    "hash": "5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv",
+    "url": "https://testnet.nearblocks.io/txns/5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv",
+    "top": [
+      {
+        "account": "aiko-8197.mempire-relay-41966.testnet",
+        "points": 2
+      },
+      {
+        "account": "bram-6861.mempire-relay-41966.testnet",
+        "points": 1
+      }
+    ],
+    "paid": [
+      {
+        "account": "aiko-8197.mempire-relay-41966.testnet",
+        "near": "0.0024"
+      },
+      {
+        "account": "bram-6861.mempire-relay-41966.testnet",
+        "near": "0.0014"
+      }
+    ],
+    "rolledOver": "0.0009",
+    "nextPool": "0.0009"
+  }
 }

@@ -40,3 +40,9 @@ referee** → session key deleted. No uncaught page errors.
 `/`, `/app`, `/app/deck`, `/app/season`, `/app/practice`, `/app/battle/2`: root renders, no uncaught page errors,
 `scrollWidth - innerWidth = 0` at both widths. The console can show "Failed to load resource" when the shared public RPC
 answers 429 (requests are retried). `vite build` passes.
+
+## Season payout (testnet)
+
+After launch season 0 ended, `pnpm tsx scripts/finalize-season.ts aiko 0` paid its pool of 0.0048 NEAR: aiko (2 points)
+0.0024 NEAR (50 %), bram (1 point) 0.0014 NEAR (30 %), and the unearned 20 % (0.0009 NEAR) rolled into season 1
+(`5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv`, recorded in `deployments/testnet-2026-11-09.json`).

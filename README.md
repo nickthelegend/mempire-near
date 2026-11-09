@@ -11,6 +11,7 @@ that disagrees with the replay is rejected.
 - Arena contract (testnet): [`mempire-arena-41966.testnet`](https://testnet.nearblocks.io/address/mempire-arena-41966.testnet)
 - Relayer / player parent: [`mempire-relay-41966.testnet`](https://testnet.nearblocks.io/address/mempire-relay-41966.testnet)
 - House bots: `kumo.`, `tora.`, `ryu.mempire-arena-41966.testnet` · treasury: `treasury.mempire-arena-41966.testnet`
+- Season 0 paid out on testnet: [`5MGKPyqU…`](https://testnet.nearblocks.io/txns/5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv) (50/30 to the top two, the empty third share rolled over)
 - Every deployment and match transaction: [`deployments/testnet.json`](deployments/testnet.json), [`deployments/testnet-2026-11-09.json`](deployments/testnet-2026-11-09.json)
 
 ## The problem
