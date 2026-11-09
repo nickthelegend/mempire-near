@@ -15,5 +15,6 @@
       "url": "https://testnet.nearblocks.io/txns/EYtKyi65943gKdSDg9Qcf9cAPYg1NyqqiquYjY1e3tZQ"
     }
   ],
-  "pageErrors": []
+  "pageErrors": [],
+  "note": "Headless Chrome against NEAR testnet: guest sign-in through the relayer, session key added by meta tx, stake against house Kumo, referee settlement by meta tx and an in-browser replay that matched the stored hash. The 5 drops were clicked but none landed: the public RPC was returning 429s, so they missed the 5 s window (the UI at that commit did not list drops refused before signing; it does now). In the previous browser run (match #6) 2 drops landed and the referee settled it."
 }
