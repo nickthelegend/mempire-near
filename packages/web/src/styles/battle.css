@@ -1,10 +1,14 @@
 /* Battle: a full-height arena with the HUD on top, the hand and elixir under it, and match details beside it. */
-.game--battle .gmain { padding: 16px 24px 24px; max-width: none; }
 .game--battle .gtabs { display: none; }
+.game--battle .ghead { min-height: 0; padding-top: 10px; }
+.game--battle .ghead-tag { display: none; }
+.game--battle .ghead-logo img { width: 190px; max-height: 70px; }
+.game--battle .wordmark { font-size: 44px; }
+.game--battle .gframe { padding-bottom: 24px; }
 .battle { display: grid; grid-template-columns: minmax(0, 500px) minmax(300px, 400px); justify-content: center; gap: 24px; align-items: start; }
 .arena-stack {
   position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0;
-  height: calc(100dvh - 64px - 40px); min-height: 640px;
+  height: calc(100dvh - 120px); min-height: 640px;
 }
 .bhud { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .bhud--row { min-height: 52px; }
@@ -102,11 +106,15 @@
 
 @media (max-width: 1080px) {
   .battle { grid-template-columns: minmax(0, 1fr); max-width: 620px; margin: 0 auto; }
-  .arena-stack { height: calc(100dvh - 64px - 32px); }
+  .arena-stack { height: calc(100dvh - 110px); }
 }
 @media (max-width: 760px) {
-  .game--battle .gmain { padding: 8px 8px 24px; }
-  .arena-stack { height: calc(100dvh - 58px - 16px); min-height: 560px; gap: 8px; }
+  .game--battle .gframe { padding: 8px 8px 24px; }
+  .game--battle .ghead { grid-template-columns: auto 1fr; justify-items: start; padding: 8px 10px 0; }
+  .game--battle .ghead-logo img { width: 120px; max-height: 44px; }
+  .game--battle .wordmark { font-size: 30px; }
+  .game--battle .ghead-chips { justify-self: end; }
+  .arena-stack { height: calc(100dvh - 70px); min-height: 560px; gap: 8px; }
   .board-box { border-radius: 20px; border-width: 3px; }
   .ceremony { border-radius: 20px; }
   .hand-bar { padding: 8px; border-radius: 20px; gap: 6px; }

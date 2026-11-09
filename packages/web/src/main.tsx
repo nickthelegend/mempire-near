@@ -13,8 +13,10 @@ import { Battle } from './screens/Battle';
 import { Season } from './screens/Season';
 import { Houses } from './screens/Houses';
 import { Proof } from './screens/Proof';
-import { BrandMark, Countdown, Icon } from './ui/kit';
-import { shortAcct } from './lib/fighters';
+import { Art, Countdown, Icon } from './ui/kit';
+import { ART } from './lib/art';
+import { accountUrl, net } from './lib/net';
+import { artOf, shortAcct } from './lib/fighters';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/battle.css';
@@ -49,12 +51,40 @@ function SeasonChip() {
 }
 
 const TABS = [
-  { to: '/app/deck', label: 'Deck', icon: 'cards' as const },
   { to: '/app', label: 'Battle', icon: 'swords' as const, main: true },
+  { to: '/app/deck', label: 'Deck', icon: 'cards' as const },
   { to: '/app/season', label: 'Season', icon: 'trophy' as const },
   { to: '/app/houses', label: 'Houses', icon: 'castle' as const },
   { to: '/app/proof', label: 'Proof', icon: 'shield' as const },
 ];
+/** Phone order puts Battle in the middle, as a game tab bar does. */
+const PHONE_TABS = [TABS[1], TABS[2], TABS[0], TABS[3], TABS[4]];
+
+/** The chunky MEMPIRE wordmark, drawn in type; the generated logo replaces it once it exists. */
+export function Wordmark({ small }: { small?: boolean }) {
+  return <span className={`wordmark${small ? ' wordmark--sm' : ''}`} aria-label="Mempire"><span aria-hidden>MEMPIRE</span></span>;
+}
+
+/** Decorative sky: soft clouds, floating gems and coins. Pure CSS. */
+function Sky() {
+  return (
+    <div className="sky" aria-hidden>
+      <i className="cloud c1" /><i className="cloud c2" /><i className="cloud c3" /><i className="cloud c4" />
+      <i className="gem g1" /><i className="gem g2" /><i className="coin k1"><b>Ⓝ</b></i><i className="dot d1" /><i className="dot d2" /><i className="spark s1" /><i className="spark s2" />
+    </div>
+  );
+}
+
+function Promo() {
+  return (
+    <Link to="/app/deck" className="promo">
+      <span className="promo-k">Market up?</span>
+      <span className="promo-t">Fighter<br />hits harder!</span>
+      <span className="promo-s">Twice the 24 h move, ±15% cap</span>
+      <Art className="promo-art" src={artOf(8)} fallback={<span />} />
+    </Link>
+  );
+}
 
 function GameShell() {
   const location = useLocation();
@@ -63,36 +93,47 @@ function GameShell() {
   const inBattle = location.pathname.startsWith('/app/battle') || location.pathname.startsWith('/app/practice');
   return (
     <div className={`game${inBattle ? ' game--battle' : ''}`}>
-      <header className="gbar">
-        <Link to="/" className="gbar-brand" aria-label="Mempire home"><BrandMark size={40} /><span className="gbar-word">Mempire</span></Link>
-        <nav className="gbar-nav" aria-label="Game">
-          {TABS.map((t) => <NavLink key={t.to} to={t.to} end className={`gbar-link${t.main ? ' gbar-link--main' : ''}`}><Icon name={t.icon} size={18} />{t.label}</NavLink>)}
-        </nav>
-        <div className="gbar-chips">
+      <Sky />
+      <header className="ghead">
+        <p className="ghead-tag">Live markets.<br /><b>On-chain referee.</b></p>
+        <Link to="/" className="ghead-logo" aria-label="Mempire home">
+          <Art src={ART.logo} alt="Mempire" eager fallback={<Wordmark small={inBattle} />} />
+        </Link>
+        <div className="ghead-chips">
           <span className="hud-chip hud-chip--net" title="NEAR testnet: stakes are testnet NEAR"><span className="dot" aria-hidden />Testnet</span>
           <SeasonChip />
           <AccountChip />
         </div>
       </header>
-      <main className="gmain page-in" key={location.pathname}>
-        <Routes>
-          <Route index element={<Arena />} />
-          <Route path="deck" element={<DeckScreen />} />
-          <Route path="season" element={<Season />} />
-          <Route path="houses" element={<Houses />} />
-          <Route path="proof" element={<Proof />} />
-          <Route path="battle/:id" element={<Battle />} />
-          <Route path="practice" element={<Battle practice />} />
-        </Routes>
-        {!inBattle && (
-          <footer className="gfoot">
-            <p className="fine">Mempire on NEAR testnet. Stakes are testnet NEAR. Prices are signed relayer snapshots of Coinbase 24 h stats, labelled as such. MIT licensed. <Link to="/">About</Link></p>
-          </footer>
-        )}
-      </main>
+      <div className="gframe">
+        <aside className="gside" aria-label="Game menu">
+          <nav className="gnav" aria-label="Game">
+            {TABS.map((t) => <NavLink key={t.to} to={t.to} end className="gnav-link"><Icon name={t.icon} size={20} />{t.label}</NavLink>)}
+          </nav>
+          <Promo />
+          <Link to="/" className="gside-foot"><Icon name="crown" size={16} />Mempire</Link>
+        </aside>
+        <main className="gmain page-in" key={location.pathname}>
+          <Routes>
+            <Route index element={<Arena />} />
+            <Route path="deck" element={<DeckScreen />} />
+            <Route path="season" element={<Season />} />
+            <Route path="houses" element={<Houses />} />
+            <Route path="proof" element={<Proof />} />
+            <Route path="battle/:id" element={<Battle />} />
+            <Route path="practice" element={<Battle practice />} />
+          </Routes>
+          {!inBattle && (
+            <footer className="gfoot">
+              <span><b>MEMPIRE</b> · NEAR testnet</span>
+              <span className="gfoot-links"><a className="mono" href={accountUrl(net.arena)} target="_blank" rel="noreferrer">{net.arena} ↗</a><Link to="/">How it works</Link></span>
+            </footer>
+          )}
+        </main>
+      </div>
       {!inBattle && (
         <nav className="gtabs" aria-label="Main">
-          {TABS.map((t) => (
+          {PHONE_TABS.map((t) => (
             <NavLink key={t.to} to={t.to} end className={`gtab${t.main ? ' gtab--main' : ''}`}>
               <span className="gtab-ico"><Icon name={t.icon} size={t.main ? 26 : 22} /></span>
               <span className="gtab-label">{t.label}</span>
