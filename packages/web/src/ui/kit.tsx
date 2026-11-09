@@ -78,6 +78,16 @@ export function Wordmark({ small }: { small?: boolean }) {
   return <span className={`wordmark${small ? ' wordmark--sm' : ''}`} aria-label="Mempire"><span aria-hidden>MEMPIRE</span></span>;
 }
 
+/** Crest plus wordmark: the full Mempire lock-up. */
+export function Logo({ small }: { small?: boolean }) {
+  return (
+    <span className={`logo${small ? ' logo--sm' : ''}`}>
+      <Art className="logo-crest" src={ART.logo} eager fallback={<span />} />
+      <Wordmark small={small} />
+    </span>
+  );
+}
+
 /* ── Market chips ──────────────────────────────────────────────────────── */
 export function MoveChip({ statBps, state, small }: { statBps: number | null | undefined; state?: PulseState | 'stored' | null; small?: boolean }) {
   const sm = small ? ' move--sm' : '';

@@ -7,7 +7,7 @@ import { useConfig, useHouses, useRecent, useSeason, useTotals } from '../state/
 import { useMarket } from '../state/market';
 import { CLASS_NAMES, HOUSE_LEVEL, TIER_BADGES, characterOf, costOf, pct, shortAcct, shortError } from '../lib/fighters';
 import { ART, badgeArt, houseArt } from '../lib/art';
-import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, Wordmark } from '../ui/kit';
+import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, Logo } from '../ui/kit';
 import { MarketTicker, money } from '../ui/market';
 import { MatchCard, PotSplit } from './Proof';
 
@@ -56,7 +56,7 @@ function Hero() {
       <div className="lx-hero-shade" aria-hidden />
       <Nav />
       <div className="lx-hero-body">
-        <Art className="lx-logo" src={ART.logo} alt="Mempire" eager fallback={<Wordmark />} />
+        <span className="lx-logo"><Logo /></span>
         <p className="lx-badge"><span className="dot" aria-hidden />Real-time 1v1 lane battler · NEAR testnet</p>
         <h1 className="lx-h1">Your fighters are live markets.<br /><span>The chain is the referee.</span></h1>
         <div className="lx-ctas">

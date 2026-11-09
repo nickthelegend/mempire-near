@@ -13,8 +13,7 @@ import { Battle } from './screens/Battle';
 import { Season } from './screens/Season';
 import { Houses } from './screens/Houses';
 import { Proof } from './screens/Proof';
-import { Art, Countdown, Icon, Wordmark } from './ui/kit';
-import { ART } from './lib/art';
+import { Art, Countdown, Icon, Logo } from './ui/kit';
 import { accountUrl, net } from './lib/net';
 import { artOf, shortAcct } from './lib/fighters';
 import './styles/tokens.css';
@@ -92,7 +91,7 @@ function GameShell() {
       <header className="ghead">
         <p className="ghead-tag">Live markets.<br /><b>On-chain referee.</b></p>
         <Link to="/" className="ghead-logo" aria-label="Mempire home">
-          <Art src={ART.logo} alt="Mempire" eager fallback={<Wordmark small={inBattle} />} />
+          <Logo small={inBattle} />
         </Link>
         <div className="ghead-chips">
           <span className="hud-chip hud-chip--net" title="NEAR testnet: stakes are testnet NEAR"><span className="dot" aria-hidden />Testnet</span>

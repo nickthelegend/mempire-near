@@ -209,6 +209,10 @@ function PlayerCard({ mm }: { mm: Matchmaking }) {
         <div><b className="num">{me && stats.data ? stats.data.streak : '—'}</b><span>Streak</span></div>
       </div>
       <a className="btn btn--blue btn--pill" href="#signin">{me ? 'My account' : 'Sign in'} <Icon name="arrow" size={18} /></a>
+      <Link to="/app/deck" className="player-deck" aria-label="Your battle deck: edit">
+        <span className="player-deck-k">Battle deck</span>
+        <span className="player-deck-row">{deck.map((id, i) => <Avatar key={i} id={id} size={28} />)}</span>
+      </Link>
     </section>
   );
 }
