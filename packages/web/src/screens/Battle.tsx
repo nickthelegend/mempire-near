@@ -376,7 +376,7 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
   }
   if (match?.state === 3) {
     const mine = !!me && (match.p0 === me || match.p1 === me);
-    const result = match.winner === 2 ? 'Draw' : !mine ? `Seat ${match.winner} wins` : match.winner === seat ? 'Victory' : 'Defeat';
+    const result = match.winner === 2 ? 'Draw' : !mine ? (match.house !== null ? (match.winner === 1 ? 'House wins' : 'Player wins') : `Seat ${match.winner} wins`) : match.winner === seat ? 'Victory' : 'Defeat';
     const pot = BigInt(match.stake) * 2n;
     return (
       <div className={`ceremony${result === 'Defeat' ? ' ceremony--defeat' : ''}`}>
