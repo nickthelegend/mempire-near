@@ -331,7 +331,7 @@ function drawFloor(cw: number, ch: number, k: number, ox: number, oy: number, ar
   const g = c.getContext('2d');
   if (!g) return null;
   if (art) {
-    g.fillStyle = '#2f9a4a'; g.fillRect(0, 0, cw, ch);
+    drawHedge(g, cw, ch, k, ox, oy);
     const r = art.naturalWidth / 1024;
     const scx = (k * W) / (ART_FIELD.w * r), scy = (k * H) / (ART_FIELD.h * r);
     const fx = ox + (k * W) / 2, fy = oy + (k * H) / 2;
@@ -341,26 +341,7 @@ function drawFloor(cw: number, ch: number, k: number, ox: number, oy: number, ar
     g.restore();
     return c;
   }
-  // Surround: a hedge of deep green with soft stripes.
-  g.fillStyle = '#2f9a4a'; g.fillRect(0, 0, cw, ch);
-  g.fillStyle = 'rgba(255, 255, 255, 0.05)';
-  for (let x = -ch; x < cw; x += 28) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + ch, ch); g.lineTo(x + ch + 12, ch); g.lineTo(x + 12, 0); g.fill(); }
-  // Round bushes and trees outside the field (a fixed pattern, so the cache is stable).
-  const side = Math.max(ox, oy);
-  if (side > k * 0.8) {
-    let seed = 7;
-    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-    for (let i = 0; i < 90; i++) {
-      const x = rnd() * cw, y = rnd() * ch;
-      const inField = x > ox - k * 0.6 && x < ox + k * W + k * 0.6 && y > oy - k * 0.6 && y < oy + k * H + k * 0.6;
-      if (inField) continue;
-      const r = k * (0.6 + rnd() * 0.9);
-      g.fillStyle = 'rgba(42, 29, 92, 0.22)'; g.beginPath(); g.ellipse(x + r * 0.15, y + r * 0.75, r, r * 0.4, 0, 0, Math.PI * 2); g.fill();
-      g.fillStyle = rnd() > 0.5 ? '#3fbf4f' : '#4fcf55'; g.strokeStyle = COLORS.ink; g.lineWidth = Math.max(2, k * 0.08);
-      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
-      g.fillStyle = 'rgba(255, 255, 255, 0.28)'; g.beginPath(); g.arc(x - r * 0.3, y - r * 0.35, r * 0.35, 0, Math.PI * 2); g.fill();
-    }
-  }
+  drawHedge(g, cw, ch, k, ox, oy);
   // Grass checker (screen space; the field is symmetric so seat does not matter).
   for (let ty = 0; ty < H; ty++) for (let tx = 0; tx < W; tx++) {
     g.fillStyle = (tx + ty) % 2 ? '#8fe063' : '#82d856';
@@ -388,6 +369,30 @@ function drawFloor(cw: number, ch: number, k: number, ox: number, oy: number, ar
   g.lineWidth = Math.max(3, k * 0.16); g.strokeStyle = COLORS.ink;
   roundRect(g, ox, oy, k * W, k * H, k * 0.4); g.stroke();
   return c;
+}
+
+/** Deep green surround with soft stripes and round bushes outside the field. */
+function drawHedge(g: CanvasRenderingContext2D, cw: number, ch: number, k: number, ox: number, oy: number) {
+  // Surround: a hedge of deep green with soft stripes.
+  g.fillStyle = '#2f9a4a'; g.fillRect(0, 0, cw, ch);
+  g.fillStyle = 'rgba(255, 255, 255, 0.05)';
+  for (let x = -ch; x < cw; x += 28) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + ch, ch); g.lineTo(x + ch + 12, ch); g.lineTo(x + 12, 0); g.fill(); }
+  // Round bushes and trees outside the field (a fixed pattern, so the cache is stable).
+  const side = Math.max(ox, oy);
+  if (side > k * 0.8) {
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let i = 0; i < 90; i++) {
+      const x = rnd() * cw, y = rnd() * ch;
+      const inField = x > ox - k * 0.6 && x < ox + k * W + k * 0.6 && y > oy - k * 0.6 && y < oy + k * H + k * 0.6;
+      if (inField) continue;
+      const r = k * (0.6 + rnd() * 0.9);
+      g.fillStyle = 'rgba(42, 29, 92, 0.22)'; g.beginPath(); g.ellipse(x + r * 0.15, y + r * 0.75, r, r * 0.4, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = rnd() > 0.5 ? '#3fbf4f' : '#4fcf55'; g.strokeStyle = COLORS.ink; g.lineWidth = Math.max(2, k * 0.08);
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.fillStyle = 'rgba(255, 255, 255, 0.28)'; g.beginPath(); g.arc(x - r * 0.3, y - r * 0.35, r * 0.35, 0, Math.PI * 2); g.fill();
+    }
+  }
 }
 
 function drawBridges(g: CanvasRenderingContext2D, sx: (x: number) => number, ry0: number, ry1: number, k: number) {

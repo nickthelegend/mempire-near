@@ -38,7 +38,7 @@
 .wordmark { display: inline-block; font-family: var(--display); font-size: clamp(56px, 7vw, 96px); line-height: 0.9; letter-spacing: 0.02em; rotate: -4deg; }
 .wordmark span {
   display: inline-block; color: #ffd23f; background: linear-gradient(180deg, #fff3a0 0%, #ffd23f 45%, #ff9f1a 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 7px #3a1f8a; paint-order: stroke fill; filter: drop-shadow(0 7px 0 #2a1470) drop-shadow(0 12px 14px rgba(40, 20, 120, 0.3));
+  -webkit-text-stroke: 0.09em #3a1f8a; paint-order: stroke fill; filter: drop-shadow(0 0.08em 0 #2a1470) drop-shadow(0 0.14em 0.16em rgba(40, 20, 120, 0.3));
 }
 .wordmark--sm { font-size: 44px; }
 .hud-chip {
