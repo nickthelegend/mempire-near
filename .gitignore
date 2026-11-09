@@ -12,3 +12,6 @@ data/
 regtest/
 .demo/
 .shots/
+
+# duplicate browser downloads of the generated art
+packages/web/public/art/v3/* (*

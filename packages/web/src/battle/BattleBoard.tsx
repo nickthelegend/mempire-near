@@ -134,13 +134,14 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, cw, ch);
       // The field is symmetric, so one cached floor serves both seats.
-      const key = `${cw}x${ch}`;
-      if (floorCache.key !== key) { floorCache.key = key; floorCache.canvas = drawFloor(cw, ch, k, ox, oy); }
+      const arenaArt = img(ART.arena);
+      const key = `${cw}x${ch}:${arenaArt ? 'art' : 'drawn'}`;
+      if (floorCache.key !== key) { floorCache.key = key; floorCache.canvas = drawFloor(cw, ch, k, ox, oy, arenaArt); }
       if (floorCache.canvas) ctx.drawImage(floorCache.canvas, 0, 0);
 
       // The river moves.
       const ry0 = Math.min(sy(RT), sy(RB)), ry1 = Math.max(sy(RT), sy(RB));
-      if (!reduce) {
+      if (!reduce && !arenaArt) {
         ctx.save(); ctx.beginPath(); ctx.rect(ox, ry0, k * W, ry1 - ry0); ctx.clip();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'; ctx.lineWidth = Math.max(1.5, k * 0.08); ctx.lineCap = 'round';
         const phase = (now / 1600) % 1;
@@ -200,7 +201,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
         type Drawable = { y: number; draw: () => void };
         const list: Drawable[] = [];
         for (const t of sim.towers) {
-          list.push({ y: sy(t.y / FP), draw: () => drawTower(ctx, t.owner === seat, t.kind === 'king', sx(t.x / FP), sy(t.y / FP) + (t.kind === 'king' ? 1.2 : 0.9) * k, k, t.hp, t.maxHp) });
+          list.push({ y: sy(t.y / FP), draw: () => drawTower(ctx, t.owner === seat, t.kind === 'king', sx(t.x / FP), sy(t.y / FP) + (t.kind === 'king' ? 1.2 : 0.9) * k, k, t.hp, t.maxHp, !!arenaArt && t.kind === 'king') });
         }
         for (const u of sim.units) {
           const p = pos(u);
@@ -317,11 +318,29 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 /* ── Field, towers and fighters ────────────────────────────────────────── */
 
 /** The bright two-lane field: checked grass, sand lanes, a blue river and two wooden bridges. Cached per size. */
-function drawFloor(cw: number, ch: number, k: number, ox: number, oy: number): HTMLCanvasElement | null {
+/**
+ * Where the sim's field sits inside mp3-arena (1024x1536 art px): lanes at x 260 / 760 (= tiles 3.5 / 14.5), the river
+ * centred at y 755, king towers ~27 tiles apart. Mapping that box onto the field lines the painted lanes, river and king
+ * keeps up with the sim's (a slight horizontal squeeze). The art is turned 180° so the red keep is the foe's, at the top.
+ */
+const ART_FIELD = { x: 103, y: 109, w: 818, h: 1292 };
+
+function drawFloor(cw: number, ch: number, k: number, ox: number, oy: number, art: HTMLImageElement | null): HTMLCanvasElement | null {
   const c = document.createElement('canvas');
   c.width = cw; c.height = ch;
   const g = c.getContext('2d');
   if (!g) return null;
+  if (art) {
+    g.fillStyle = '#2f9a4a'; g.fillRect(0, 0, cw, ch);
+    const r = art.naturalWidth / 1024;
+    const scx = (k * W) / (ART_FIELD.w * r), scy = (k * H) / (ART_FIELD.h * r);
+    const fx = ox + (k * W) / 2, fy = oy + (k * H) / 2;
+    g.save();
+    g.translate(fx, fy); g.rotate(Math.PI); g.translate(-fx, -fy);
+    g.drawImage(art, ox - ART_FIELD.x * r * scx, oy - ART_FIELD.y * r * scy, art.naturalWidth * scx, art.naturalHeight * scy);
+    g.restore();
+    return c;
+  }
   // Surround: a hedge of deep green with soft stripes.
   g.fillStyle = '#2f9a4a'; g.fillRect(0, 0, cw, ch);
   g.fillStyle = 'rgba(255, 255, 255, 0.05)';
@@ -383,15 +402,25 @@ function drawBridges(g: CanvasRenderingContext2D, sx: (x: number) => number, ry0
   }
 }
 
-function drawTower(g: CanvasRenderingContext2D, mine: boolean, king: boolean, cx: number, base: number, k: number, hp: number, maxHp: number) {
-  const sprite = img(mine ? ART.towerHome : ART.towerFoe);
+function drawTower(g: CanvasRenderingContext2D, mine: boolean, king: boolean, cx: number, base: number, k: number, hp: number, maxHp: number, baked = false) {
+  const sprite = baked ? null : img(mine ? ART.towerHome : ART.towerFoe);
   const tw = (king ? 3.9 : 3.0) * k;
-  const th = sprite ? tw * (sprite.naturalHeight / sprite.naturalWidth) : tw * 1.15;
+  const th = baked ? 3.6 * k : sprite ? tw * (sprite.naturalHeight / sprite.naturalWidth) : tw * 1.15;
+  if (baked) {
+    // The king's keep is painted into the arena art; mark its fall with rubble and smoke.
+    if (hp <= 0) {
+      g.save();
+      g.fillStyle = 'rgba(70, 60, 90, 0.55)'; g.beginPath(); g.ellipse(cx, base - th * 0.45, tw * 0.55, th * 0.5, 0, 0, Math.PI * 2); g.fill();
+      puffs(g, cx, base - th * 0.55, tw * 0.3, k * 0.5, 7, '#d9d4e8');
+      g.restore();
+    }
+  }
   g.save();
   g.fillStyle = 'rgba(42, 29, 92, 0.28)';
   g.beginPath(); g.ellipse(cx, base - k * 0.1, tw * 0.48, tw * 0.17, 0, 0, Math.PI * 2); g.fill();
   if (hp <= 0) { g.globalAlpha = 0.5; g.filter = 'grayscale(1) brightness(0.9)'; }
-  if (sprite) g.drawImage(sprite, cx - tw / 2, base - th, tw, th);
+  if (baked) { /* painted into the floor */ }
+  else if (sprite) g.drawImage(sprite, cx - tw / 2, base - th, tw, th);
   else {
     // A chunky drawn keep until the render lands.
     const bw = tw * 0.78, bh = th * 0.72, x = cx - bw / 2, y = base - bh;
@@ -427,7 +456,7 @@ function drawUnit(g: CanvasRenderingContext2D, u: Unit, x: number, y: number, ho
   g.lineWidth = Math.max(2, r * 0.2); g.strokeStyle = team;
   g.beginPath(); g.ellipse(x, feet, r * 0.85, r * 0.32, 0, 0, Math.PI * 2); g.stroke();
   const art = img(artOf(fighterId));
-  const h = r * 3.0;
+  const h = r * 2.6;
   let top = feet - h - hop;
   if (art) {
     const w = h * (art.naturalWidth / art.naturalHeight);

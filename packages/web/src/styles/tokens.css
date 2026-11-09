@@ -213,7 +213,7 @@ button.fcard:disabled { opacity: 0.5; cursor: not-allowed; }
   position: relative; display: inline-block; flex: none; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--ink);
   background: radial-gradient(circle at 50% 30%, #fff, #bfe6ff 60%, #8cc8ff);
 }
-.avatar img { position: absolute; left: -30%; top: -6%; width: 160%; height: auto; max-width: none; }
+.avatar img { position: absolute; left: -18%; top: -4%; width: 136%; height: auto; max-width: none; }
 .avatar--gold { border-color: var(--ink); box-shadow: 0 0 0 2.5px var(--gold); }
 .avatar--jade { box-shadow: 0 0 0 2.5px var(--grass); }
 .avatar--crimson { background: radial-gradient(circle at 50% 30%, #fff, #ffd2d7 60%, #ff9aa5); box-shadow: 0 0 0 2.5px var(--red); }
