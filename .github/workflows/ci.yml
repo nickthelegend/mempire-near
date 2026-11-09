@@ -1,0 +1,20 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  ts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mempire/sim test && pnpm --filter @mempire/sdk test && pnpm --filter @mempire/relayer test
+      - run: pnpm --filter @mempire/web build
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.95.0
+        with: { targets: wasm32-unknown-unknown }
+      - run: cd packages/contract && cargo test --lib

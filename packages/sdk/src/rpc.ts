@@ -30,7 +30,7 @@ const recent = new Map<string, { at: number; p: Promise<unknown> }>();
 
 export async function rpc<T>(url: string, method: string, params: unknown): Promise<T> {
   const cacheable = method === 'query' || method === 'block';
-  if (!cacheable) return rpcRaw<T>(url, method, params);
+  if (!cacheable) return rpcOnce<T>(url, method, params); // transactions never wait behind reads
   const key = `${url}|${method}|${JSON.stringify(params)}`;
   const hit = recent.get(key);
   if (hit && Date.now() - hit.at < 1500) return hit.p as Promise<T>;
@@ -50,7 +50,8 @@ async function rpcOnce<T>(url: string, method: string, params: unknown): Promise
   let lastError: unknown;
   for (let attempt = 0; attempt < 6; attempt++) {
     try {
-      const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }) });
+      const long = method === 'send_tx' || method === 'tx';
+      const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }), signal: AbortSignal.timeout(long ? 60_000 : 12_000) });
       if (res.status === 429 || res.status >= 500) { lastError = new RpcError(`RPC ${res.status}`); await sleep(500 * 2 ** attempt); continue; }
       const body = await res.json() as { result?: T; error?: { message?: string; data?: unknown; cause?: { name?: string; info?: unknown } } };
       if (body.error) {
