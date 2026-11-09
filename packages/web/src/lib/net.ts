@@ -4,7 +4,7 @@ import deployment from '../../../../deployments/testnet.json';
 
 export const net: Network = {
   networkId: 'testnet',
-  rpc: import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com',
+  rpc: import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com,https://rpc.testnet.near.org',
   arena: import.meta.env.VITE_ARENA_ACCOUNT || deployment.arena,
   relayer: import.meta.env.VITE_RELAYER_URL || 'http://127.0.0.1:5299',
   explorer: 'https://testnet.nearblocks.io',

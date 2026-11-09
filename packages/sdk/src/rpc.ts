@@ -48,10 +48,13 @@ async function rpcRaw<T>(url: string, method: string, params: unknown): Promise<
 
 async function rpcOnce<T>(url: string, method: string, params: unknown): Promise<T> {
   let lastError: unknown;
+  // `url` may list fallbacks separated by commas; a 429 or a network error moves to the next one.
+  const urls = url.split(',').map((u) => u.trim()).filter(Boolean);
   for (let attempt = 0; attempt < 6; attempt++) {
+    const target = urls[attempt % urls.length];
     try {
       const long = method === 'send_tx' || method === 'tx';
-      const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }), signal: AbortSignal.timeout(long ? 60_000 : 12_000) });
+      const res = await fetch(target, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }), signal: AbortSignal.timeout(long ? 60_000 : 12_000) });
       if (res.status === 429 || res.status >= 500) { lastError = new RpcError(`RPC ${res.status}`); await sleep(500 * 2 ** attempt); continue; }
       const body = await res.json() as { result?: T; error?: { message?: string; data?: unknown; cause?: { name?: string; info?: unknown } } };
       if (body.error) {

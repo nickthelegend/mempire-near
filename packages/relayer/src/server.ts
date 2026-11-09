@@ -199,6 +199,7 @@ const server = createServer(async (req, res) => {
     throw new HttpError(404, 'Not found');
   } catch (e) {
     const status = e instanceof HttpError ? e.status : 500;
+    console.error(`${req.method} ${req.url} -> ${status}: ${(e as Error).message}`);
     send(res, status, { error: (e as Error).message });
   }
 });

@@ -179,7 +179,7 @@ export class MatchRunner {
     while (!this.stopped) {
       try { await this.poll(); if (++n % 40 === 0) await this.syncClock(); }
       catch (e) { this.emit({ type: 'error', error: e as Error }); }
-      await new Promise((r) => setTimeout(r, this.opts.pollMs ?? 250));
+      await new Promise((r) => setTimeout(r, this.opts.pollMs ?? 400));
     }
   }
   stop() { this.stopped = true; }
