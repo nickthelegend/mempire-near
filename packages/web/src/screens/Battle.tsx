@@ -343,7 +343,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         </section>
         {!practice && (
           <section className="card stack" aria-labelledby="tx-title">
-            <div className="card-head"><h2 id="tx-title" className="h3">On chain, live</h2><span className="chip chip--live">{txs.length} tx</span></div>
+            <div className="card-head"><h2 id="tx-title" className="h3">On chain, live</h2><span className={`chip${txs.length ? ' chip--live' : ''}`}>{txs.length} tx</span></div>
             {txs.length === 0 ? <p className="fine">{settled ? 'Every drop of this match is stored by the arena; Replay from chain rebuilds it.' : 'No plays yet. Drops are signed by this match\'s session key, so there are no pop-ups.'}</p> : (
               <ul className="txfeed">
                 {[...txs].reverse().map((t) => (

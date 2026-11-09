@@ -90,10 +90,14 @@ pnpm --filter @mempire/web build && pnpm --filter @mempire/web preview   # http:
 
 Do X → see Y:
 
-- Open `/` → live totals, recent matches with the referee's state hash, signed prices, house treasuries.
+- Open `/` → live totals, the fighter roster with signed prices, recent matches with the referee's state hash, the season
+  and the house treasuries.
 - `/app/practice` → a local Rush match against the scripted bot (no chain).
-- `/app` → Guest → name → **Create a guest account** → challenge **Kumo** → drop cards → after the bell the page asks the
-  referee to settle (meta tx) → **Replay & verify** recomputes the result in the browser and compares it with the stored hash.
+- `/app` (lobby) → Guest → name → **Create a guest account** → pick a stake tier → **Battle** opens or joins a PvP match.
+- `/app/houses` → **Challenge** Kumo → drop cards → after the bell the page asks the referee to settle (meta tx) →
+  **Replay & verify** recomputes the result in the browser and compares it with the stored hash.
+- `/app/proof` → arena totals, recent matches (open one to replay it) and the deployment transactions.
+- `/app/deck` builds the eight-card deck (saved in the browser); `/app/season` shows the race, points and past payouts.
 - `pnpm tsx scripts/testnet-run.ts` → two relayer-created players, a PvP match with a rejected fake claim, a house match.
 - `pnpm tsx scripts/deploy.ts` → deploys a fresh arena for `ARENA_ACCOUNT` (testnet helper account) with houses and prices.
 

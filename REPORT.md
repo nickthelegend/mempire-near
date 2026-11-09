@@ -8,7 +8,8 @@
   a match runner and `replayFromChain`.
 - `packages/relayer`: guest/email sign-in, sponsored meta transactions (session keys, settle, cancel only), a keeper that
   settles closed matches, and the signed Coinbase price poster.
-- `packages/web`: a landing at `/` and Mempire's phone-frame game at `/app` (arena, deck, battle, season).
+- `packages/web`: a landing at `/` and the game at `/app` (lobby, deck, battle, season, houses, proof); full-width lobby on
+  desktop, bottom tab bar on phones.
 
 ## Decisions
 - **Referee path:** on-chain replay in WASM with checkpoints, no TEE. A 600-tick Rush match costs 11–22 TGas on testnet.
