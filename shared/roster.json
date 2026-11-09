@@ -1,0 +1,22 @@
+{
+  "network": "testnet",
+  "builtAt": "2026-11-09",
+  "priceSource": {
+    "label": "relayer price (testnet)",
+    "url": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+    "note": "Coinbase Exchange 24 h stats: `open` is the price 24 h ago, `last` the latest trade. The Mempire relayer signs both with its ed25519 key; the arena verifies the signature on-chain. Pyth Core ended NEAR support, so no on-chain oracle is used on testnet."
+  },
+  "fighters": [
+    { "fighterId": 0, "ticker": "WIF", "name": "dogwifhat", "kind": "house", "archetype": 0, "archetypeName": "Tank", "art": "wif" },
+    { "fighterId": 1, "ticker": "HATS", "name": "Hat Squad", "kind": "house", "archetype": 1, "archetypeName": "Swarm", "art": "hats" },
+    { "fighterId": 2, "ticker": "DOGGO", "name": "Doggo", "kind": "house", "archetype": 2, "archetypeName": "Ranged", "art": "doggo" },
+    { "fighterId": 3, "ticker": "PENG", "name": "Peng", "kind": "house", "archetype": 3, "archetypeName": "Splash", "art": "peng" },
+    { "fighterId": 4, "ticker": "MOONCAT", "name": "Mooncat", "kind": "house", "archetype": 4, "archetypeName": "Support", "art": "mooncat" },
+    { "fighterId": 5, "ticker": "RKT", "name": "Rocket", "kind": "house", "archetype": 5, "archetypeName": "Spell", "art": "rkt" },
+    { "fighterId": 6, "ticker": "BTC", "name": "Hoard Dragon", "kind": "market", "archetype": 0, "archetypeName": "Tank", "art": "btc" },
+    { "fighterId": 7, "ticker": "ETH", "name": "The Prism", "kind": "market", "archetype": 5, "archetypeName": "Spell", "art": "eth" },
+    { "fighterId": 8, "ticker": "NEAR", "name": "Forge Warlock", "kind": "market", "archetype": 3, "archetypeName": "Splash", "art": "near" },
+    { "fighterId": 9, "ticker": "SOL", "name": "Volt Pack", "kind": "market", "archetype": 1, "archetypeName": "Swarm", "art": "sol" },
+    { "fighterId": 10, "ticker": "ZEC", "name": "The Veiled Seer", "kind": "market", "archetype": 2, "archetypeName": "Ranged", "art": "zec" }
+  ]
+}

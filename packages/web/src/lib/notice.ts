@@ -1,0 +1,2 @@
+export const RESTRICTED_URL = 'https://docs.robinhood.com/rhj/restricted-jurisdictions';
+export const NOTICE = 'Stock Tokens are not available to persons in the United States, Canada, the United Kingdom, Switzerland, or in restricted or sanctioned jurisdictions (including Cuba, Belarus, Iran, North Korea, Russia, Syria, Ukraine, South Sudan, Sudan, Myanmar and Venezuela). Stock Tokens provide price exposure, not legal ownership of the underlying shares. Mempire never sells Stock Tokens; it only reads the ones you already hold.';

@@ -1,0 +1,16 @@
+{
+  "name": "mempire-near",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.2",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build:contract": "cd packages/contract && cargo near build non-reproducible-wasm --no-abi",
+    "test:contract": "cd packages/contract && cargo test",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck"
+  },
+  "devDependencies": { "tsx": "^4.20.6", "typescript": "^5.9.3" }
+}
