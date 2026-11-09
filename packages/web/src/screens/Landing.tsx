@@ -7,7 +7,7 @@ import { useConfig, useHouses, useRecent, useSeason, useTotals } from '../state/
 import { useMarket } from '../state/market';
 import { CLASS_NAMES, HOUSE_LEVEL, TIER_BADGES, characterOf, costOf, pct, shortAcct, shortError } from '../lib/fighters';
 import { ART, badgeArt, houseArt } from '../lib/art';
-import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox } from '../ui/kit';
+import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, Wordmark } from '../ui/kit';
 import { MarketTicker, money } from '../ui/market';
 import { MatchCard, PotSplit } from './Proof';
 
@@ -56,11 +56,11 @@ function Hero() {
       <div className="lx-hero-shade" aria-hidden />
       <Nav />
       <div className="lx-hero-body">
-        <Art className="lx-logo" src={ART.logo} alt="Mempire" eager fallback={<span className="lx-logo-word">Mempire</span>} />
+        <Art className="lx-logo" src={ART.logo} alt="Mempire" eager fallback={<Wordmark />} />
         <p className="lx-badge"><span className="dot" aria-hidden />Real-time 1v1 lane battler · NEAR testnet</p>
         <h1 className="lx-h1">Your fighters are live markets.<br /><span>The chain is the referee.</span></h1>
         <div className="lx-ctas">
-          <Link className="btn btn--gold lx-play" to="/app"><Icon name="play" size={30} />Play</Link>
+          <Link className="btn btn--green lx-play" to="/app"><Icon name="play" size={30} />Play</Link>
           <Link className="btn btn--white" to="/app/practice">Practice free</Link>
         </div>
         <dl className="lx-stats" aria-label="Live from the arena contract">
@@ -290,7 +290,7 @@ export function Landing() {
         <NearTech />
         <section className="lx-final" aria-labelledby="final-title" style={{ ['--final-art' as string]: `url(${ART.keyart})` }}>
           <h2 id="final-title" className="lx-final-title">Pick eight. Read the market. Battle.</h2>
-          <div className="lx-ctas"><Link className="btn btn--gold lx-play" to="/app"><Icon name="play" size={30} />Play</Link><Link className="btn btn--white" to="/app/practice">Practice free</Link></div>
+          <div className="lx-ctas"><Link className="btn btn--green lx-play" to="/app"><Icon name="play" size={30} />Play</Link><Link className="btn btn--white" to="/app/practice">Practice free</Link></div>
         </section>
       </main>
       <footer className="lx-foot">

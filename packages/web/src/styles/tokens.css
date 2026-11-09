@@ -264,3 +264,10 @@ button.fcard:disabled { filter: saturate(0.55); opacity: 0.8; cursor: not-allowe
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ── Shared bits ───────────────────────────────────────────────────────────── */
+.brand-mark { display: inline-grid; place-items: center; flex: none; }
+.brand-mark img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 0 rgba(20, 20, 90, 0.3)); }
+.brand-mark .art-ph, .brand-mark-ph { width: 100%; height: 100%; border-radius: 30%; background: linear-gradient(180deg, #ffe066, #ffb800); display: grid; place-items: center; color: #5a3300; font-family: var(--display); font-size: 0.6em; box-shadow: 0 3px 0 #d98a00; }
+.cta-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.cta-row > .btn { flex: 1 1 170px; }

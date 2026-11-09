@@ -67,10 +67,15 @@ export function Art({ src, alt = '', className = '', fallback, eager, width, hei
 /** The Mempire crest. */
 export function BrandMark({ size = 40 }: { size?: number }) {
   return (
-    <span className="brand-mark" style={{ width: size, height: size }}>
+    <span className="brand-mark" style={{ width: size, height: size, fontSize: size }}>
       <Art src={ART.logo} width={size} height={size} eager fallback={<span className="brand-mark-ph">M</span>} />
     </span>
   );
+}
+
+/** The chunky MEMPIRE wordmark, drawn in type; the generated logo replaces it once it exists. */
+export function Wordmark({ small }: { small?: boolean }) {
+  return <span className={`wordmark${small ? ' wordmark--sm' : ''}`} aria-label="Mempire"><span aria-hidden>MEMPIRE</span></span>;
 }
 
 /* ── Market chips ──────────────────────────────────────────────────────── */

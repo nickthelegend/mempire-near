@@ -13,7 +13,7 @@ import { Battle } from './screens/Battle';
 import { Season } from './screens/Season';
 import { Houses } from './screens/Houses';
 import { Proof } from './screens/Proof';
-import { Art, Countdown, Icon } from './ui/kit';
+import { Art, Countdown, Icon, Wordmark } from './ui/kit';
 import { ART } from './lib/art';
 import { accountUrl, net } from './lib/net';
 import { artOf, shortAcct } from './lib/fighters';
@@ -59,11 +59,6 @@ const TABS = [
 ];
 /** Phone order puts Battle in the middle, as a game tab bar does. */
 const PHONE_TABS = [TABS[1], TABS[2], TABS[0], TABS[3], TABS[4]];
-
-/** The chunky MEMPIRE wordmark, drawn in type; the generated logo replaces it once it exists. */
-export function Wordmark({ small }: { small?: boolean }) {
-  return <span className={`wordmark${small ? ' wordmark--sm' : ''}`} aria-label="Mempire"><span aria-hidden>MEMPIRE</span></span>;
-}
 
 /** Decorative sky: soft clouds, floating gems and coins. Pure CSS. */
 function Sky() {
