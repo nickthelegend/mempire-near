@@ -17,14 +17,16 @@ function Num({ value, loading, error }: { value?: string; loading: boolean; erro
   return <>{value}</>;
 }
 
-/** Key art: landscape on wide screens, portrait on phones; a painted-sky placeholder until the files exist. */
+/** Key art: portrait on phones and landscape elsewhere; a phone falls back to the landscape file, then to a drawn sky. */
 function KeyArt() {
-  const [failed, setFailed] = useState(false);
-  if (failed) return <div className="lx-hero-ph" aria-hidden><i /><i /><i /></div>;
+  const [stage, setStage] = useState<'both' | 'landscape' | 'none'>('both');
+  if (stage === 'none') return <div className="lx-hero-ph" aria-hidden><i /><i /><i /></div>;
+  const phone = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
   return (
-    <picture>
-      <source media="(max-width: 760px)" srcSet={ART.keyartPortrait} />
-      <img className="lx-hero-art" src={ART.keyart} alt="" aria-hidden fetchPriority="high" onError={() => setFailed(true)} />
+    <picture key={stage}>
+      {stage === 'both' && <source media="(max-width: 760px)" srcSet={ART.keyartPortrait} />}
+      <img className={`lx-hero-art${stage === 'landscape' && phone ? ' lx-hero-art--wide' : ''}`} src={ART.keyart} alt="" aria-hidden fetchPriority="high"
+        onError={() => setStage((s) => (s === 'both' && phone ? 'landscape' : 'none'))} />
     </picture>
   );
 }
@@ -286,7 +288,7 @@ export function Landing() {
         <LiveProof />
         <SeasonsHouses />
         <NearTech />
-        <section className="lx-final" aria-labelledby="final-title">
+        <section className="lx-final" aria-labelledby="final-title" style={{ ['--final-art' as string]: `url(${ART.keyart})` }}>
           <h2 id="final-title" className="lx-final-title">Pick eight. Read the market. Battle.</h2>
           <div className="lx-ctas"><Link className="btn btn--gold lx-play" to="/app"><Icon name="play" size={30} />Play</Link><Link className="btn btn--white" to="/app/practice">Practice free</Link></div>
         </section>

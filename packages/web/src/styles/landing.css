@@ -15,7 +15,8 @@
 .lx-hero-ph i:nth-child(1) { width: 160px; height: 46px; top: 18%; left: 8%; }
 .lx-hero-ph i:nth-child(2) { width: 220px; height: 56px; top: 28%; right: 10%; }
 .lx-hero-ph i:nth-child(3) { width: 120px; height: 36px; top: 52%; left: 22%; opacity: 0.7; }
-.lx-hero-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(42, 29, 92, 0.55) 0%, rgba(42, 29, 92, 0) 22%, rgba(42, 29, 92, 0) 55%, rgba(42, 29, 92, 0.55) 100%); }
+.lx-hero-shade { position: absolute; inset: 0; z-index: -1; background: radial-gradient(46% 38% at 50% 64%, rgba(42, 29, 92, 0.5), rgba(42, 29, 92, 0) 100%), linear-gradient(180deg, rgba(42, 29, 92, 0.5) 0%, rgba(42, 29, 92, 0) 22%, rgba(42, 29, 92, 0) 55%, rgba(42, 29, 92, 0.6) 100%); }
+.lx-hero-art--wide { object-position: 38% center; }
 .lx-nav { display: flex; align-items: center; gap: 24px; padding: 18px clamp(16px, 4vw, 48px); }
 .lx-brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-weight: 900; font-size: 26px; text-decoration: none; text-shadow: var(--stroke-sm); }
 .lx-brand:hover { color: #fff; }
@@ -145,7 +146,7 @@
 .lx-tech p { color: var(--dim); font-size: 15px; line-height: 1.55; }
 
 /* Final CTA and footer */
-.lx-final { display: grid; justify-items: center; gap: 24px; text-align: center; padding: clamp(64px, 9vw, 120px) 16px; background: radial-gradient(60% 80% at 50% 100%, #8ff06a 0 30%, transparent 30.5%), linear-gradient(180deg, #7fd4ff, #c9f0ff); }
+.lx-final { display: grid; justify-items: center; gap: 24px; text-align: center; padding: clamp(80px, 11vw, 160px) 16px; background: linear-gradient(180deg, rgba(42, 29, 92, 0.15), rgba(42, 29, 92, 0.55)), var(--final-art) center 55% / cover no-repeat, linear-gradient(180deg, #7fd4ff, #c9f0ff); }
 .lx-final-title { font-size: clamp(36px, 5.4vw, 72px); font-weight: 900; color: #fff; text-shadow: var(--stroke); max-width: 16ch; }
 .lx-foot { display: grid; justify-items: center; gap: 12px; padding: 36px 16px 44px; background: var(--ink); color: rgba(255, 255, 255, 0.78); text-align: center; font-size: 14px; font-weight: 600; }
 .lx-foot a { color: #fff; }
