@@ -15,20 +15,54 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/relayer:
+    dependencies:
+      '@mempire/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@mempire/sim':
+        specifier: workspace:*
+        version: link:../sim
+      '@near-js/crypto':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@near-js/transactions':
+        specifier: 1.3.0
+        version: 1.3.0
+      near-api-js:
+        specifier: 5.0.0
+        version: 5.0.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      tsx:
+        specifier: ^4.20.6
+        version: 4.23.15
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)
+
   packages/sdk:
     dependencies:
       '@mempire/sim':
         specifier: workspace:*
         version: link:../sim
-      '@noble/curves':
-        specifier: ^1.9.0
-        version: 1.9.7
+      '@near-js/crypto':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@near-js/transactions':
+        specifier: 1.3.0
+        version: 1.3.0
       '@noble/hashes':
         specifier: ^1.8.0
         version: 1.8.0
-      bs58:
-        specifier: ^6.0.0
-        version: 6.0.0
+      borsh:
+        specifier: 1.0.0
+        version: 1.0.0
       near-api-js:
         specifier: 5.0.0
         version: 5.0.0
@@ -104,12 +138,21 @@ importers:
 
   scripts:
     dependencies:
+      '@mempire/relayer':
+        specifier: workspace:*
+        version: link:../packages/relayer
       '@mempire/sdk':
         specifier: workspace:*
         version: link:../packages/sdk
       '@mempire/sim':
         specifier: workspace:*
         version: link:../packages/sim
+      '@near-js/crypto':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@near-js/transactions':
+        specifier: 1.3.0
+        version: 1.3.0
       near-api-js:
         specifier: 5.0.0
         version: 5.0.0
@@ -407,10 +450,6 @@ packages:
   '@noble/curves@1.2.0':
     resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
 
-  '@noble/curves@1.9.7':
-    resolution: {integrity: sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==}
-    engines: {node: ^14.21.3 || >=16}
-
   '@noble/hashes@1.3.2':
     resolution: {integrity: sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==}
     engines: {node: '>= 16'}
@@ -648,9 +687,6 @@ packages:
     engines: {node: '>=4.5.0'}
     deprecated: use 3.0.0 instead, safe-buffer has been merged and release for compatability
 
-  base-x@5.0.1:
-    resolution: {integrity: sha512-M7uio8Zt++eg3jPj+rHMfCC+IuygQHHCOU+IYsVtik6FWjuYpVt/+MRKcgsAMHh8mMFAwnB+Bs+mTrFiXjMzKg==}
-
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -675,9 +711,6 @@ packages:
 
   bs58@4.0.0:
     resolution: {integrity: sha512-/jcGuUuSebyxwLLfKrbKnCJttxRf9PM51EnHTwmFKBxl4z1SGkoAhrfd6uZKE0dcjQTfm6XzTP8DPr1tzE4KIw==}
-
-  bs58@6.0.0:
-    resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==}
 
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
@@ -1445,10 +1478,6 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.3.2
 
-  '@noble/curves@1.9.7':
-    dependencies:
-      '@noble/hashes': 1.8.0
-
   '@noble/hashes@1.3.2': {}
 
   '@noble/hashes@1.3.3': {}
@@ -1639,8 +1668,6 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  base-x@5.0.1: {}
-
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.11.35: {}
@@ -1662,10 +1689,6 @@ snapshots:
   bs58@4.0.0:
     dependencies:
       base-x: 2.0.6
-
-  bs58@6.0.0:
-    dependencies:
-      base-x: 5.0.1
 
   buffer@6.0.3:
     dependencies:

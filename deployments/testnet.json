@@ -1,0 +1,99 @@
+{
+  "network": "testnet",
+  "rpc": "https://test.rpc.fastnear.com",
+  "explorer": "https://testnet.nearblocks.io",
+  "arena": "mempire-arena-41966.testnet",
+  "treasury": "treasury.mempire-arena-41966.testnet",
+  "relayer": "mempire-relay-41966.testnet",
+  "priceRelayerKey": "ed25519:7JEvww1ytEYNneZCQ1Pk7k7gEbWPJLnLvZHoFz3rFatE",
+  "houses": [
+    {
+      "name": "Kumo",
+      "account": "kumo.mempire-arena-41966.testnet",
+      "difficulty": 0,
+      "stake": "10000000000000000000000"
+    },
+    {
+      "name": "Tora",
+      "account": "tora.mempire-arena-41966.testnet",
+      "difficulty": 1,
+      "stake": "10000000000000000000000"
+    },
+    {
+      "name": "Ryu",
+      "account": "ryu.mempire-arena-41966.testnet",
+      "difficulty": 2,
+      "stake": "50000000000000000000000"
+    }
+  ],
+  "tierStakesNear": [
+    "0.01",
+    "0.05",
+    "0.1",
+    "0.25"
+  ],
+  "launchSeasonEndsMs": "1794248172673",
+  "deployedAt": "2026-11-09T16:46:33.131Z",
+  "deployTxs": [
+    {
+      "step": "create treasury sub-account",
+      "hash": "4hTb2QUfk8nRCyPgAX4BKizdZpcWSra1v8jwThx3DJ8G",
+      "url": "https://testnet.nearblocks.io/txns/4hTb2QUfk8nRCyPgAX4BKizdZpcWSra1v8jwThx3DJ8G"
+    },
+    {
+      "step": "deploy arena (312 KB wasm) and init",
+      "hash": "3eN5K22AYytBbDADBsZF2cw7jKdVdKebzsjiCyJruCfw",
+      "url": "https://testnet.nearblocks.io/txns/3eN5K22AYytBbDADBsZF2cw7jKdVdKebzsjiCyJruCfw"
+    },
+    {
+      "step": "create house Kumo (kumo.mempire-arena-41966.testnet)",
+      "hash": "6XBQUGeay3F4tuH8XwpeSn4cC6JEKZ1wDS4ENtGzKDA9",
+      "url": "https://testnet.nearblocks.io/txns/6XBQUGeay3F4tuH8XwpeSn4cC6JEKZ1wDS4ENtGzKDA9"
+    },
+    {
+      "step": "register house Kumo",
+      "hash": "8mxooHBPNWY4SXzjyEVJUWjTMBxDYaTxHvNgrwx1Mz5Q",
+      "url": "https://testnet.nearblocks.io/txns/8mxooHBPNWY4SXzjyEVJUWjTMBxDYaTxHvNgrwx1Mz5Q"
+    },
+    {
+      "step": "Kumo funds its treasury with 0.6 NEAR",
+      "hash": "3eNkKVaLQJPMHBqnDyW3HytHpsvd9Rim9S16SCSanNyx",
+      "url": "https://testnet.nearblocks.io/txns/3eNkKVaLQJPMHBqnDyW3HytHpsvd9Rim9S16SCSanNyx"
+    },
+    {
+      "step": "create house Tora (tora.mempire-arena-41966.testnet)",
+      "hash": "GdhDa9NM3w4hydwtDzymRYpjEiyoXcHkwCWi6z5u9GqZ",
+      "url": "https://testnet.nearblocks.io/txns/GdhDa9NM3w4hydwtDzymRYpjEiyoXcHkwCWi6z5u9GqZ"
+    },
+    {
+      "step": "register house Tora",
+      "hash": "6D7sUX2nn5jrkmQfPpteJHTSHrQjzeBCoBDhaRViAfyA",
+      "url": "https://testnet.nearblocks.io/txns/6D7sUX2nn5jrkmQfPpteJHTSHrQjzeBCoBDhaRViAfyA"
+    },
+    {
+      "step": "Tora funds its treasury with 0.6 NEAR",
+      "hash": "6So5SGDUcWDedFrJ9fsLjkFfWcDGsdUxPw2ACaCxLgHT",
+      "url": "https://testnet.nearblocks.io/txns/6So5SGDUcWDedFrJ9fsLjkFfWcDGsdUxPw2ACaCxLgHT"
+    },
+    {
+      "step": "create house Ryu (ryu.mempire-arena-41966.testnet)",
+      "hash": "BCYKnA2xybE7zMZRf1P6mD5XAhU8hzL1F57QaeFvA7ku",
+      "url": "https://testnet.nearblocks.io/txns/BCYKnA2xybE7zMZRf1P6mD5XAhU8hzL1F57QaeFvA7ku"
+    },
+    {
+      "step": "register house Ryu",
+      "hash": "AnKjqwMRHjqJTZzPSegLMKvHg1CnTV9ezAbcJQtu2atL",
+      "url": "https://testnet.nearblocks.io/txns/AnKjqwMRHjqJTZzPSegLMKvHg1CnTV9ezAbcJQtu2atL"
+    },
+    {
+      "step": "Ryu funds its treasury with 0.6 NEAR",
+      "hash": "BFZctEfso7Fj1wK9E16BZD5jxHDNcaDWBWoEXtPZeSBR",
+      "url": "https://testnet.nearblocks.io/txns/BFZctEfso7Fj1wK9E16BZD5jxHDNcaDWBWoEXtPZeSBR"
+    },
+    {
+      "step": "post signed relayer prices (Coinbase 24 h stats)",
+      "hash": "GxVfPVfxDn1sF7AqZMCAkjLHCUiG4uJJkfWqUksjpzFu",
+      "url": "https://testnet.nearblocks.io/txns/GxVfPVfxDn1sF7AqZMCAkjLHCUiG4uJJkfWqUksjpzFu"
+    }
+  ]
+}

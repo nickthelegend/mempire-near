@@ -1,0 +1,271 @@
+{
+  "network": "testnet",
+  "arena": "mempire-arena-41966.testnet",
+  "runs": [
+    {
+      "at": "2026-11-09T17:20Z",
+      "note": "copied verbatim from the script's console output (the run stopped on an RPC 429 before writing its log; #3 was settled later, see settlements)",
+      "pvp": "2",
+      "house": "3",
+      "steps": [
+        {
+          "step": "relayer creates aiko's account aiko-8197.mempire-relay-41966.testnet (0.3 NEAR starter)",
+          "hash": "1jr8xLeBtPgJmv7ES5pznAHQBrEAfUmTecXQsqy7Qbt",
+          "url": "https://testnet.nearblocks.io/txns/1jr8xLeBtPgJmv7ES5pznAHQBrEAfUmTecXQsqy7Qbt"
+        },
+        {
+          "step": "relayer creates bram's account bram-6861.mempire-relay-41966.testnet (0.3 NEAR starter)",
+          "hash": "Df1YKeMbnZzgnhfVATj5cyTEzjGuSppKJXRe5jFJXetC",
+          "url": "https://testnet.nearblocks.io/txns/Df1YKeMbnZzgnhfVATj5cyTEzjGuSppKJXRe5jFJXetC"
+        },
+        {
+          "step": "aiko adds a play-only session key (meta tx, relayer pays gas)",
+          "hash": "4isQkQzAfqnFmE9mGDmgnfVkouw3UDNycCwzeG7Ai65r",
+          "url": "https://testnet.nearblocks.io/txns/4isQkQzAfqnFmE9mGDmgnfVkouw3UDNycCwzeG7Ai65r"
+        },
+        {
+          "step": "bram adds a play-only session key (meta tx, relayer pays gas)",
+          "hash": "FGKJ5bqefZWTUEm7o2zvt17M6hrZz4Dp8zKqnD1J4ULz",
+          "url": "https://testnet.nearblocks.io/txns/FGKJ5bqefZWTUEm7o2zvt17M6hrZz4Dp8zKqnD1J4ULz"
+        },
+        {
+          "step": "aiko stakes 0.01 NEAR and opens Rush match #2",
+          "hash": "HT88gtwXAmnwhTwJWoWMa8YqdBbREa3SWQPGyWJD8tge",
+          "url": "https://testnet.nearblocks.io/txns/HT88gtwXAmnwhTwJWoWMa8YqdBbREa3SWQPGyWJD8tge"
+        },
+        {
+          "step": "bram stakes and joins #2; the arena reads the market at kick-off (seed 2395563111)",
+          "hash": "ED72vF92cDMkEd1gfc68tVvmxoCDD8vfDoSMEzJc3ew1",
+          "url": "https://testnet.nearblocks.io/txns/ED72vF92cDMkEd1gfc68tVvmxoCDD8vfDoSMEzJc3ew1"
+        },
+        {
+          "step": "aiko: 10 plays landed from the session key (1 refused: match has not started); first play",
+          "hash": "8dDnf8CzA5UeqSKuWg5y47xbh9nWcGFvJWvAF6upKPQC",
+          "url": "https://testnet.nearblocks.io/txns/8dDnf8CzA5UeqSKuWg5y47xbh9nWcGFvJWvAF6upKPQC"
+        },
+        {
+          "step": "bram: 11 plays landed from the session key; first play",
+          "hash": "koZFb7LH3Svr1j7o38zMpVFMpsZiYgacoMEyrKo24pH",
+          "url": "https://testnet.nearblocks.io/txns/koZFb7LH3Svr1j7o38zMpVFMpsZiYgacoMEyrKo24pH"
+        },
+        {
+          "step": "bram claims a fake winner (seat 0): REJECTED 'claim rejected by the referee: replay gives winner 1, end tick 600, hash 1045771825'",
+          "hash": "J8Bbuhcdjimhzjq1YRU9mToiauzMU5WTVZc52AFQzHJy",
+          "url": "https://testnet.nearblocks.io/txns/J8Bbuhcdjimhzjq1YRU9mToiauzMU5WTVZc52AFQzHJy"
+        },
+        {
+          "step": "aiko settles #2 with the replayed result {winner:1,end_tick:600,final_hash:1045771825} (meta tx); referee settles in 1 call, bram paid 0.018 NEAR",
+          "hash": "BiJqVsL7cPsc3s71EHtCcHtqPBBgsnyxhM7aCY2KaYJB",
+          "url": "https://testnet.nearblocks.io/txns/BiJqVsL7cPsc3s71EHtCcHtqPBBgsnyxhM7aCY2KaYJB"
+        },
+        {
+          "step": "aiko deletes the session key (meta tx)",
+          "hash": "2MDMQLizz7s1fiYySitWSTsX3exvhND75TxJffJLLFDC",
+          "url": "https://testnet.nearblocks.io/txns/2MDMQLizz7s1fiYySitWSTsX3exvhND75TxJffJLLFDC"
+        },
+        {
+          "step": "bram deletes the session key (meta tx)",
+          "hash": "5MnF3MTqmgxvvShDknjCwC1UC4k3oWLXFDSDfTrQgYSn",
+          "url": "https://testnet.nearblocks.io/txns/5MnF3MTqmgxvvShDknjCwC1UC4k3oWLXFDSDfTrQgYSn"
+        },
+        {
+          "step": "aiko adds a play-only session key (meta tx)",
+          "hash": "CkUCaXPKPbWdAacosNtXjZnCML5tqXEbmuznJPwhXot1",
+          "url": "https://testnet.nearblocks.io/txns/CkUCaXPKPbWdAacosNtXjZnCML5tqXEbmuznJPwhXot1"
+        },
+        {
+          "step": "aiko challenges house Tora (tora.mempire-arena-41966.testnet) in #3; Tora's treasury escrows 0.01 NEAR",
+          "hash": "66dqQLmEVCjTJVPE2gi7keEBa35MooCJuMigw8fQiYuu",
+          "url": "https://testnet.nearblocks.io/txns/66dqQLmEVCjTJVPE2gi7keEBa35MooCJuMigw8fQiYuu"
+        },
+        {
+          "step": "aiko vs Tora: 9 plays landed (2 refused: not started / RPC 429); first play",
+          "hash": "6ffb5qFTpt1GZd5wbdAJ3PfATkv3g2evmumfc9TWxaAv",
+          "url": "https://testnet.nearblocks.io/txns/6ffb5qFTpt1GZd5wbdAJ3PfATkv3g2evmumfc9TWxaAv"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-09T16:55:34.237Z",
+      "note": "plays hit RPC 429s on the public endpoint, so several landed late and were refused by the arena; #5 settled later",
+      "pvp": "4",
+      "house": "5",
+      "steps": [
+        {
+          "step": "aiko adds a play-only session key (meta tx, relayer pays gas)",
+          "hash": "HEHK9ion9Tq39cYtzMdBniS9eymEtAPEfzZ1TFDJgVm4",
+          "url": "https://testnet.nearblocks.io/txns/HEHK9ion9Tq39cYtzMdBniS9eymEtAPEfzZ1TFDJgVm4"
+        },
+        {
+          "step": "bram adds a play-only session key (meta tx, relayer pays gas)",
+          "hash": "9Y58erH7aTeLksDjASK1GgTKoEYhocF4Qerm4cgwLcDU",
+          "url": "https://testnet.nearblocks.io/txns/9Y58erH7aTeLksDjASK1GgTKoEYhocF4Qerm4cgwLcDU"
+        },
+        {
+          "step": "aiko stakes 0.01 NEAR and opens Rush match #4",
+          "hash": "BuHrdcWaTRdqfAU8aYJw1TnxjdHRUptk3Npn9dY9zG8H",
+          "url": "https://testnet.nearblocks.io/txns/BuHrdcWaTRdqfAU8aYJw1TnxjdHRUptk3Npn9dY9zG8H"
+        },
+        {
+          "step": "bram stakes and joins #4; the arena reads the market at kick-off",
+          "hash": "D6tPy7aFQnGms9fuZYLgamb32yFmfpv5jwU5d45CazNV",
+          "url": "https://testnet.nearblocks.io/txns/D6tPy7aFQnGms9fuZYLgamb32yFmfpv5jwU5d45CazNV",
+          "detail": {
+            "mods": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              -222,
+              -66,
+              0,
+              -463,
+              0,
+              -1128,
+              0,
+              -892,
+              -222,
+              0
+            ],
+            "status": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "seed": 1652563671
+          }
+        },
+        {
+          "step": "aiko: 5 plays landed from the session key (6 refused)",
+          "hash": "2AURepdpS8SsBueCVdMjTF94Lvd3zG1hwnwvGhcXt3MM",
+          "url": "https://testnet.nearblocks.io/txns/2AURepdpS8SsBueCVdMjTF94Lvd3zG1hwnwvGhcXt3MM",
+          "detail": {
+            "refused": [
+              "play landed too late for its tick"
+            ]
+          }
+        },
+        {
+          "step": "bram: 0 plays landed from the session key (11 refused)",
+          "detail": {
+            "refused": [
+              "play landed too late for its tick",
+              "RPC 429"
+            ]
+          }
+        },
+        {
+          "step": "bram claims a fake winner (seat 1) (meta tx, relayer pays gas)",
+          "hash": "5VdrUURgriHfH2UKyrqegiKoi8imTKy9HQwa5JasFsUx",
+          "url": "https://testnet.nearblocks.io/txns/5VdrUURgriHfH2UKyrqegiKoi8imTKy9HQwa5JasFsUx",
+          "detail": {
+            "error": "claim rejected by the referee: replay gives winner 0, end tick 600, hash 2819456107"
+          }
+        },
+        {
+          "step": "aiko settles #4 with the replayed result {\"winner\":0,\"end_tick\":600,\"final_hash\":2819456107} (meta tx, relayer pays gas)",
+          "hash": "CuZTDSBzJ6kcG3STLEB3KCvg1qttj2AEeJRhTeGD75up",
+          "url": "https://testnet.nearblocks.io/txns/CuZTDSBzJ6kcG3STLEB3KCvg1qttj2AEeJRhTeGD75up"
+        },
+        {
+          "step": "#4 settled by the on-chain referee",
+          "detail": {
+            "winner": 0,
+            "end_tick": 600,
+            "final_hash": 2819456107,
+            "paid": "0.018",
+            "referee_calls": 1,
+            "plays": 5
+          }
+        },
+        {
+          "step": "aiko deletes the session key (meta tx, relayer pays gas)",
+          "hash": "EER1aEQE9m5JYpHpBWXY4gXAbyMHbmU14U7CWTxxmnVf",
+          "url": "https://testnet.nearblocks.io/txns/EER1aEQE9m5JYpHpBWXY4gXAbyMHbmU14U7CWTxxmnVf"
+        },
+        {
+          "step": "bram deletes the session key (meta tx, relayer pays gas)",
+          "hash": "8y6oEWD7fuKoscTwsHX41UVGKVMsvBwfDqdARWn2uJKw",
+          "url": "https://testnet.nearblocks.io/txns/8y6oEWD7fuKoscTwsHX41UVGKVMsvBwfDqdARWn2uJKw"
+        },
+        {
+          "step": "aiko adds a play-only session key (meta tx, relayer pays gas)",
+          "hash": "4GBcK9BxfUGV1LjpZuvbEVzVKjM2Loko1pLoTC3wXWiw",
+          "url": "https://testnet.nearblocks.io/txns/4GBcK9BxfUGV1LjpZuvbEVzVKjM2Loko1pLoTC3wXWiw"
+        },
+        {
+          "step": "aiko challenges house Tora (tora.mempire-arena-41966.testnet) in #5; Tora's treasury escrows 0.01 NEAR",
+          "hash": "5DC7JGQKQ5ZpyCaPxU75mSqp8QYTahbQRnJBtbZhKHnU",
+          "url": "https://testnet.nearblocks.io/txns/5DC7JGQKQ5ZpyCaPxU75mSqp8QYTahbQRnJBtbZhKHnU"
+        },
+        {
+          "step": "aiko vs Tora: 8 plays landed from the session key (3 refused)",
+          "hash": "6migeWRmaANxusD3qrNbANAXW6bfwmzi44FoeHrBvmCJ",
+          "url": "https://testnet.nearblocks.io/txns/6migeWRmaANxusD3qrNbANAXW6bfwmzi44FoeHrBvmCJ",
+          "detail": {
+            "refused": [
+              "play landed too late for its tick"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "players": {
+    "aiko": "aiko-8197.mempire-relay-41966.testnet",
+    "bram": "bram-6861.mempire-relay-41966.testnet"
+  },
+  "settlements": [
+    {
+      "step": "bram settles #5 with the replayed result {\"winner\":2,\"end_tick\":600,\"final_hash\":3991912532} (meta tx)",
+      "hash": "D1Uj75PpVQshmdZZUC9e6Ymf8rU9urReBwZXSuZ2N5fX",
+      "url": "https://testnet.nearblocks.io/txns/D1Uj75PpVQshmdZZUC9e6Ymf8rU9urReBwZXSuZ2N5fX",
+      "ok": true,
+      "winner": 2,
+      "end_tick": 600,
+      "final_hash": 3991912532,
+      "paid": "0.018",
+      "plays": 8,
+      "house": 1
+    },
+    {
+      "step": "bram settles #3 with the replayed result {\"winner\":1,\"end_tick\":600,\"final_hash\":168654985} (meta tx)",
+      "hash": "6gEBSUHkbJkKBHC5QR4dWsfLFoJ7Mb51AvFWbs1RAPhZ",
+      "url": "https://testnet.nearblocks.io/txns/6gEBSUHkbJkKBHC5QR4dWsfLFoJ7Mb51AvFWbs1RAPhZ",
+      "ok": true,
+      "winner": 1,
+      "end_tick": 600,
+      "final_hash": 168654985,
+      "paid": "0.018",
+      "plays": 9,
+      "house": 1
+    },
+    {
+      "step": "bram settles #1 with the replayed result {\"winner\":0,\"end_tick\":600,\"final_hash\":1838991646} (meta tx)",
+      "hash": "3HBd18rxWWj3UfL2N2sFPRQrtXZPppXoMZMP69ujYDfF",
+      "url": "https://testnet.nearblocks.io/txns/3HBd18rxWWj3UfL2N2sFPRQrtXZPppXoMZMP69ujYDfF",
+      "ok": true,
+      "winner": 0,
+      "end_tick": 600,
+      "final_hash": 1838991646,
+      "paid": "0.018",
+      "plays": 12,
+      "house": null
+    }
+  ]
+}
