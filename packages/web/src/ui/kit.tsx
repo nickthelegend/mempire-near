@@ -1,11 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { accountUrl, txUrl } from '../lib/net';
-import { artOf, artSmallOf, characterOf, costOf, fighter, pct, rarityOf, shortAcct, CLASS_NAMES } from '../lib/fighters';
+import { artOf, characterOf, costOf, fighter, pct, rarityOf, shortAcct, CLASS_NAMES } from '../lib/fighters';
+import { ART } from '../lib/art';
 import type { PulseState } from '../state/market';
 
-/* ── Icons: line glyphs drawn here ─────────────────────────────────────── */
+/* ── Icons: chunky line glyphs drawn here ──────────────────────────────── */
 type IconName = 'swords' | 'cards' | 'trophy' | 'scroll' | 'flame' | 'lock' | 'out' | 'wallet' | 'clock' | 'check' | 'x'
-  | 'share' | 'replay' | 'shield' | 'up' | 'down' | 'play' | 'pause' | 'crown' | 'bolt' | 'key' | 'mail' | 'cpu' | 'layers' | 'arrow';
+  | 'share' | 'replay' | 'shield' | 'up' | 'down' | 'play' | 'pause' | 'crown' | 'bolt' | 'key' | 'mail' | 'cpu' | 'layers' | 'arrow'
+  | 'castle' | 'chevL' | 'chevR' | 'drop' | 'user';
 const PATHS: Record<IconName, ReactNode> = {
   swords: <><path d="M4 4l9 9M4 4h4M4 4v4" /><path d="M20 4l-9 9M20 4h-4M20 4v4" /><path d="M7 17l-3 3M17 17l3 3M9 15l-2 2M15 15l2 2" /></>,
   cards: <><rect x="3" y="5" width="11" height="15" rx="2" /><path d="M10 4.5l7.5-1.4a2 2 0 0 1 2.3 1.6l2 10.9a2 2 0 0 1-1.6 2.3L17 18.6" /></>,
@@ -32,10 +34,15 @@ const PATHS: Record<IconName, ReactNode> = {
   cpu: <><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" /></>,
   layers: <><path d="M12 3l9 5-9 5-9-5 9-5z" /><path d="M3 13l9 5 9-5" /></>,
   arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+  castle: <><path d="M4 21V9h3V6h2v3h6V6h2v3h3v12z" /><path d="M10 21v-5a2 2 0 0 1 4 0v5M4 13h16" /></>,
+  chevL: <path d="M15 5l-7 7 7 7" />,
+  chevR: <path d="M9 5l7 7-7 7" />,
+  drop: <path d="M12 3c3.5 4.5 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.5-6.5 6-11z" />,
+  user: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></>,
 };
 export function Icon({ name, size = 20, title }: { name: IconName; size?: number; title?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden={title ? undefined : true} role={title ? 'img' : undefined}>
       {title && <title>{title}</title>}
       {PATHS[name]}
@@ -43,9 +50,27 @@ export function Icon({ name, size = 20, title }: { name: IconName; size?: number
   );
 }
 
-/** The Mempire crest (generated emblem). */
-export function BrandMark({ size = 36 }: { size?: number }) {
-  return <img className="brand-mark" src="/brand/v2/logo.webp" width={size} height={size} alt="" aria-hidden decoding="async" />;
+/**
+ * An art image with a designed fallback: until the file exists (or if it fails), the fallback renders in its
+ * place, so a missing render reads as a deliberate placeholder, never as a broken image.
+ */
+export function Art({ src, alt = '', className = '', fallback, eager, width, height }: {
+  src: string; alt?: string; className?: string; fallback?: ReactNode; eager?: boolean; width?: number; height?: number;
+}) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [src]);
+  if (failed) return <span className={`art-ph ${className}`} role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>{fallback}</span>;
+  return <img className={className} src={src} alt={alt} aria-hidden={alt ? undefined : true} draggable={false} decoding="async"
+    loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : undefined} width={width} height={height} onError={() => setFailed(true)} />;
+}
+
+/** The Mempire crest. */
+export function BrandMark({ size = 40 }: { size?: number }) {
+  return (
+    <span className="brand-mark" style={{ width: size, height: size }}>
+      <Art src={ART.logo} width={size} height={size} eager fallback={<span className="brand-mark-ph">M</span>} />
+    </span>
+  );
 }
 
 /* ── Market chips ──────────────────────────────────────────────────────── */
@@ -63,6 +88,9 @@ export function MoveChip({ statBps, state, small }: { statBps: number | null | u
   );
 }
 
+/** The fallback for a fighter render: its ticker on the card's own colour. */
+const FighterPh = ({ id }: { id: number }) => <span className="fighter-ph">{fighter(id).ticker.slice(0, 1)}</span>;
+
 /* ── Fighter cards ─────────────────────────────────────────────────────── */
 export function FighterCard({
   id, size = 'md', picked, locked, lockText, statBps, pulse, onClick, disabled, label, className, showName = true,
@@ -77,17 +105,15 @@ export function FighterCard({
   const tone = statBps != null && f.kind !== 'house' ? (statBps > 0 ? ' fcard--buff' : statBps < 0 ? ' fcard--nerf' : '') : '';
   const body = (
     <>
-      <span className="fcard-well">
-        <img className="fcard-art" src={small ? artSmallOf(id) : artOf(id)} alt="" draggable={false} decoding="async" loading="lazy" />
-      </span>
-      <img className="fcard-frame" src={`/brand/v2/frame-${rarity}.webp`} alt="" aria-hidden draggable={false} decoding="async" />
-      <span className="fcard-cost" aria-hidden>{costOf(id)}</span>
-      {(statBps !== undefined || pulse) && f.kind !== 'house' && <span className="fcard-move"><MoveChip statBps={statBps} state={pulse} small={small} /></span>}
+      <span className="fcard-bg" aria-hidden />
+      <Art className="fcard-art" src={artOf(id)} fallback={<FighterPh id={id} />} />
+      <span className="fcard-cost" aria-hidden><span>{costOf(id)}</span></span>
+      {(statBps !== undefined || pulse) && f.kind !== 'house' && size !== 'xs' && <span className="fcard-move"><MoveChip statBps={statBps} state={pulse} small={small} /></span>}
       {showName && (
-        <>
+        <span className="fcard-plate">
+          <span className="fcard-ticker">{f.ticker}</span>
           {!small && <span className="fcard-sub">{characterOf(id)}</span>}
-          <span className="fcard-plate"><span className="fcard-ticker">{f.ticker}</span></span>
-        </>
+        </span>
       )}
       {locked && <span className="fcard-lock"><Icon name="lock" size={small ? 14 : 18} /><span>{lockText ?? 'Locked'}</span></span>}
       {picked && <span className="fcard-picked" aria-hidden><Icon name="check" size={small ? 12 : 16} /></span>}
@@ -99,11 +125,11 @@ export function FighterCard({
   return <div className={cls} role="img" aria-label={aria}>{body}</div>;
 }
 
-/** A round portrait medallion. */
+/** A round portrait: the head and shoulders of the fighter's full-body render. */
 export function Avatar({ id, size = 40, ring }: { id: number; size?: number; ring?: 'gold' | 'jade' | 'crimson' }) {
   return (
     <span className={`avatar${ring ? ` avatar--${ring}` : ''}`} style={{ width: size, height: size }}>
-      <img src={artSmallOf(id)} alt="" draggable={false} decoding="async" loading="lazy" />
+      <Art src={artOf(id)} fallback={<span className="avatar-ph">{fighter(id).ticker.slice(0, 1)}</span>} />
     </span>
   );
 }
@@ -122,7 +148,8 @@ export function StateBox({ kind = 'empty', title, children, action, art }: {
 }) {
   return (
     <div className={`state state--${kind}${art ? ' state--art' : ''}`} role={kind === 'error' ? 'alert' : undefined}>
-      {art && <img className="state-art" src="/brand/v2/empty.webp" width={320} height={320} alt="" aria-hidden loading="lazy" decoding="async" />}
+      {art && <Art className="state-art" src={ART.chest} fallback={<Icon name="castle" size={36} />} />}
+      {!art && <span className="state-ico" aria-hidden><Icon name={kind === 'error' ? 'x' : kind === 'setup' ? 'key' : 'castle'} size={18} /></span>}
       <div className="stack" style={{ gap: 4, flex: 1, minWidth: 0 }}>
         <div className="state-title">{title}</div>
         {children && <div className="fine">{children}</div>}
@@ -147,15 +174,15 @@ export function Countdown({ to, prefix }: { to: number; prefix?: string }) {
   useEffect(() => { const t = setInterval(() => setNow(Date.now() / 1000), 1000); return () => clearInterval(t); }, []);
   const left = Math.max(0, Math.floor(to - now));
   const d = Math.floor(left / 86400), h = Math.floor((left % 86400) / 3600), m = Math.floor((left % 3600) / 60), s = left % 60;
-  const text = d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : `${m}:${String(s).padStart(2, '0')}`;
+  const text = left === 0 ? 'ended' : d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : `${m}:${String(s).padStart(2, '0')}`;
   return <span className="num">{prefix}{text}</span>;
 }
 
 /** A big number with a faded unit; shows a skeleton while loading and "n/a" on error. */
-export function Big({ value, unit, loading, error, tone }: { value?: string; unit?: string; loading?: boolean; error?: string | null; tone?: 'gold' | 'ember' | 'sapphire' | 'ivory' }) {
+export function Big({ value, unit, loading, error, tone }: { value?: string; unit?: string; loading?: boolean; error?: string | null; tone?: 'gold' | 'ember' | 'sapphire' | 'ivory' | 'jade' }) {
   return (
     <span className={`big big--${tone ?? 'ivory'}`}>
-      {loading ? <span className="skeleton" style={{ display: 'inline-block', width: 84, height: '0.8em' }} /> : error ? 'n/a' : value}
+      {loading ? <span className="skeleton" style={{ display: 'inline-block', width: 84, height: '0.8em' }} /> : error ? <span title={error}>n/a</span> : value}
       {unit && <small>{unit}</small>}
     </span>
   );

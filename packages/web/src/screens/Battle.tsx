@@ -14,7 +14,8 @@ import { chainChanged, reader } from '../state/data';
 import { removeSession, settle } from '../lib/play';
 import { costOf, fighter, pct, shortAcct, statusLabel, shortError } from '../lib/fighters';
 import { BattleBoard, dropDecision } from '../battle/BattleBoard';
-import { AddrLink, Avatar, Big, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { ART } from '../lib/art';
 
 type TxRow = { key: string; label: string; hash?: string; ms?: number; state: 'sent' | 'ok' | 'in' | 'no' };
 type Replay = Awaited<ReturnType<typeof replayFromChain>>;
@@ -181,7 +182,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     setSelected(null);
   }
 
-  if (!practice && !matchId) return <div className="section"><StateBox art title="No match" action={<Link className="key key--sm" to="/app#play">Pick a fight</Link>}>Open a staked match from the Arena or play a free practice match.</StateBox></div>;
+  if (!practice && !matchId) return <div className="screen"><StateBox art title="No match" action={<Link className="btn btn--gold btn--sm" to="/app#play">Pick a fight</Link>}>Open a staked match from the Arena or play a free practice match.</StateBox></div>;
 
   const meSim = sim?.players[perspective];
   const hand = meSim?.cycle.slice(0, 4) ?? [];
@@ -209,53 +210,47 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     { t: 'Paid out', s: settled && match ? `${match.winner === 2 ? 'Draw' : `Seat ${match.winner} won`} · ${match.referee_calls} referee call${match.referee_calls === 1 ? '' : 's'}` : 'In the settle transaction', done: settled },
   ];
 
+  const foeSeat = (1 - perspective) as 0 | 1;
+  const marketRead = (side: 0 | 1) => {
+    const ids = match ? (side === 0 ? match.deck0 : match.deck1) : sim ? sim.players[side].deck.map((c) => c.fighterId) : [];
+    return ids.map((fid, i) => {
+      const slot = side * 8 + i;
+      const bps = match ? Number(match.mods[slot]) : sim ? sim.players[side].deck[i].metaBps ?? 0 : 0;
+      const st = match ? match.status[slot] : fighter(Number(fid)).kind === 'house' ? 1 : 0;
+      const lab = statusLabel(st);
+      return (
+        <div key={slot} className="mslot" title={`${fighter(Number(fid)).ticker} · ${lab.long}`}>
+          <Avatar id={Number(fid)} size={34} ring={stripSide === 'you' ? 'gold' : 'crimson'} />
+          {lab.live ? <MoveChip statBps={bps} small /> : <span className="move move--flat move--sm">{st === 1 ? '—' : lab.short}</span>}
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="battle">
       <div className="arena-stack">
-        <div className="mstrip" aria-label={practice ? 'Practice: today\'s signed prices per fighter' : 'Market read stored at kick-off'}>
-          <button className={`chip ${stripSide === 'you' ? 'chip--gold' : 'chip--crimson'}`} style={{ minHeight: 40, flex: 'none' }}
-            onClick={() => setStripSide((v) => (v === 'you' ? 'foe' : 'you'))} aria-label={`Showing ${stripSide === 'you' ? 'your' : 'the opponent\'s'} market read. Switch.`}>
-            {stripSide === 'you' ? 'You' : 'Foe'}
-          </button>
-          {(() => {
-            const side = stripSide === 'you' ? (match ? seat : 0) : (match ? 1 - seat : 1);
-            const ids = match ? (side === 0 ? match.deck0 : match.deck1) : sim ? sim.players[side].deck.map((c) => c.fighterId) : [];
-            return ids.map((fid, i) => {
-              const slot = side * 8 + i;
-              const bps = match ? Number(match.mods[slot]) : sim ? sim.players[side].deck[i].metaBps ?? 0 : 0;
-              const st = match ? match.status[slot] : fighter(Number(fid)).kind === 'house' ? 1 : 0;
-              const lab = statusLabel(st);
-              return (
-                <div key={slot} className="mslot" title={`${fighter(Number(fid)).ticker} · ${lab.long}`}>
-                  <Avatar id={Number(fid)} size={26} ring={stripSide === 'you' ? 'gold' : 'crimson'} />
-                  {lab.live ? <MoveChip statBps={bps} small /> : <span className="move move--flat move--sm">{st === 1 ? '—' : lab.short}</span>}
-                </div>
-              );
-            });
-          })()}
-        </div>
         <div className="bhud bhud--row">
           <span className="plate plate--foe">
-            <Avatar id={sim?.players[1 - perspective]?.deck[0]?.fighterId ?? 0} size={30} ring="crimson" />
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{practice ? 'Practice bot' : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
+            <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />
+            <span className="plate-name">{practice ? 'Practice bot' : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
           </span>
           <span className={`clock${overtime ? ' clock--ot' : ''}`} aria-live="polite">
             <b>{sim ? `${Math.floor(clock / 60)}:${String(clock % 60).padStart(2, '0')}` : '–:––'}</b>
             <span className="crowns" aria-label={`You ${myCrowns}, opponent ${theirCrowns} crowns`}><span className="me">{myCrowns}</span><Icon name="crown" size={15} /><span className="them">{theirCrowns}</span></span>
           </span>
+          {overtime && <span className="ot-badge">Overtime</span>}
         </div>
-        <div style={{ position: 'relative' }}>
+        <div className="board-box">
           <BattleBoard perspective={perspective} placing={selected !== null && !replay} spell={selectedCard?.archetype === Archetype.Spell}
             onPlace={place} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
-          {!practice && match?.state === 2 && !started && <div className="bhud" style={{ top: '45%' }}><span className="plate" style={{ margin: '0 auto' }}>Kick-off in {Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} s</span></div>}
+          {!practice && match?.state === 2 && !started && <div className="board-banner"><span className="plate plate--gold">Kick-off in {Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} s</span></div>}
           {replay && !replay.done && (
-            <div className="bhud" style={{ top: 'auto', bottom: 8 }}>
-              <span className="plate" style={{ pointerEvents: 'auto', maxWidth: 'none' }}>
-                <span className="chip chip--gold">Replay</span>
-                <button className="key key--ghost key--sm" style={{ minHeight: 40 }} onClick={() => setReplay((r) => (r ? { ...r, playing: !r.playing && !r.done } : r))} aria-label={replay.playing ? 'Pause replay' : 'Play replay'}><Icon name={replay.playing ? 'pause' : 'play'} size={16} /></button>
-                <span className="seg seg--sm" role="group" aria-label="Replay speed">
-                  {[1, 2, 4].map((v) => <button key={v} aria-pressed={replay.speed === v} onClick={() => setReplay((r) => (r ? { ...r, speed: v } : r))}>{v}x</button>)}
-                </span>
+            <div className="replay-bar">
+              <span className="chip chip--gold">Replay</span>
+              <button className="btn btn--white btn--icon" onClick={() => setReplay((r) => (r ? { ...r, playing: !r.playing && !r.done } : r))} aria-label={replay.playing ? 'Pause replay' : 'Play replay'}><Icon name={replay.playing ? 'pause' : 'play'} size={16} /></button>
+              <span className="seg seg--sm" role="group" aria-label="Replay speed">
+                {[1, 2, 4].map((v) => <button key={v} aria-pressed={replay.speed === v} onClick={() => setReplay((r) => (r ? { ...r, speed: v } : r))}>{v}x</button>)}
               </span>
             </div>
           )}
@@ -263,11 +258,6 @@ export function Battle({ practice = false }: { practice?: boolean }) {
 
         {sim && (
           <div className="hand-bar" data-can-play={canPlay ? 1 : 0} data-runner={runner ? 1 : 0} data-ended={ended ? 1 : 0}>
-            <div className="elixir" role="meter" aria-label="Elixir" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={Math.floor(elixir)}>
-              <div className="elixir-fill" style={{ width: `${(elixir / cap) * 100}%` }} />
-              <div className="elixir-ticks">{Array.from({ length: 10 }, (_, i) => <span key={i} />)}</div>
-              <span className="elixir-num">{Math.floor(elixir)}</span>
-            </div>
             <div className="hand">
               {hand.map((slot) => {
                 const c = sim.players[perspective].deck[slot];
@@ -279,7 +269,14 @@ export function Battle({ practice = false }: { practice?: boolean }) {
                     label={`${c.name}, ${costOf(c.fighterId)} elixir, market ${pct(c.metaBps ?? 0)}${afford ? '' : ', not enough elixir yet'}`} />
                 );
               })}
-              {next !== undefined && <div className="next"><span className="label" style={{ fontSize: 10 }}>Next</span><FighterCard id={sim.players[perspective].deck[next].fighterId} size="xs" showName={false} /></div>}
+              {next !== undefined && <div className="next"><span className="label">Next</span><FighterCard id={sim.players[perspective].deck[next].fighterId} size="xs" showName={false} /></div>}
+            </div>
+            <div className="elixir" role="meter" aria-label="Elixir" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={Math.floor(elixir)}>
+              <span className="elixir-drop" aria-hidden><Icon name="drop" size={18} /><b>{Math.floor(elixir)}</b></span>
+              <div className="elixir-track">
+                <div className="elixir-fill" style={{ width: `${(elixir / cap) * 100}%` }} />
+                <div className="elixir-ticks">{Array.from({ length: 10 }, (_, i) => <span key={i} />)}</div>
+              </div>
             </div>
             <p className="hint" aria-live="polite">
               {replay ? `Replaying ${replay.data.inputs.length} on-chain plays through the same sim.` : ended ? 'Battle over.'
@@ -290,12 +287,12 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         )}
 
         {!sim && !showCeremony && (
-          <div className="ceremony" style={{ background: 'rgba(3,12,13,.55)' }}>
+          <div className="ceremony ceremony--wait">
             <div className="cer-card">
               {match && match.state !== 2 && match.state !== 1 ? (
                 <>
                   <p className="fine">This match is {STATE_NAMES[match.state]?.toLowerCase()}. Its result is on chain.</p>
-                  <button className="key key--ghost" disabled={!!busy} onClick={() => void startReplay()}>{busy ? <span className="spinner" /> : <Icon name="replay" />}{busy || 'Replay from chain'}</button>
+                  <button className="btn btn--blue" disabled={!!busy} onClick={() => void startReplay()}>{busy ? <span className="spinner" /> : <Icon name="replay" />}{busy || 'Replay from chain'}</button>
                 </>
               ) : match?.state === 1 ? <p className="fine">Match #{match.id} is waiting for an opponent.</p>
                 : error ? <StateBox kind="error" title="Could not load the match">{shortError(error, 200)}</StateBox>
@@ -306,53 +303,67 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         {showCeremony && <Ceremony practice={practice} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
       </div>
 
-      <div className="section stack" style={{ gap: 14, paddingBottom: 24 }}>
+      <aside className="bside" aria-label="Match details">
         {error && !settled && <StateBox kind="error" title="Heads up">{shortError(error, 240)}</StateBox>}
         {practice ? (
-          <section className="panel stack">
-            <h2 className="display h3 ivory">Practice</h2>
+          <section className="card stack">
+            <div className="card-head"><h2 className="h3">Practice</h2><span className="chip">no chain</span></div>
             <p className="fine">A local Rush match against the scripted bot, with today&apos;s signed prices on every market fighter. Nothing is staked and nothing touches the chain.</p>
-            <div className="row" style={{ flexWrap: 'nowrap' }}>
-              <button className="key key--ghost key--sm" style={{ flex: 1 }} onClick={() => window.location.reload()}>Restart</button>
-              <Link className="key key--sm" style={{ flex: 1 }} to="/app#play">Stake NEAR</Link>
+            <div className="cta-row">
+              <button className="btn btn--white btn--sm" onClick={() => window.location.reload()}><Icon name="replay" size={16} />Restart</button>
+              <Link className="btn btn--gold btn--sm" to="/app#play">Stake NEAR</Link>
             </div>
           </section>
         ) : (
-          <>
-            <section className="panel stack" aria-labelledby="m-title">
-              <div className="panel-head">
-                <h2 id="m-title" className="display h3 ivory">Match #{matchId}</h2>
-                {match && <span className={`chip ${match.state === 2 ? 'chip--live' : match.state === 3 ? 'chip--gold' : ''}`}>{STATE_NAMES[match.state] ?? match.state}</span>}
-              </div>
-              {match && <p className="fine">{shortAcct(match.p0)} vs {match.house !== null ? `house ${shortAcct(match.p1)}` : match.p1 ? shortAcct(match.p1) : '—'} · seed <span className="mono">{match.seed}</span></p>}
-              <ol className="rail">
-                {steps.map((s) => (
-                  <li key={s.t} data-state={s.done ? 'done' : s.now ? 'now' : 'todo'}>
-                    <span className="dot" aria-hidden>{s.done ? <Icon name="check" size={13} /> : ''}</span>
-                    <div><div className="rail-title">{s.t}</div><div className="rail-sub">{s.s}</div></div>
+          <section className="card stack" aria-labelledby="m-title">
+            <div className="card-head">
+              <h2 id="m-title" className="h3">Match #{matchId}</h2>
+              {match && <span className={`chip ${match.state === 2 ? 'chip--live' : match.state === 3 ? 'chip--gold' : ''}`}>{STATE_NAMES[match.state] ?? match.state}</span>}
+            </div>
+            {match && <p className="fine">{shortAcct(match.p0)} vs {match.house !== null ? `house ${shortAcct(match.p1)}` : match.p1 ? shortAcct(match.p1) : '—'} · seed <span className="mono">{match.seed}</span></p>}
+            <ol className="rail">
+              {steps.map((s) => (
+                <li key={s.t} data-state={s.done ? 'done' : s.now ? 'now' : 'todo'}>
+                  <span className="dot" aria-hidden>{s.done ? <Icon name="check" size={13} /> : ''}</span>
+                  <div><div className="rail-title">{s.t}</div><div className="rail-sub">{s.s}</div></div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        <section className="card stack" aria-label={practice ? 'Practice: today\'s signed prices per fighter' : 'Market read stored at kick-off'}>
+          <div className="card-head">
+            <h2 className="h3">{practice ? 'Today\'s market' : 'Market at kick-off'}</h2>
+            <button className={`chip chip--btn ${stripSide === 'you' ? 'chip--gold' : 'chip--crimson'}`}
+              onClick={() => setStripSide((v) => (v === 'you' ? 'foe' : 'you'))} aria-label={`Showing ${stripSide === 'you' ? 'your' : 'the opponent\'s'} market read. Switch.`}>
+              {stripSide === 'you' ? 'You' : 'Foe'} <Icon name="replay" size={12} />
+            </button>
+          </div>
+          <div className="mstrip">{marketRead(stripSide === 'you' ? (match ? seat : 0) : (match ? (1 - seat) as 0 | 1 : 1))}</div>
+        </section>
+        {!practice && (
+          <section className="card stack" aria-labelledby="tx-title">
+            <div className="card-head"><h2 id="tx-title" className="h3">On chain, live</h2><span className="chip chip--live">{txs.length} tx</span></div>
+            {txs.length === 0 ? <p className="fine">{settled ? 'Every drop of this match is stored by the arena; Replay from chain rebuilds it.' : 'No plays yet. Drops are signed by this match\'s session key, so there are no pop-ups.'}</p> : (
+              <ul className="txfeed">
+                {[...txs].reverse().map((t) => (
+                  <li key={t.key} className="txrow">
+                    <span className={`chip ${t.state === 'in' ? 'chip--crimson' : t.state === 'ok' ? 'chip--jade' : t.state === 'no' ? 'chip--crimson' : ''}`}>{t.state === 'in' ? 'In' : t.state === 'ok' ? 'Done' : t.state === 'no' ? 'Refused' : 'Sent'}</span>
+                    <span className="txrow-label">{t.label}{t.ms != null && t.state === 'ok' ? ` · ${t.ms} ms` : ''}</span>
+                    {t.hash ? <TxLink hash={t.hash}>{t.hash.slice(0, 6)}…</TxLink> : <span />}
                   </li>
                 ))}
-              </ol>
-            </section>
-            <section className="panel stack" aria-labelledby="tx-title">
-              <h2 id="tx-title" className="display h3 ivory">On chain, live</h2>
-              {txs.length === 0 ? <p className="fine">{settled ? 'Every drop of this match is stored by the arena; Replay from chain rebuilds it.' : 'No plays yet. Drops are signed by this match\'s session key, so there are no pop-ups.'}</p> : (
-                <ul className="list">
-                  {[...txs].reverse().map((t) => (
-                    <li key={t.key} className="list-row">
-                      <span className={`chip ${t.state === 'in' ? 'chip--crimson' : t.state === 'ok' ? 'chip--jade' : t.state === 'no' ? 'chip--crimson' : ''}`}>{t.state === 'in' ? 'In' : t.state === 'ok' ? 'Done' : t.state === 'no' ? 'Refused' : 'Sent'}</span>
-                      <span className="t" style={{ fontWeight: 600, fontSize: 14 }}>{t.label}{t.ms != null && t.state === 'ok' ? ` · ${t.ms} ms` : ''}</span>
-                      {t.hash ? <TxLink hash={t.hash}>{t.hash.slice(0, 6)}…</TxLink> : <span />}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          </>
+              </ul>
+            )}
+          </section>
         )}
-      </div>
+      </aside>
     </div>
   );
+}
+
+function Confetti() {
+  return <div className="confetti" aria-hidden>{Array.from({ length: 18 }, (_, i) => <i key={i} style={{ ['--i' as string]: i }} />)}</div>;
 }
 
 function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, replay }: {
@@ -362,13 +373,14 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
     const result = sim.winner === -2 ? 'Draw' : sim.winner === 0 ? 'Victory' : 'Defeat';
     return (
       <div className={`ceremony${result === 'Defeat' ? ' ceremony--defeat' : ''}`}>
+        {result === 'Victory' && <Confetti />}
         <div className="cer-card">
-          <img className="cer-crest" src={result === 'Defeat' ? '/brand/v2/fx-defeat.webp' : '/brand/v2/fx-victory.webp'} alt="" aria-hidden />
-          <h2 className={`cer-title ${result === 'Defeat' ? '' : 'gold-text'}`}>{result}</h2>
+          <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
+          <h2 className="cer-title">{result}</h2>
           <p className="fine">Practice match: nothing staked, nothing on chain.</p>
-          <div className="row" style={{ flexWrap: 'nowrap', width: '100%' }}>
-            <button className="key key--sm" style={{ flex: 1 }} onClick={() => window.location.reload()}>Play again</button>
-            <Link className="key key--ghost key--sm" style={{ flex: 1 }} to="/app#play">Stake NEAR</Link>
+          <div className="cta-row">
+            <button className="btn btn--gold" onClick={() => window.location.reload()}>Play again</button>
+            <Link className="btn btn--white" to="/app#play">Stake NEAR</Link>
           </div>
         </div>
       </div>
@@ -380,11 +392,17 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
     const pot = BigInt(match.stake) * 2n;
     return (
       <div className={`ceremony${result === 'Defeat' ? ' ceremony--defeat' : ''}`}>
+        {result === 'Victory' && <Confetti />}
         <div className="cer-card">
-          <img className="cer-crest" src={result === 'Defeat' ? '/brand/v2/fx-defeat.webp' : '/brand/v2/fx-victory.webp'} alt="" aria-hidden />
-          <h2 className={`cer-title ${result === 'Defeat' ? '' : 'gold-text'}`}>{result}</h2>
+          <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
+          <h2 className="cer-title">{result}</h2>
+          <div className="cer-vs">
+            <span className={match.winner === 0 ? 'is-win' : ''}><AddrLink address={match.p0} /></span>
+            <b>VS</b>
+            <span className={match.winner === 1 ? 'is-win' : ''}><AddrLink address={match.p1 ?? ''} /></span>
+          </div>
           <div className="cer-pot">
-            <div className="cer-row" style={{ opacity: 1, animation: 'none' }}><span className="label">The pot · {TIER_NAMES[match.tier]}</span><Big value={formatNear(pot)} unit="NEAR" tone="ivory" /></div>
+            <div className="cer-row cer-row--pot"><span className="label">The pot · {TIER_NAMES[match.tier]}</span><Big value={formatNear(pot)} unit="NEAR" tone="ivory" /></div>
             <div className="cer-split" aria-hidden><i /><i /><i /></div>
             <div className="cer-row"><span className="label">{match.winner === 2 ? 'Paid to each side' : 'Paid to the winner · 92%'}</span><Big value={formatNear(match.winner === 2 ? BigInt(match.paid) / 2n : BigInt(match.paid))} unit="NEAR" tone="gold" /></div>
             <div className="cer-row"><span className="label">Protocol treasury · 5%</span><Big value={formatNear(match.to_treasury)} unit="NEAR" tone="ember" /></div>
@@ -392,18 +410,17 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
           </div>
           {replay ? (
             <div className={`verify${replay.matchesChain ? '' : ' verify--bad'}`} role="status">
-              <Icon name="shield" size={22} />
-              <div className="stack" style={{ gap: 2 }}>
+              <span className="verify-ico"><Icon name={replay.matchesChain ? 'shield' : 'x'} size={22} /></span>
+              <div className="stack" style={{ gap: 2, minWidth: 0 }}>
                 <b>{replay.matchesChain ? 'Verified: this browser\'s replay matches the referee' : 'Mismatch: this replay disagrees with the referee'}</b>
                 <span className="fine">{replay.inputs.length} on-chain plays replayed to tick {replay.result.end_tick}. State hash <span className="mono">{replay.result.final_hash}</span> · referee <span className="mono">{match.final_hash}</span>.</span>
               </div>
             </div>
           ) : <p className="fine">The arena replayed {match.plays0 + match.plays1} plays to tick {match.end_tick} and stored hash <span className="mono">{match.final_hash}</span>.</p>}
-          <div className="row" style={{ flexWrap: 'nowrap', width: '100%' }}>
-            <button className="key key--ghost key--sm" style={{ flex: 1 }} disabled={!!busy} onClick={onReplay}>{busy ? <span className="spinner" /> : <Icon name="replay" size={18} />}{replay ? 'Watch again' : 'Replay & verify'}</button>
-            <Link className="key key--sm" style={{ flex: 1 }} to="/app#play">Fight again</Link>
+          <div className="cta-row">
+            <button className="btn btn--blue" disabled={!!busy} onClick={onReplay}>{busy ? <span className="spinner" /> : <Icon name="replay" size={18} />}{replay ? 'Watch again' : 'Replay & verify'}</button>
+            <Link className="btn btn--gold" to="/app#play">Battle again</Link>
           </div>
-          <p className="fine"><AddrLink address={match.p0} /> vs <AddrLink address={match.p1 ?? ''} /></p>
         </div>
       </div>
     );
@@ -412,21 +429,20 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
     return (
       <div className="ceremony ceremony--defeat">
         <div className="cer-card">
+          <Art className="cer-crest" src={ART.chest} fallback={<Icon name="castle" size={56} />} />
           <h2 className="cer-title">Refunded</h2>
           <p className="fine">This match was cancelled before anyone joined, and its stake went back to its creator.</p>
-          <Link className="key key--sm" to="/app#play">Arena</Link>
+          <Link className="btn btn--gold" to="/app#play">Back to the lobby</Link>
         </div>
       </div>
     );
   }
   return (
-    <div className="ceremony">
+    <div className="ceremony ceremony--wait">
       <div className="cer-card">
-        <h2 className="cer-title ivory" style={{ fontSize: 40 }}>Referee is up</h2>
-        <div className="panel stack" style={{ textAlign: 'left' }}>
-          <p className="fine">The battle is over on screen. Once the play log closes, the arena replays every stored play through the same sim and pays whoever its replay says won. {claim ? `This browser computed ${claim.winner === 2 ? 'a draw' : `seat ${claim.winner}`} (hash ${claim.final_hash}).` : ''}</p>
-          <p className="fine" role="status">{busy ? <><span className="spinner" /> {busy}…</> : 'Anyone can trigger it; the relayer\'s keeper does if nobody else does.'}</p>
-        </div>
+        <h2 className="cer-title cer-title--sm">Referee is up</h2>
+        <p className="fine">The battle is over on screen. Once the play log closes, the arena replays every stored play through the same sim and pays whoever its replay says won. {claim ? `This browser computed ${claim.winner === 2 ? 'a draw' : `seat ${claim.winner}`} (hash ${claim.final_hash}).` : ''}</p>
+        <p className="fine" role="status">{busy ? <><span className="spinner" /> {busy}…</> : 'Anyone can trigger it; the relayer\'s keeper does if nobody else does.'}</p>
       </div>
     </div>
   );

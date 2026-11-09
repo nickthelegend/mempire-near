@@ -9,9 +9,8 @@ export const fighter = (id: number): Fighter => {
   if (!f) throw new Error(`Unknown fighter ${id}`);
   return f;
 };
-/** Painted card art: a 2:3 portrait per fighter, plus a small cut for hands, tokens and avatars. */
-export const artOf = (id: number) => `/art/v2/${fighter(id).art}.webp`;
-export const artSmallOf = (id: number) => `/art/v2/${fighter(id).art}-sm.webp`;
+/** Full-body cartoon render per fighter (v3 art set, transparent background). */
+export const artOf = (id: number) => `/art/v3/mp3-${fighter(id).art}.webp`;
 export const characterOf = (id: number) => fighter(id).name;
 /** Frame rarity is earned from the market: house fighters common, market fighters rare, a buffed one epic. */
 export type Rarity = 'common' | 'rare' | 'epic';
