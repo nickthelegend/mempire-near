@@ -1,20 +1,56 @@
 {
-  "at": "2026-11-09T17:19:18.561Z",
-  "account": "browser-2520.mempire-relay-41966.testnet",
-  "match": "7",
-  "drops": 5,
+  "at": "2026-11-09T17:42:04.745Z",
+  "account": "browser-5677.mempire-relay-41966.testnet",
+  "match": "8",
+  "drops": 9,
   "result": "Defeat",
   "verify": "Verified: this browser's replay matches the referee",
   "txs": [
     {
       "label": "Session key deleted from your account",
-      "url": "https://testnet.nearblocks.io/txns/6Lc58MpQSt56gawZbchG7aQZDnJD6czNXxgkBFw8Vo8"
+      "url": "https://testnet.nearblocks.io/txns/FNpnbes5ifM6qhdo8gHL1rgxkFzQUp5EWk4cnCofUfDZ"
     },
     {
-      "label": "Referee settled #7",
-      "url": "https://testnet.nearblocks.io/txns/EYtKyi65943gKdSDg9Qcf9cAPYg1NyqqiquYjY1e3tZQ"
+      "label": "Referee settled #8",
+      "url": "https://testnet.nearblocks.io/txns/CFRYXLNAUC79QpngJqDQsFgK8oVDiBro2KRhogVD8xAA"
+    },
+    {
+      "label": "You dropped slot 3 for tick 574 \u00b7 11933 ms",
+      "url": "https://testnet.nearblocks.io/txns/Gy1NiirBWqPmDnFxktTzhsN4dbuFhUhgCoYxZZTadQun"
+    },
+    {
+      "label": "You dropped slot 7 for tick 566 \u00b7 7884 ms",
+      "url": "https://testnet.nearblocks.io/txns/2fEEzMAdyRcbJTAtXjKJGRzLdwchuYDzJbDRmM2s31fP"
+    },
+    {
+      "label": "You dropped slot 7 for tick 555 \u00b7 6915 ms",
+      "url": "https://testnet.nearblocks.io/txns/4EuD5SPx8g3eqX7KGWYjPmb5kMcZ8PCLCFAwRLV3bvnb"
+    },
+    {
+      "label": "You dropped slot 7 for tick 352: refused (play landed too late for its tick)",
+      "url": "https://testnet.nearblocks.io/txns/HwFtZTEoxPVvKXGigphMjAuccRkH8BtsPXSJ5AePHREr"
+    },
+    {
+      "label": "You dropped slot 7 for tick 340 \u00b7 8878 ms",
+      "url": "https://testnet.nearblocks.io/txns/8kocb8vP2BfzyZczFGjLcccywT4TSwDyuw4476iYFpM2"
+    },
+    {
+      "label": "You dropped slot 4 for tick 259 \u00b7 5564 ms",
+      "url": "https://testnet.nearblocks.io/txns/H1CGeLL5Nq5w5zRGN2iwxnV2DVmSELLb7goLjq5M3zMZ"
+    },
+    {
+      "label": "You dropped slot 4 for tick 157 \u00b7 5023 ms",
+      "url": "https://testnet.nearblocks.io/txns/FkQ78Ru9pAzMbvNhD37HxMHYA58wmDJ8Vj8aZoTtatmQ"
+    },
+    {
+      "label": "You dropped slot 6 for tick 102 \u00b7 2227 ms",
+      "url": "https://testnet.nearblocks.io/txns/FA2rEp4vZsnho2JFppTFP26Cw1zeLZLyBMLoRVMFF1nz"
+    },
+    {
+      "label": "You dropped slot 6 for tick 58 \u00b7 2460 ms",
+      "url": "https://testnet.nearblocks.io/txns/CsWPKuLBEracaeoF92PZqpBn6FHY482gvWMDG6x41iNU"
     }
   ],
   "pageErrors": [],
-  "note": "Headless Chrome against NEAR testnet: guest sign-in through the relayer, session key added by meta tx, stake against house Kumo, referee settlement by meta tx and an in-browser replay that matched the stored hash. The 5 drops were clicked but none landed: the public RPC was returning 429s, so they missed the 5 s window (the UI at that commit did not list drops refused before signing; it does now). In the previous browser run (match #6) 2 drops landed and the referee settled it."
+  "note": "Headless Chrome against NEAR testnet (scripts/e2e/browser-house.mjs): guest sign-in through the relayer, a play-only session key added by meta tx, a stake against house Kumo, 9 drops clicked of which 8 landed from the session key (one arrived after the 5 s window while the public RPC was returning 429s and was refused by the arena), referee settlement by meta tx, an in-browser replay that matched the stored hash, and the session key deleted."
 }

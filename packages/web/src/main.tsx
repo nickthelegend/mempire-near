@@ -31,6 +31,12 @@ function AccountChip() {
   );
 }
 
+/** The network badge; icon-only once the account chip needs the room. */
+function TestnetChip() {
+  const signedIn = useAccount((s) => !!s.device);
+  return <span className="hud-chip hud-chip--burn" title="NEAR testnet" aria-label="NEAR testnet"><span className="ico"><Icon name="layers" size={14} /></span>{!signedIn && <b>Testnet</b>}</span>;
+}
+
 const TABS = [
   { to: '/app', label: 'Arena', icon: 'swords' as const },
   { to: '/app/deck', label: 'Deck', icon: 'cards' as const },
@@ -50,7 +56,7 @@ function GameShell() {
         <div className="phone">
           <header className="topbar">
             <Link to="/" className="brand" aria-label="Mempire home"><BrandMark /><span className="brand-word">Mempire</span></Link>
-            <span className="hud-chip hud-chip--burn" title="NEAR testnet"><span className="ico"><Icon name="layers" size={14} /></span><b>Testnet</b></span>
+            <TestnetChip />
             <AccountChip />
           </header>
           <main className="page page-in" key={location.pathname}>
