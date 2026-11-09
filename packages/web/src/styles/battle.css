@@ -1,7 +1,7 @@
 /* Battle: a full-height arena with the HUD on top, the hand and elixir under it, and match details beside it. */
 .game--battle .gmain { padding: 16px 24px 24px; max-width: none; }
 .game--battle .gtabs { display: none; }
-.battle { display: grid; grid-template-columns: minmax(0, 560px) minmax(300px, 400px); justify-content: center; gap: 24px; align-items: start; }
+.battle { display: grid; grid-template-columns: minmax(0, 500px) minmax(300px, 400px); justify-content: center; gap: 24px; align-items: start; }
 .arena-stack {
   position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0;
   height: calc(100dvh - 64px - 40px); min-height: 640px;

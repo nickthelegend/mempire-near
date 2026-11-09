@@ -128,7 +128,7 @@ export function FighterCard({
 /** A round portrait: the head and shoulders of the fighter's full-body render. */
 export function Avatar({ id, size = 40, ring }: { id: number; size?: number; ring?: 'gold' | 'jade' | 'crimson' }) {
   return (
-    <span className={`avatar${ring ? ` avatar--${ring}` : ''}`} style={{ width: size, height: size }}>
+    <span className={`avatar${ring ? ` avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}>
       <Art src={artOf(id)} fallback={<span className="avatar-ph">{fighter(id).ticker.slice(0, 1)}</span>} />
     </span>
   );

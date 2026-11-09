@@ -190,7 +190,7 @@ h1, h2, h3 { font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
 }
 .fcard-ticker { font-weight: 900; font-size: 15px; color: #fff; letter-spacing: 0.01em; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); line-height: 1.1; }
 .fcard-sub { font-size: 11px; font-weight: 700; color: rgba(255, 255, 255, 0.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.fcard--sm .fcard-ticker { font-size: 12px; }
+.fcard--sm .fcard-ticker { font-size: 11px; letter-spacing: -0.02em; }
 .fcard--sm .fcard-cost { width: 22px; height: 25px; font-size: 12px; border-width: 2px; }
 .fcard--sm .fcard-art { bottom: 18%; }
 .fcard--xs { border-radius: 10px; border-width: 2px; padding: 2px; box-shadow: 0 2px 0 var(--ink); }
@@ -217,7 +217,7 @@ button.fcard:disabled { opacity: 0.5; cursor: not-allowed; }
 .avatar--gold { border-color: var(--ink); box-shadow: 0 0 0 2.5px var(--gold); }
 .avatar--jade { box-shadow: 0 0 0 2.5px var(--grass); }
 .avatar--crimson { background: radial-gradient(circle at 50% 30%, #fff, #ffd2d7 60%, #ff9aa5); box-shadow: 0 0 0 2.5px var(--red); }
-.avatar .art-ph, .avatar-ph { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; color: var(--ink); font-size: 0.9em; }
+.avatar .art-ph, .avatar-ph { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 900; color: var(--ink); font-size: 1em; }
 .art-ph { display: grid; place-items: center; }
 
 /* ── States ────────────────────────────────────────────────────────────────── */

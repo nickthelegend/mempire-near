@@ -22,6 +22,8 @@ const account = await page.locator('#signin a.addr').textContent();
 console.log('signed in as', account);
 await page.waitForFunction(() => !document.querySelector('.hud-chip--wif .skeleton'), null, { timeout: 60000 });
 await shot('1-signed-in');
+// Houses have their own screen since the v3 layout.
+await page.locator('.gbar-nav').getByRole('link', { name: 'Houses' }).click();
 await page.getByRole('button', { name: /Challenge Kumo/ }).click();
 await page.waitForURL(/\/app\/battle\/\d+/, { timeout: 120000 });
 const id = page.url().split('/').pop();
