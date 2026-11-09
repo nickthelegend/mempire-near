@@ -34,7 +34,7 @@ export function Season() {
                   <li key={i} className="podium-row" data-rank={i + 1} data-you={t?.account === me}>
                     <span className="podium-rank">{i + 1}</span>
                     <div className="stack" style={{ gap: 2, minWidth: 0 }}>
-                      {t ? <><b className="podium-name">{t.account === me ? 'You' : shortAcct(t.account)}</b><span className="fine">{t.points} points</span></> : <span className="fine">Open seat: win a match to take it</span>}
+                      {t ? <><b className="podium-name">{t.account === me ? 'You' : shortAcct(t.account)}</b><span className="fine">{t.points} point{t.points === 1 ? "" : "s"}</span></> : <span className="fine">Open seat: win a match to take it</span>}
                     </div>
                     <span className="podium-share"><b>{SHARES[i]}%</b><small>{formatNear((BigInt(info.pool) * BigInt(SHARES[i])) / 100n)} Ⓝ</small></span>
                   </li>

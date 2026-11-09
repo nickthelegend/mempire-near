@@ -120,8 +120,8 @@ function Referee() {
         <img src="/brand/v2/arena-landscape.webp" alt="" aria-hidden />
         <div>
           <p className="lx-eyebrow">Measured</p>
-          <p className="lx-callout-big">In the sandbox, a 30-second Rush match with 18 plays replays on-chain for 13 to 18 TGas.</p>
-          <p className="lx-sub">That is well under one call&apos;s 300 TGas, so most matches settle in one transaction. Longer matches split across calls: the referee stores its sim state as a checkpoint and resumes. With a 60 TGas budget the sandbox test settles a Rush match in two calls. A fake winner claim was rejected on testnet as well.</p>
+          <p className="lx-callout-big">On testnet, the arena replayed match #2 (21 plays, 600 ticks) and settled it in one call for 22.3 TGas.</p>
+          <p className="lx-sub">That is under a tenth of one call&apos;s 300 TGas, so a Rush match settles in one transaction. Longer matches split across calls: the referee stores its sim state as a checkpoint and resumes. With a 60 TGas budget the sandbox test settles a Rush match in two calls. A fake winner claim was rejected on testnet as well.</p>
         </div>
       </div>
     </section>

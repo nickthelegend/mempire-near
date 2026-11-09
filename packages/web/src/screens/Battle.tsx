@@ -112,10 +112,10 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             if (e.type === 'state') setSim(e.state, seat);
             else if (e.type === 'match') setMatch(e.match);
             else if (e.type === 'claim') setClaim(e.claim);
-            else if (e.type === 'error') setError(e.error.message);
+            else if (e.type === 'error') { console.warn('runner', e.error); setError(e.error.message); }
             else if (e.type === 'playSent') addTx({ key: e.hash, label: `You dropped slot ${e.deckIndex + 1} for tick ${e.tick}`, hash: e.hash, state: 'sent' });
             else if (e.type === 'playLanded') setTxs((old) => old.map((t) => (t.key === e.hash ? { ...t, state: 'ok', ms: e.ms } : t)));
-            else if (e.type === 'playRefused') setTxs((old) => old.map((t) => (t.key === e.hash ? { ...t, state: 'no', label: `${t.label}: refused (${shortError(e.error, 60)})` } : t)));
+            else if (e.type === 'playRefused') { console.warn('play refused', e.error); setTxs((old) => (old.some((t) => t.key === e.hash && e.hash) ? old.map((t) => (t.key === e.hash ? { ...t, state: 'no', label: `${t.label}: refused (${shortError(e.error, 60)})` } : t)) : [...old, { key: `r${Date.now()}`, label: `A drop was not sent: ${shortError(e.error, 80)}`, state: 'no' }])); }
             else if (e.type === 'opponentPlay') addTx({ key: `o${e.input.tick}-${e.input.deckIndex}-${Math.random()}`, label: `Opponent dropped slot ${e.input.deckIndex + 1} at tick ${e.input.tick}`, state: 'in' });
           },
         });
@@ -173,7 +173,10 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     if (!point) return;
     const xFp = Math.round(point.x * FP), yFp = Math.round(point.y * FP);
     if (practice) practiceRef.current?.inputs.push({ tick: practiceRef.current.sim.tick + 2, player: 0, deckIndex: selected, x: xFp, y: yFp });
-    else { try { runner?.queuePlay(selected, xFp, yFp); } catch (e) { setError((e as Error).message); return; } }
+    else {
+      if (!runner) { setError('The match is still loading'); return; }
+      try { runner.queuePlay(selected, xFp, yFp); } catch (e) { console.warn('queue failed', e); setError((e as Error).message); return; }
+    }
     void new Audio('/sfx/sfx_deploy.mp3').play().catch(() => {});
     setSelected(null);
   }
@@ -259,7 +262,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         </div>
 
         {sim && (
-          <div className="hand-bar">
+          <div className="hand-bar" data-can-play={canPlay ? 1 : 0} data-runner={runner ? 1 : 0} data-ended={ended ? 1 : 0}>
             <div className="elixir" role="meter" aria-label="Elixir" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={Math.floor(elixir)}>
               <div className="elixir-fill" style={{ width: `${(elixir / cap) * 100}%` }} />
               <div className="elixir-ticks">{Array.from({ length: 10 }, (_, i) => <span key={i} />)}</div>
