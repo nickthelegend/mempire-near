@@ -163,11 +163,13 @@
   .lx-proof, .lx-sh { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
-  .lx-hero { min-height: 0; }
+  .lx-hero { min-height: max(100svh, 780px); }
+  .lx-hero-art { object-position: center top; }
+  .lx-hero-shade { background: linear-gradient(180deg, rgba(42, 29, 92, 0.45) 0%, rgba(42, 29, 92, 0) 16%, rgba(42, 29, 92, 0) 34%, rgba(42, 29, 92, 0.72) 70%, rgba(42, 29, 92, 0.8) 100%); }
   .lx-nav { padding: 12px 16px; }
   .lx-brand { font-size: 22px; }
-  .lx-hero-body { padding: 18vh 16px 28px; gap: 14px; }
-  .lx-logo { max-height: 22vh; }
+  .lx-hero-body { padding: 24px 16px 24px; gap: 12px; }
+  .lx-logo { max-height: 15vh; }
   .lx-play { min-width: 0; width: 100%; font-size: 38px; min-height: 80px; }
   .lx-ctas { width: 100%; }
   .lx-ctas .btn--white { width: 100%; min-height: 56px; font-size: 18px; }
