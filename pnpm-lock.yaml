@@ -102,6 +102,18 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@22.20.5)(tsx@4.23.15)
 
+  scripts:
+    dependencies:
+      '@mempire/sdk':
+        specifier: workspace:*
+        version: link:../packages/sdk
+      '@mempire/sim':
+        specifier: workspace:*
+        version: link:../packages/sim
+      near-api-js:
+        specifier: 5.0.0
+        version: 5.0.0
+
 packages:
 
   '@babel/code-frame@7.29.7':

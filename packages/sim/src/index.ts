@@ -5,3 +5,4 @@ export * from './bot';
 export * from './traits';
 export * from './archetypes';
 export * from './fixed';
+export * from './referee';

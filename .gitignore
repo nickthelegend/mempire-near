@@ -10,3 +10,5 @@ secrets/
 .DS_Store
 data/
 regtest/
+.demo/
+.shots/

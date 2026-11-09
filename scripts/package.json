@@ -1,0 +1,1 @@
+{"name":"@mempire/scripts","private":true,"type":"module","license":"MIT","dependencies":{"near-api-js":"5.0.0","@mempire/sim":"workspace:*","@mempire/sdk":"workspace:*"}}
