@@ -13,7 +13,8 @@ sandbox, and the testnet runs are real transactions (hashes in `deployments/`).
 | Rust sandbox: weekly season, top-one paid 50 %, unearned shares roll over, paid once | same | 1 | pass |
 | SDK (base58, NEAR amounts, 24 h move, NEP-366 delegate round trip, panic parsing) | `pnpm --filter @mempire/sdk test` | 5 | pass |
 | Relayer (exact e8 parsing, signed payload verifies, tampered payload fails) | `pnpm --filter @mempire/relayer test` | 2 | pass |
-| **Total automated** | | **19** | **pass** |
+| Web (v3 art paths, card frames by market buff, deck rules, troop-drop snapping) | `pnpm --filter @mempire/web test` | 4 | pass |
+| **Total automated** | | **23** | **pass** |
 
 Sandbox gas: a Rush match with 18 plays settled in 13–18 TGas; with 60 TGas per call the referee checkpointed at tick 532
 and finished in a second call.
@@ -35,7 +36,14 @@ and finished in a second call.
 arena refused it) → the page asked the referee to settle (meta tx) → **Replay & verify: this browser's replay matches the
 referee** → session key deleted. No uncaught page errors.
 
-## Route QA (headless Chrome, 1440×900 and 375×812)
+## Route QA, v3 redesign (Nov 10, headless Chrome, 1440×900, 390×844 and 375×812)
+
+`/`, `/app`, `/app/deck`, `/app/season`, `/app/houses`, `/app/proof`, `/app/practice`, `/app/battle/2`: root renders, no
+uncaught page errors, `scrollWidth - innerWidth = 0` at all three widths. `/app/battle/2` → **Replay & verify** in the
+browser: "Verified: this browser's replay matches the referee" (21 on-chain plays to tick 600, hash 1045771825). With
+the relayer stopped the lobby shows "Setup required: relayer" instead of the sign-in form. `vite build` passes.
+
+## Route QA, Nov 9 (headless Chrome, 1440×900 and 375×812)
 
 `/`, `/app`, `/app/deck`, `/app/season`, `/app/practice`, `/app/battle/2`: root renders, no uncaught page errors,
 `scrollWidth - innerWidth = 0` at both widths. The console can show "Failed to load resource" when the shared public RPC

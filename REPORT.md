@@ -18,8 +18,13 @@
 - **Clock window:** a play must land within 5 s after its tick (100 ticks). Public-RPC 429s made some plays late on testnet;
   the arena refuses them rather than backdating, which is the honest trade-off (a wider window lets a player react later).
 - **House moves** are computed by the referee, so houses never sign during a match and cannot deviate from the published bot.
-- **Art:** the market fighters reuse Mempire's own painted characters (BTC = Hoard Dragon, NEAR = Forge Warlock,
-  SOL = Volt Pack, ZEC = The Veiled Seer, ETH = The Prism). No new art was generated.
+- **Art:** a new bright 3D cartoon set generated with ChatGPT's image model on Nov 10 (`packages/web/public/art/v3/`):
+  key art, the arena floor, one original character per fighter (BTC = Hoard Dragon, NEAR = Forge Warlock,
+  SOL = Volt Pack, ZEC = The Veiled Seer, ETH = The Prism, plus the six house fighters), towers, houses, tier badges,
+  chest, crown, trophy and the crest. The painted v2 set was removed. The battle floor maps the arena art onto the
+  sim's field so its lanes, river and king keeps line up with the simulation.
+- **UI:** an arcade game look (sky, glossy 3D buttons, Titan One headings, Urbanist text), modelled on the layout of
+  Nick's reference and of Supercell's game sites; every number on screen is read from the arena or labelled.
 
 ## Known limits
 - Email codes need `RESEND_API_KEY`; guest sign-in works without it.
