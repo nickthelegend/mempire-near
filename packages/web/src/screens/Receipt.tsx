@@ -10,8 +10,9 @@ import { isHouse, mascotOf } from '../state/history';
 import { net, accountUrl } from '../lib/net';
 import { crownsTaken, tickClock, towerHealth } from '../lib/match';
 import { receiptTxs } from '../lib/receipts';
+import { ART } from '../lib/art';
 import { fighter, shortAcct, shortError, statusLabel } from '../lib/fighters';
-import { AddrLink, Avatar, Big, Crowns, Icon, Loading, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, Crowns, Icon, Loading, MoveChip, StateBox, TxLink } from '../ui/kit';
 
 type Replay = Awaited<ReturnType<typeof replayFromChain>>;
 
@@ -86,6 +87,7 @@ export function Receipt() {
           <span className="chip chip--gold">Referee receipt · match #{m.id}</span>
           <span className="chip">{TIER_NAMES[m.tier]} · {FORMAT_NAMES[m.format]}</span>
         </div>
+        <Art className="rc-emblem" src={ART.receiptScroll} alt="Sealed referee receipt" width={128} height={128} eager fallback={<Icon name="scroll" size={52} />} />
         <h1 id="rc-title" className="rc-title">{title}</h1>
         <div className="rc-vs">
           {seats.map((seat) => {

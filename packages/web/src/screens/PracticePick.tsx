@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { formatNear } from '@mempire/sdk';
 import { useHouses } from '../state/data';
 import { HOUSE_LEVEL, shortError } from '../lib/fighters';
-import { houseArt } from '../lib/art';
+import { ART, houseArt } from '../lib/art';
 import { Art, Avatar, Icon, Loading, StateBox } from '../ui/kit';
 
 const TONE = ['jade', 'gold', 'crimson'] as const;
@@ -20,7 +20,13 @@ export function PracticePick() {
           <h1 id="pp-title" className="h1 pp-title">Pick a rival</h1>
           <p className="pp-lede">A 30-second Rush in your browser with your own deck and today&apos;s signed prices. No account, no stake.</p>
         </div>
-        <Link to="/app/practice/bot" className="btn btn--green btn--lg pp-quick"><Icon name="play" size={24} />Quick practice</Link>
+        <div className="pp-quick-wrap">
+          <figure className="pp-bot">
+            <Art className="pp-bot-img" src={ART.practiceDummy} alt="Training bot: a straw practice dummy" width={150} height={150} eager fallback={<Icon name="shield" size={56} />} />
+            <figcaption className="pp-bot-tag">Training bot</figcaption>
+          </figure>
+          <Link to="/app/practice/bot" className="btn btn--green btn--lg pp-quick"><Icon name="play" size={24} />Quick practice</Link>
+        </div>
       </section>
 
       <h2 className="h3 pp-sub">Or train against a house&apos;s real deck</h2>

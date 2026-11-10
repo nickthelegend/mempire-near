@@ -127,6 +127,10 @@ relayer, signed-price relayer, houses, seasons and the NEAR app wiring.
 
 Lead: <TBD by Nick>
 
+## Credits
+
+Art generated with ChatGPT.
+
 ## License
 
 MIT, Copyright (c) 2026 Nivesh Gajengi.

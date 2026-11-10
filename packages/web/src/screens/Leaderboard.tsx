@@ -15,25 +15,30 @@ const ago = (ms: number) => { const m = Math.round((Date.now() - ms) / 60000); r
 
 function Podium({ rows, me }: { rows: LadderRow[]; me: string | null }) {
   return (
-    <ol className="lb-podium" aria-label="Top three all time">
-      {PODIUM.map((i) => {
-        const r = rows[i];
-        const fav = r ? mascotOf(r.account) : undefined;
-        return (
-          <li key={i} className="lb-plinth" data-rank={i + 1} data-you={r?.account === me}>
-            {r ? (
-              <Link to={`/app/player/${r.account}`} className="lb-plinth-link" aria-label={`Rank ${i + 1}: ${name(r.account, me)}, ${r.wins} wins`}>
-                {i === 0 && <Art className="lb-crown" src={ART.crown} fallback={<Icon name="crown" size={30} />} />}
-                <Art className="lb-art" src={artOf(fav ?? 6)} fallback={<Avatar id={fav ?? 6} size={90} />} />
-                <span className="lb-name">{name(r.account, me)}</span>
-                <span className="lb-sub num">{r.wins} win{r.wins === 1 ? '' : 's'} · {formatNear(r.won)} Ⓝ</span>
-              </Link>
-            ) : <div className="lb-plinth-link lb-plinth-empty"><span className="lb-name">Open</span><span className="lb-sub">Win a staked match</span></div>}
-            <div className="lb-block"><span>{i + 1}</span></div>
-          </li>
-        );
-      })}
-    </ol>
+    <div className="lb-stage">
+      <Art className="lb-stage-art" src={ART.podium} width={1400} height={934} eager
+        fallback={<span className="lb-stage-ph"><i data-rank="2" /><i data-rank="1" /><i data-rank="3" /></span>} />
+      <ol className="lb-podium" aria-label="Top three all time">
+        {PODIUM.map((i) => {
+          const r = rows[i];
+          const fav = r ? mascotOf(r.account) : undefined;
+          return (
+            <li key={i} className="lb-plinth" data-rank={i + 1} data-you={r?.account === me}>
+              {r ? (
+                <Link to={`/app/player/${r.account}`} className="lb-plinth-link" aria-label={`Rank ${i + 1}: ${name(r.account, me)}, ${r.wins} wins`}>
+                  {i === 0 && <Art className="lb-crown" src={ART.crown} fallback={<Icon name="crown" size={30} />} />}
+                  <Art className="lb-art" src={artOf(fav ?? 6)} fallback={<Avatar id={fav ?? 6} size={90} />} />
+                  <span className="lb-tag">
+                    <b className="lb-rank" aria-hidden>{i + 1}</b><span className="lb-name">{name(r.account, me)}</span>
+                    <span className="lb-sub num">{r.wins} win{r.wins === 1 ? '' : 's'} · {formatNear(r.won)} Ⓝ</span>
+                  </span>
+                </Link>
+              ) : <div className="lb-plinth-link lb-plinth-empty"><span className="lb-tag"><b className="lb-rank" aria-hidden>{i + 1}</b><span className="lb-name">Open</span><span className="lb-sub">Win a staked match</span></span></div>}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 

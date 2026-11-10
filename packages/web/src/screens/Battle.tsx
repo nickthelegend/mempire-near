@@ -18,7 +18,7 @@ import { HOUSE_DIFFICULTY } from '@mempire/sim';
 import { removeSession, settle } from '../lib/play';
 import { costOf, fighter, pct, shortAcct, statusLabel, shortError } from '../lib/fighters';
 import { BattleBoard, dropDecision } from '../battle/BattleBoard';
-import { AddrLink, Art, Avatar, Big, Crowns, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, BotAvatar, Crowns, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
 import { ART } from '../lib/art';
 
 type TxRow = { key: string; label: string; hash?: string; ms?: number; state: 'sent' | 'ok' | 'in' | 'no' };
@@ -40,6 +40,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const house = practice && rival !== 'bot' ? houses.data?.find((h) => h.name.toLowerCase() === rival) ?? null : null;
   const rivalReady = !practice || rival === 'bot' || !!house || !!houses.error;
   const rivalName = house ? house.name : 'Training bot';
+  const rivalIsBot = practice && !house;
   const [intro, setIntro] = useState<'tips' | 'count' | null>(() => (practice ? (localStorage.getItem(TIPS_SEEN) ? 'count' : 'tips') : null));
   const [count, setCount] = useState(3);
   const startedRef = useRef(!practice);
@@ -265,7 +266,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
       <div className="arena-stack">
         <div className="bhud bhud--row">
           <span className="plate plate--foe">
-            <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />
+            {rivalIsBot ? <BotAvatar size={34} ring="crimson" /> : <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />}
             <span className="plate-name">{practice ? rivalName : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
           </span>
           <span className={`clock${overtime ? ' clock--ot' : ''}`} aria-live="polite">
@@ -278,7 +279,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
           <BattleBoard perspective={perspective} placing={selected !== null && !replay} spell={selectedCard?.archetype === Archetype.Spell}
             onPlace={place} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
           {practice && intro && sim && (
-            <VsIntro you="You" foe={rivalName} youDeck={sim.players[0].deck.map((c) => c.fighterId)} foeDeck={sim.players[1].deck.map((c) => c.fighterId)}
+            <VsIntro you="You" foe={rivalName} foeBot={rivalIsBot} youDeck={sim.players[0].deck.map((c) => c.fighterId)} foeDeck={sim.players[1].deck.map((c) => c.fighterId)}
               note="Practice · local · no stake" count={intro === 'count' ? count : null}
               onStart={() => { try { localStorage.setItem(TIPS_SEEN, '1'); } catch { /* private mode */ } setIntro('count'); }} />
           )}
@@ -344,7 +345,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             </div>
           </div>
         )}
-        {showCeremony && <Ceremony practice={practice} rivalName={rivalName} crowns={sim ? [myCrowns, theirCrowns] : null} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
+        {showCeremony && <Ceremony practice={practice} rivalName={rivalName} rivalIsBot={rivalIsBot} crowns={sim ? [myCrowns, theirCrowns] : null} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
       </div>
 
       <aside className="bside" aria-label="Match details">
@@ -412,12 +413,12 @@ function Confetti() {
 }
 
 /** The pre-battle screen: both decks face off, the first-run tips, then a 3-2-1. */
-function VsIntro({ you, foe, youDeck, foeDeck, note, count, onStart }: {
-  you: string; foe: string; youDeck: readonly number[]; foeDeck: readonly number[]; note: string; count: number | null; onStart?: () => void;
+function VsIntro({ you, foe, foeBot, youDeck, foeDeck, note, count, onStart }: {
+  you: string; foe: string; foeBot?: boolean; youDeck: readonly number[]; foeDeck: readonly number[]; note: string; count: number | null; onStart?: () => void;
 }) {
   return (
-    <div className={`vs-intro${count === null ? ' vs-intro--tips' : ''}`} role="dialog" aria-label={`${you} versus ${foe}`}>
-      <div className="vs-row vs-row--foe"><span className="vs-name">{foe}</span><div className="vs-deck">{foeDeck.slice(0, 8).map((id, i) => <Avatar key={i} id={id} size={34} ring="crimson" />)}</div></div>
+    <div className={`vs-intro${count === null ? ' vs-intro--tips' : ''}`} role="dialog" aria-label={`${you} versus ${foe}`} style={{ ['--vs-art' as string]: `url(${ART.vsBurst})` }}>
+      <div className="vs-row vs-row--foe">{foeBot && <BotAvatar size={48} ring="crimson" />}<span className="vs-name">{foe}</span><div className="vs-deck">{foeDeck.slice(0, 8).map((id, i) => <Avatar key={i} id={id} size={34} ring="crimson" />)}</div></div>
       <div className="vs-mid">
         <span className="vs-badge">VS</span>
         <span className="vs-note">{note}</span>
@@ -437,8 +438,8 @@ function VsIntro({ you, foe, youDeck, foeDeck, note, count, onStart }: {
   );
 }
 
-function Ceremony({ practice, rivalName, crowns, sim, seat, match, me, claim, busy, onReplay, replay }: {
-  practice: boolean; rivalName: string; crowns: [number, number] | null; sim: SimState | null; seat: 0 | 1; match: MatchView | null; me: string | null; claim: Claim | null; busy: string; onReplay: () => void; replay: Replay | null;
+function Ceremony({ practice, rivalName, rivalIsBot, crowns, sim, seat, match, me, claim, busy, onReplay, replay }: {
+  practice: boolean; rivalName: string; rivalIsBot: boolean; crowns: [number, number] | null; sim: SimState | null; seat: 0 | 1; match: MatchView | null; me: string | null; claim: Claim | null; busy: string; onReplay: () => void; replay: Replay | null;
 }) {
   if (practice && sim) {
     const result = sim.winner === -2 ? 'Draw' : sim.winner === 0 ? 'Victory' : 'Defeat';
@@ -448,7 +449,7 @@ function Ceremony({ practice, rivalName, crowns, sim, seat, match, me, claim, bu
         <div className="cer-card">
           <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
           <h2 className="cer-title">{result}</h2>
-          {crowns && <div className="cer-crowns"><div><span className="label">You</span><Crowns n={crowns[0]} /></div><div><span className="label">{rivalName}</span><Crowns n={crowns[1]} side="red" /></div></div>}
+          {crowns && <div className="cer-crowns"><div><span className="label">You</span><Crowns n={crowns[0]} /></div><div><span className="label cer-rival">{rivalIsBot && <BotAvatar size={28} ring="crimson" />}{rivalName}</span><Crowns n={crowns[1]} side="red" /></div></div>}
           <ul className="cer-stats">
             <li><b className="num">{Math.round(towerHealth(sim, 0) * 100)}%</b><span>your towers left</span></li>
             <li><b className="num">{Math.round(towerHealth(sim, 1) * 100)}%</b><span>{rivalName}&apos;s towers left</span></li>

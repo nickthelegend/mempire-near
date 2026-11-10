@@ -149,6 +149,15 @@ export function Avatar({ id, size = 40, ring }: { id: number; size?: number; rin
   );
 }
 
+/** The training bot's avatar: the straw practice dummy (a ring-coloured disc with a target icon until it loads). */
+export function BotAvatar({ size = 40, ring }: { size?: number; ring?: 'gold' | 'jade' | 'crimson' }) {
+  return (
+    <span className={`avatar avatar--bot${ring ? ` avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}>
+      <Art src={ART.practiceDummy} alt="Training bot" width={size} height={size} eager fallback={<Icon name="shield" size={Math.round(size * 0.5)} />} />
+    </span>
+  );
+}
+
 /* ── States ────────────────────────────────────────────────────────────── */
 export function Loading({ lines = 2, label }: { lines?: number; label: string }) {
   return (

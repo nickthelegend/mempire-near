@@ -76,6 +76,11 @@
 .pp-title { color: #fff; text-shadow: 0 4px 0 rgba(150, 60, 0, 0.5); }
 .pp-lede { color: #fff; font-size: 17px; font-weight: 700; max-width: 56ch; }
 .pp-quick { min-width: 260px; }
+.pp-quick-wrap { display: grid; justify-items: center; gap: 10px; }
+.pp-bot { position: relative; display: grid; justify-items: center; margin: 0; }
+.pp-bot-img { width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 6px 0 rgba(150, 60, 0, 0.35)); }
+.art-ph.pp-bot-img { width: 120px; height: 120px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); color: #fff; }
+.pp-bot-tag { margin-top: -10px; padding: 4px 12px; border-radius: 999px; background: #fff; border: 2.5px solid var(--ink); font-weight: 900; font-size: 13px; color: var(--ink); }
 .pp-sub { color: var(--ink); }
 .pp-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .pp-card { display: grid; gap: 14px; align-content: start; padding: 18px; border-radius: 28px; background: #fff; box-shadow: var(--panel-edge); }
@@ -99,22 +104,38 @@
 .lb-title { color: #fff; text-shadow: 0 4px 0 rgba(10, 50, 150, 0.45); }
 .lb-lede { color: rgba(255, 255, 255, 0.92); font-size: 16px; font-weight: 700; max-width: 46ch; }
 .lb-hero .skeleton { background: linear-gradient(90deg, rgba(255,255,255,.25) 25%, rgba(255,255,255,.45) 50%, rgba(255,255,255,.25) 75%); background-size: 200% 100%; }
-.lb-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 10px; }
-.lb-plinth { display: grid; min-width: 0; }
-.lb-plinth-link { position: relative; display: grid; justify-items: center; gap: 2px; padding-bottom: 8px; text-decoration: none; color: #fff; text-align: center; min-width: 0; }
+/* The podium art is the stage; each card stands on its step. Step centres (23 / 49 / 77 % across) and lid heights
+   (41 / 54 / 39 % up the 3:2 art) were measured from mp3-podium, so container units keep them aligned at any width. */
+.lb-stage { position: relative; display: grid; align-items: end; container-type: inline-size; }
+.lb-stage > * { grid-area: 1 / 1; }
+.lb-stage-art { width: 100%; height: auto; aspect-ratio: 1400 / 934; object-fit: cover; align-self: end;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%), linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to bottom, transparent, #000 22%), linear-gradient(to right, transparent, #000 9%, #000 91%, transparent); mask-composite: intersect; }
+.lb-stage-ph { position: relative; width: 100%; aspect-ratio: 1400 / 934; align-self: end; }
+.lb-stage-ph i { position: absolute; bottom: 0; border-radius: 18px 18px 0 0; border: 3.5px solid var(--ink); border-bottom: 0; background: linear-gradient(180deg, #e9eef7, #b9c6dc); }
+.lb-stage-ph i[data-rank='2'] { left: 10%; width: 26%; height: 27cqw; }
+.lb-stage-ph i[data-rank='1'] { left: 36%; width: 27%; height: 36cqw; background: linear-gradient(180deg, #ffe066, #ffb800); }
+.lb-stage-ph i[data-rank='3'] { left: 63%; width: 26%; height: 26cqw; background: linear-gradient(180deg, #ffc08a, #e3894a); }
+.lb-podium { position: relative; display: grid; grid-template-columns: 26fr 27fr 26fr; align-items: end; padding-inline: 10cqw 11cqw; }
+.lb-plinth { display: grid; min-width: 0; margin-bottom: 27cqw; }
+.lb-plinth[data-rank='1'] { margin-bottom: 36cqw; }
+.lb-plinth[data-rank='3'] { margin-bottom: 26cqw; }
+.lb-plinth-link { position: relative; display: grid; justify-items: center; gap: 4px; padding: 0 2px; text-decoration: none; color: #fff; text-align: center; min-width: 0; }
 .lb-plinth-link:hover { color: #fff; }
 .lb-plinth-link:hover .lb-art { transform: translateY(-4px) scale(1.03); }
 .lb-art { width: 100%; max-width: 150px; height: 140px; object-fit: contain; object-position: bottom; filter: drop-shadow(0 6px 0 rgba(8, 40, 140, 0.35)); transition: transform var(--t) var(--spring); }
 .lb-plinth[data-rank='1'] .lb-art { max-width: 190px; height: 180px; }
 .lb-crown { position: absolute; top: -30px; width: 58px; height: 58px; object-fit: contain; z-index: 1; filter: drop-shadow(0 3px 0 rgba(8, 40, 140, 0.35)); }
-.lb-name { font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: 0.02em; text-shadow: 0 2px 0 rgba(10, 50, 150, 0.5); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-sub { font-size: 13px; font-weight: 800; color: rgba(255, 255, 255, 0.85); }
-.lb-plinth-empty { min-height: 120px; align-content: end; opacity: 0.8; }
-.lb-block { display: grid; place-items: center; height: 56px; border-radius: 18px 18px 0 0; border: 3.5px solid var(--ink); border-bottom: 0; background: linear-gradient(180deg, #e9eef7, #b9c6dc); }
-.lb-plinth[data-rank='1'] .lb-block { height: 92px; background: linear-gradient(180deg, #ffe066, #ffb800); }
-.lb-plinth[data-rank='3'] .lb-block { height: 42px; background: linear-gradient(180deg, #ffc08a, #e3894a); }
-.lb-plinth[data-you='true'] .lb-block { box-shadow: inset 0 0 0 4px #fff; }
-.lb-block span { font-family: var(--display); font-size: 34px; color: #fff; text-shadow: var(--stroke-sm); }
+/* Name plate: a dark pill so white text holds ≥4.5:1 over the bright sky in the art. */
+.lb-tag { position: relative; display: grid; justify-items: center; gap: 1px; max-width: 100%; min-width: 0; padding: 6px 10px; border-radius: 16px; background: rgba(12, 38, 120, 0.82); box-shadow: 0 3px 0 rgba(8, 30, 90, 0.35); }
+.lb-plinth[data-you='true'] .lb-tag { box-shadow: 0 0 0 3px var(--gold), 0 3px 0 rgba(8, 30, 90, 0.35); }
+.lb-name { font-family: var(--display); font-weight: 400; font-size: 16px; line-height: 1.15; letter-spacing: 0.02em; max-width: 100%; overflow-wrap: anywhere; }
+/* Rank badge pinned to the plate's top-left corner, so the name gets the plate's full width. */
+.lb-rank { position: absolute; top: -9px; left: -7px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); font-size: 12px; font-weight: 400; color: var(--ink); background: linear-gradient(180deg, #e9eef7, #b9c6dc); }
+.lb-plinth[data-rank='1'] .lb-rank { background: linear-gradient(180deg, #ffe066, #ffb800); }
+.lb-plinth[data-rank='3'] .lb-rank { background: linear-gradient(180deg, #ffc08a, #e3894a); }
+.lb-sub { font-size: 13px; font-weight: 800; color: #fff; }
+.lb-plinth-empty { min-height: 60px; align-content: end; }
 .lb-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: 20px; align-items: start; }
 .lb-side { gap: 20px; }
 .lb-tbl td { white-space: nowrap; }
@@ -170,6 +191,8 @@
 }
 .rc-hero::before { content: ''; position: absolute; inset: 0; z-index: -1; background: repeating-conic-gradient(from 0deg at 50% 30%, rgba(255, 255, 255, 0.45) 0 6deg, transparent 6deg 18deg); }
 .rc-hero--defeat { background: radial-gradient(60% 55% at 50% 30%, rgba(160, 190, 240, 0.55), transparent 70%), linear-gradient(180deg, #f6f8fd, #dfe7f5); }
+.rc-emblem { width: 128px; height: 128px; object-fit: contain; margin: -6px 0 -14px; filter: drop-shadow(0 6px 0 rgba(150, 100, 0, 0.25)); }
+.art-ph.rc-emblem { width: 88px; height: 88px; margin: 0; border-radius: 26px; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border: var(--bw) solid var(--ink); color: #fff; box-shadow: 0 4px 0 var(--ink); }
 .rc-hero-top { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .rc-title { font-family: var(--display); font-weight: 400; font-size: clamp(44px, 6vw, 76px); line-height: 1; color: var(--gold-hi); text-shadow: var(--stroke); letter-spacing: 0.01em; text-transform: uppercase; }
 .rc-hero--defeat .rc-title { color: #c9d4e6; }
@@ -231,6 +254,10 @@
   position: absolute; inset: 0; z-index: 15; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; padding: 16px;
   background: linear-gradient(180deg, rgba(209, 31, 53, 0.86) 0%, rgba(42, 29, 92, 0.78) 45%, rgba(42, 29, 92, 0.78) 55%, rgba(31, 95, 214, 0.88) 100%);
 }
+/* The red-vs-blue burst art under a dark scrim (text stays ≥4.5:1); the gradient above shows if it fails to load. */
+.vs-intro { background: linear-gradient(180deg, rgba(24, 14, 58, 0.58) 0%, rgba(24, 14, 58, 0.4) 50%, rgba(24, 14, 58, 0.58) 100%), var(--vs-art, none) center / cover no-repeat, linear-gradient(180deg, #d11f35 0%, #2a1d5c 50%, #1f5fd6 100%); }
+.vs-row--foe .avatar--bot { background: radial-gradient(circle at 50% 30%, #fff, #ffe9c2 60%, #ffc76b); }
+.cer-rival { display: inline-flex; align-items: center; gap: 6px; }
 .vs-intro--tips { grid-template-rows: auto minmax(0, 1fr); overflow: auto; }
 .vs-intro--tips .vs-deck, .vs-intro--tips .vs-row--you { display: none; }
 .vs-intro--tips .vs-badge { font-size: 56px; }
@@ -317,13 +344,19 @@
   .rarity-key .link-strong { margin-left: 0; }
   .pp-hero { grid-template-columns: minmax(0, 1fr); padding: 22px 18px; border-radius: 28px; }
   .pp-quick { min-width: 0; width: 100%; }
+  .pp-quick-wrap { grid-template-columns: auto minmax(0, 1fr); align-items: center; justify-items: stretch; }
+  .pp-bot-img { width: 84px; height: 84px; }
+  .art-ph.pp-bot-img { width: 72px; height: 72px; }
+  .pp-bot-tag { font-size: 11px; padding: 2px 8px; margin-top: -6px; }
   .pp-card { grid-template-columns: minmax(0, 1fr); }
   .lb-hero { padding: 22px 16px 0; border-radius: 28px; }
   .lb-hero { gap: 34px; }
   .lb-art { height: 96px; }
   .lb-plinth[data-rank='1'] .lb-art { height: 124px; }
-  .lb-name { font-size: 14px; }
+  .lb-name { font-size: 13px; }
   .lb-sub { font-size: 11px; }
+  .lb-tag { padding: 5px 5px; border-radius: 12px; }
+  .lb-rank { width: 18px; height: 18px; font-size: 10px; top: -8px; left: -5px; }
   .lb-crown { width: 44px; height: 44px; top: -24px; }
   .pf-hero { padding: 20px 14px 22px; border-radius: 28px; }
   .pf-stage { gap: 4px; }
@@ -332,6 +365,7 @@
   .pf-flank span { font-size: 12px; }
   .pf-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .rc-hero { padding: 20px 14px 22px; border-radius: 28px; }
+  .rc-emblem { width: 92px; height: 92px; margin: -4px 0 -10px; }
   .rc-vs { gap: 10px; }
   .rc-side { padding: 14px 8px; }
   .rc-side-name { font-size: 15px; }

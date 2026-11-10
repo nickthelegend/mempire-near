@@ -14,6 +14,10 @@ export const ART = {
   crown: at('crown'),
   trophy: at('trophy'),
   logo: at('logo'),
+  vsBurst: at('vs-burst'),
+  podium: at('podium'),
+  receiptScroll: at('receipt-scroll'),
+  practiceDummy: at('practice-dummy'),
 } as const;
 
 export const badgeArt = (tier: 'pauper' | 'knight' | 'duke' | 'emperor') => at(`badge-${tier}`);
