@@ -13,13 +13,20 @@ import { Battle } from './screens/Battle';
 import { Season } from './screens/Season';
 import { Houses } from './screens/Houses';
 import { Proof } from './screens/Proof';
-import { Art, Countdown, Icon, Logo } from './ui/kit';
+import { Cards, CardDetail } from './screens/Cards';
+import { Receipt } from './screens/Receipt';
+import { Leaderboard } from './screens/Leaderboard';
+import { Profile } from './screens/Profile';
+import { PracticePick } from './screens/PracticePick';
+import { HowTo } from './screens/HowTo';
+import { Art, Countdown, Icon, Logo, type IconName } from './ui/kit';
 import { accountUrl, net } from './lib/net';
 import { artOf, shortAcct } from './lib/fighters';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/battle.css';
 import './styles/landing.css';
+import './styles/screens.css';
 
 /** Account and NEAR balance; opens the account card in the lobby. */
 function AccountChip() {
@@ -49,15 +56,27 @@ function SeasonChip() {
   );
 }
 
-const TABS = [
-  { to: '/app', label: 'Battle', icon: 'swords' as const, main: true },
-  { to: '/app/deck', label: 'Deck', icon: 'cards' as const },
-  { to: '/app/season', label: 'Season', icon: 'trophy' as const },
+type Tab = { to: string; label: string; icon: IconName; main?: boolean; end?: boolean };
+const TABS: Tab[] = [
+  { to: '/app', label: 'Battle', icon: 'swords' as const, main: true, end: true },
+  { to: '/app/practice', label: 'Practice', icon: 'play' as const },
+  { to: '/app/cards', label: 'Cards', icon: 'cards' as const },
+  { to: '/app/deck', label: 'Deck', icon: 'layers' as const, end: true },
+  { to: '/app/leaderboard', label: 'Leaderboard', icon: 'trophy' as const },
+  { to: '/app/season', label: 'Season', icon: 'crown' as const },
   { to: '/app/houses', label: 'Houses', icon: 'castle' as const },
+  { to: '/app/profile', label: 'Profile', icon: 'user' as const },
   { to: '/app/proof', label: 'Proof', icon: 'shield' as const },
+  { to: '/app/how', label: 'How to play', icon: 'scroll' as const },
 ];
 /** Phone order puts Battle in the middle, as a game tab bar does. */
-const PHONE_TABS = [TABS[1], TABS[2], TABS[0], TABS[3], TABS[4]];
+const PHONE_TABS: Tab[] = [
+  { to: '/app/cards', label: 'Cards', icon: 'cards' as const },
+  { to: '/app/leaderboard', label: 'Ranks', icon: 'trophy' as const },
+  { ...TABS[0] },
+  { to: '/app/houses', label: 'Houses', icon: 'castle' as const },
+  { to: '/app/profile', label: 'Profile', icon: 'user' as const },
+];
 
 /** Decorative sky: soft clouds, floating gems and coins. Pure CSS. */
 function Sky() {
@@ -84,7 +103,7 @@ function GameShell() {
   const location = useLocation();
   const loadRelayer = useAccount((s) => s.loadRelayer);
   useEffect(() => { void loadRelayer(); }, [loadRelayer]);
-  const inBattle = location.pathname.startsWith('/app/battle') || location.pathname.startsWith('/app/practice');
+  const inBattle = location.pathname.startsWith('/app/battle') || /^\/app\/practice\/[^/]+/.test(location.pathname);
   return (
     <div className={`game${inBattle ? ' game--battle' : ''}`}>
       <Sky />
@@ -102,7 +121,7 @@ function GameShell() {
       <div className="gframe">
         <aside className="gside" aria-label="Game menu">
           <nav className="gnav" aria-label="Game">
-            {TABS.map((t) => <NavLink key={t.to} to={t.to} end className="gnav-link"><Icon name={t.icon} size={20} />{t.label}</NavLink>)}
+            {TABS.map((t) => <NavLink key={t.to} to={t.to} end={!!t.end} className="gnav-link"><Icon name={t.icon} size={20} />{t.label}</NavLink>)}
           </nav>
           <Promo />
           <Link to="/" className="gside-foot"><Icon name="crown" size={16} />Mempire</Link>
@@ -115,7 +134,15 @@ function GameShell() {
             <Route path="houses" element={<Houses />} />
             <Route path="proof" element={<Proof />} />
             <Route path="battle/:id" element={<Battle />} />
-            <Route path="practice" element={<Battle practice />} />
+            <Route path="practice" element={<PracticePick />} />
+            <Route path="practice/:rival" element={<Battle practice />} />
+            <Route path="cards" element={<Cards />} />
+            <Route path="cards/:ticker" element={<CardDetail />} />
+            <Route path="match/:id" element={<Receipt />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="player/:account" element={<Profile />} />
+            <Route path="how" element={<HowTo />} />
           </Routes>
           {!inBattle && (
             <footer className="gfoot">
@@ -128,7 +155,7 @@ function GameShell() {
       {!inBattle && (
         <nav className="gtabs" aria-label="Main">
           {PHONE_TABS.map((t) => (
-            <NavLink key={t.to} to={t.to} end className={`gtab${t.main ? ' gtab--main' : ''}`}>
+            <NavLink key={t.to} to={t.to} end={!!t.end} className={`gtab${t.main ? ' gtab--main' : ''}`}>
               <span className="gtab-ico"><Icon name={t.icon} size={t.main ? 26 : 22} /></span>
               <span className="gtab-label">{t.label}</span>
             </NavLink>

@@ -10,34 +10,43 @@ import { net } from '../lib/net';
 import { useAccount, sessionKeyFor } from '../state/account';
 import { useMatch } from '../state/battle';
 import { useMarket, useMarketStore } from '../state/market';
-import { chainChanged, reader } from '../state/data';
+import { chainChanged, reader, useHouses } from '../state/data';
+import { loadDeck } from '../state/deck';
+import { saveBrowserTxs } from '../lib/receipts';
+import { crownsTaken, towerHealth } from '../lib/match';
+import { HOUSE_DIFFICULTY } from '@mempire/sim';
 import { removeSession, settle } from '../lib/play';
 import { costOf, fighter, pct, shortAcct, statusLabel, shortError } from '../lib/fighters';
 import { BattleBoard, dropDecision } from '../battle/BattleBoard';
-import { AddrLink, Art, Avatar, Big, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, Crowns, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
 import { ART } from '../lib/art';
 
 type TxRow = { key: string; label: string; hash?: string; ms?: number; state: 'sent' | 'ok' | 'in' | 'no' };
 type Replay = Awaited<ReturnType<typeof replayFromChain>>;
 
-const PRACTICE_YOU = [0, 1, 2, 3, 4, 5, 6, 8];
 const PRACTICE_BOT = [0, 9, 2, 10, 4, 7, 3, 1];
+const TIPS_SEEN = 'mempire:near:tips';
 function cards(ids: readonly number[], stat: (id: number) => number): MatchCard[] {
   return ids.map((id) => {
     const f = roster.fighters[id];
     return { fighterId: id, name: f.ticker, archetype: f.archetype as MatchCard['archetype'], trait: traitFor(f.ticker), level: 1, metaBps: stat(id) };
   });
 }
-const crownsTaken = (sim: SimState, by: 0 | 1) => {
-  const enemy = sim.towers.filter((t) => t.owner !== by);
-  const king = enemy.find((t) => t.kind === 'king');
-  if (king && king.hp <= 0) return 3;
-  return enemy.filter((t) => t.kind === 'princess' && t.hp <= 0).length;
-};
 
 export function Battle({ practice = false }: { practice?: boolean }) {
-  const { id } = useParams();
+  const { id, rival = 'bot' } = useParams();
   const matchId = practice ? null : id ?? null;
+  const houses = useHouses();
+  const house = practice && rival !== 'bot' ? houses.data?.find((h) => h.name.toLowerCase() === rival) ?? null : null;
+  const rivalReady = !practice || rival === 'bot' || !!house || !!houses.error;
+  const rivalName = house ? house.name : 'Training bot';
+  const [intro, setIntro] = useState<'tips' | 'count' | null>(() => (practice ? (localStorage.getItem(TIPS_SEEN) ? 'count' : 'tips') : null));
+  const [count, setCount] = useState(3);
+  const startedRef = useRef(!practice);
+  const [toast, setToast] = useState<{ text: string; key: number; foe: boolean } | null>(null);
+  const crownsSeen = useRef<[number, number]>([0, 0]);
+  const [lastDrop, setLastDrop] = useState<{ fid: number; key: number } | null>(null);
+  const [, bump] = useState(0);
   const signer = useAccount((s) => s.signer);
   const me = useAccount((s) => s.device?.accountId ?? null);
   const market = useMarket();
@@ -59,23 +68,31 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const replayRef = useRef<{ state: SimState; pending: InputEvent[] } | null>(null);
   const resultSound = useRef(false);
   const addTx = (row: TxRow) => setTxs((old) => [...old.filter((t) => t.key !== row.key).slice(-40), row]);
+  useEffect(() => { if (matchId && txs.length) saveBrowserTxs(matchId, txs); }, [matchId, txs]);
 
   // Practice: a local sim against the scripted bot with today's signed prices. Nothing touches the chain.
   const marketReady = !market.loading || !!market.error;
   useEffect(() => {
-    if (!practice || !marketReady || practiceRef.current) return;
+    if (!practice || !marketReady || !rivalReady || practiceRef.current) return;
     const { byId } = useMarketStore.getState();
     const stat = (fid: number) => byId.get(fid)?.statBps ?? 0;
-    const state = createMatch(Math.floor(Math.random() * 2 ** 32), [cards(PRACTICE_YOU, stat), cards(PRACTICE_BOT, stat)], FORMATS.rush);
+    const state = createMatch(Math.floor(Math.random() * 2 ** 32), [cards(loadDeck(me), stat), cards(house ? house.deck : PRACTICE_BOT, stat)], FORMATS.rush);
     practiceRef.current = { sim: state, inputs: [] };
     setSim(state, 0);
-  }, [practice, marketReady, setSim]);
+  }, [practice, marketReady, rivalReady, house, me, setSim]);
+  // The kick-off countdown: 3, 2, 1, then the local sim starts.
+  useEffect(() => {
+    if (intro !== 'count') return;
+    if (count <= 0) { startedRef.current = true; setIntro(null); return; }
+    const t = setTimeout(() => setCount((c) => c - 1), 700);
+    return () => clearTimeout(t);
+  }, [intro, count]);
   useEffect(() => {
     if (!practice) return;
     const t = setInterval(() => {
       const v = practiceRef.current;
-      if (!v || v.sim.phase === 'ended') return;
-      const input = decideBot(v.sim, 1, 'normal');
+      if (!v || v.sim.phase === 'ended' || !startedRef.current) return;
+      const input = decideBot(v.sim, 1, botLevel.current);
       if (input) v.inputs.push(input);
       stepSim(v.sim, v.inputs.filter((e) => e.tick === v.sim.tick));
       setSim(structuredClone(v.sim), 0);
@@ -83,6 +100,21 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     return () => clearInterval(t);
   }, [practice, setSim]);
   useEffect(() => () => { practiceRef.current = null; }, []);
+  // A crown toast when a tower falls on either side, from the sim's own tower hit points.
+  useEffect(() => {
+    if (!sim) { crownsSeen.current = [0, 0]; return; }
+    const mine = crownsTaken(sim, perspective), theirs = crownsTaken(sim, (1 - perspective) as 0 | 1);
+    const [a, b] = crownsSeen.current;
+    if (mine > a) setToast({ text: mine === 3 ? 'King keep down!' : 'Tower down! +1 crown', key: Date.now(), foe: false });
+    else if (theirs > b) setToast({ text: theirs === 3 ? 'Your king keep fell' : 'You lost a tower', key: Date.now(), foe: true });
+    crownsSeen.current = [mine, theirs];
+  }, [sim, perspective]);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 1800); return () => clearTimeout(t); }, [toast]);
+  useEffect(() => { if (!lastDrop) return; const t = setTimeout(() => setLastDrop(null), 650); return () => clearTimeout(t); }, [lastDrop]);
+  // Re-render twice a second so the kick-off countdown moves before the first sim state arrives.
+  useEffect(() => { const t = setInterval(() => bump((x) => x + 1), 500); return () => clearInterval(t); }, []);
+  const botLevel = useRef<'easy' | 'normal' | 'hard'>('normal');
+  botLevel.current = house ? HOUSE_DIFFICULTY[house.difficulty] ?? 'normal' : 'normal';
 
   // On-chain: the runner rebuilds the board from the arena's play log and sends ours from the session key.
   useEffect(() => {
@@ -179,6 +211,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
       try { runner.queuePlay(selected, xFp, yFp); } catch (e) { console.warn('queue failed', e); setError((e as Error).message); return; }
     }
     void new Audio('/sfx/sfx_deploy.mp3').play().catch(() => {});
+    setLastDrop({ fid: card.fighterId, key: Date.now() });
     setSelected(null);
   }
 
@@ -233,7 +266,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         <div className="bhud bhud--row">
           <span className="plate plate--foe">
             <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />
-            <span className="plate-name">{practice ? 'Practice bot' : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
+            <span className="plate-name">{practice ? rivalName : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
           </span>
           <span className={`clock${overtime ? ' clock--ot' : ''}`} aria-live="polite">
             <b>{sim ? `${Math.floor(clock / 60)}:${String(clock % 60).padStart(2, '0')}` : '–:––'}</b>
@@ -244,7 +277,18 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         <div className="board-box">
           <BattleBoard perspective={perspective} placing={selected !== null && !replay} spell={selectedCard?.archetype === Archetype.Spell}
             onPlace={place} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
-          {!practice && match?.state === 2 && !started && <div className="board-banner"><span className="plate plate--gold">Kick-off in {Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} s</span></div>}
+          {practice && intro && sim && (
+            <VsIntro you="You" foe={rivalName} youDeck={sim.players[0].deck.map((c) => c.fighterId)} foeDeck={sim.players[1].deck.map((c) => c.fighterId)}
+              note="Practice · local · no stake" count={intro === 'count' ? count : null}
+              onStart={() => { try { localStorage.setItem(TIPS_SEEN, '1'); } catch { /* private mode */ } setIntro('count'); }} />
+          )}
+          {!practice && match?.state === 2 && !started && (
+            <VsIntro you={me && (match.p0 === me || match.p1 === me) ? 'You' : shortAcct(match.p0)} foe={match.house !== null ? `House ${shortAcct(match.p1).split('.')[0]}` : shortAcct(seat === 0 ? match.p1 : match.p0)}
+              youDeck={seat === 0 ? match.deck0 : match.deck1} foeDeck={seat === 0 ? match.deck1 : match.deck0}
+              note={`${TIER_NAMES[match.tier]} · ${formatNear(BigInt(match.stake) * 2n)} NEAR pot · refereed on-chain`} count={Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} />
+          )}
+          {toast && <div key={toast.key} className={`crown-toast${toast.foe ? ' crown-toast--foe' : ''}`} role="status"><Art src={ART.crown} fallback={<Icon name="crown" size={28} />} /><b>{toast.text}</b></div>}
+          {lastDrop && <span key={lastDrop.key} className="drop-ghost" aria-hidden><Avatar id={lastDrop.fid} size={64} ring="gold" /></span>}
           {replay && !replay.done && (
             <div className="replay-bar">
               <span className="chip chip--gold">Replay</span>
@@ -300,7 +344,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             </div>
           </div>
         )}
-        {showCeremony && <Ceremony practice={practice} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
+        {showCeremony && <Ceremony practice={practice} rivalName={rivalName} crowns={sim ? [myCrowns, theirCrowns] : null} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
       </div>
 
       <aside className="bside" aria-label="Match details">
@@ -308,9 +352,10 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         {practice ? (
           <section className="card stack">
             <div className="card-head"><h2 className="h3">Practice</h2><span className="chip">no chain</span></div>
-            <p className="fine">A local Rush match against the scripted bot, with today&apos;s signed prices on every market fighter. Nothing is staked and nothing touches the chain.</p>
+            <p className="fine">A local Rush against {house ? <><b>{house.name}</b>: its on-chain deck and the {HOUSE_DIFFICULTY[house.difficulty] ?? 'normal'} bot the referee plays for it</> : 'the training bot'}, with your deck and today&apos;s signed prices. Nothing is staked and nothing touches the chain.</p>
             <div className="cta-row">
               <button className="btn btn--white btn--sm" onClick={() => window.location.reload()}><Icon name="replay" size={16} />Restart</button>
+              <Link className="btn btn--white btn--sm" to="/app/practice">Rivals</Link>
               <Link className="btn btn--gold btn--sm" to="/app#play">Stake NEAR</Link>
             </div>
           </section>
@@ -366,8 +411,34 @@ function Confetti() {
   return <div className="confetti" aria-hidden>{Array.from({ length: 18 }, (_, i) => <i key={i} style={{ ['--i' as string]: i }} />)}</div>;
 }
 
-function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, replay }: {
-  practice: boolean; sim: SimState | null; seat: 0 | 1; match: MatchView | null; me: string | null; claim: Claim | null; busy: string; onReplay: () => void; replay: Replay | null;
+/** The pre-battle screen: both decks face off, the first-run tips, then a 3-2-1. */
+function VsIntro({ you, foe, youDeck, foeDeck, note, count, onStart }: {
+  you: string; foe: string; youDeck: readonly number[]; foeDeck: readonly number[]; note: string; count: number | null; onStart?: () => void;
+}) {
+  return (
+    <div className={`vs-intro${count === null ? ' vs-intro--tips' : ''}`} role="dialog" aria-label={`${you} versus ${foe}`}>
+      <div className="vs-row vs-row--foe"><span className="vs-name">{foe}</span><div className="vs-deck">{foeDeck.slice(0, 8).map((id, i) => <Avatar key={i} id={id} size={34} ring="crimson" />)}</div></div>
+      <div className="vs-mid">
+        <span className="vs-badge">VS</span>
+        <span className="vs-note">{note}</span>
+        {count !== null ? <span className="vs-count" key={count} aria-live="assertive">{count > 0 ? count : 'Fight!'}</span> : (
+          <div className="vs-tips">
+            <ol>
+              <li><b>1</b>Tap a card in your hand.</li>
+              <li><b>2</b>Tap your half of the arena to drop it. Cards cost elixir; it refills.</li>
+              <li><b>3</b>Knock down towers. Each one is a crown; most crowns in 30 s wins.</li>
+            </ol>
+            <button className="btn btn--green btn--lg btn--wide" onClick={onStart} autoFocus>Start battle <Icon name="arrow" size={22} /></button>
+          </div>
+        )}
+      </div>
+      <div className="vs-row vs-row--you"><div className="vs-deck">{youDeck.slice(0, 8).map((id, i) => <Avatar key={i} id={id} size={34} ring="gold" />)}</div><span className="vs-name">{you}</span></div>
+    </div>
+  );
+}
+
+function Ceremony({ practice, rivalName, crowns, sim, seat, match, me, claim, busy, onReplay, replay }: {
+  practice: boolean; rivalName: string; crowns: [number, number] | null; sim: SimState | null; seat: 0 | 1; match: MatchView | null; me: string | null; claim: Claim | null; busy: string; onReplay: () => void; replay: Replay | null;
 }) {
   if (practice && sim) {
     const result = sim.winner === -2 ? 'Draw' : sim.winner === 0 ? 'Victory' : 'Defeat';
@@ -377,10 +448,16 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
         <div className="cer-card">
           <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
           <h2 className="cer-title">{result}</h2>
-          <p className="fine">Practice match: nothing staked, nothing on chain.</p>
+          {crowns && <div className="cer-crowns"><div><span className="label">You</span><Crowns n={crowns[0]} /></div><div><span className="label">{rivalName}</span><Crowns n={crowns[1]} side="red" /></div></div>}
+          <ul className="cer-stats">
+            <li><b className="num">{Math.round(towerHealth(sim, 0) * 100)}%</b><span>your towers left</span></li>
+            <li><b className="num">{Math.round(towerHealth(sim, 1) * 100)}%</b><span>{rivalName}&apos;s towers left</span></li>
+          </ul>
+          <p className="fine">Practice: no stake, no season points, nothing on chain. Stake a match to win NEAR.</p>
           <div className="cta-row">
             <button className="btn btn--gold" onClick={() => window.location.reload()}>Play again</button>
-            <Link className="btn btn--white" to="/app#play">Stake NEAR</Link>
+            <Link className="btn btn--white" to="/app/practice">New rival</Link>
+            <Link className="btn btn--green" to="/app#play">Stake NEAR</Link>
           </div>
         </div>
       </div>
@@ -396,6 +473,7 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
         <div className="cer-card">
           <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
           <h2 className="cer-title">{result}</h2>
+          {crowns && <div className="cer-crowns"><div><span className="label">Seat {seat}</span><Crowns n={crowns[0]} /></div><div><span className="label">Seat {1 - seat}</span><Crowns n={crowns[1]} side="red" /></div></div>}
           <div className="cer-vs">
             <span className={match.winner === 0 ? 'is-win' : ''}><AddrLink address={match.p0} /></span>
             <b>VS</b>
@@ -419,6 +497,7 @@ function Ceremony({ practice, sim, seat, match, me, claim, busy, onReplay, repla
           ) : <p className="fine">The arena replayed {match.plays0 + match.plays1} plays to tick {match.end_tick} and stored hash <span className="mono">{match.final_hash}</span>.</p>}
           <div className="cta-row">
             <button className="btn btn--blue" disabled={!!busy} onClick={onReplay}>{busy ? <span className="spinner" /> : <Icon name="replay" size={18} />}{replay ? 'Watch again' : 'Replay & verify'}</button>
+            <Link className="btn btn--white" to={`/app/match/${match.id}`}>Referee receipt</Link>
             <Link className="btn btn--gold" to="/app#play">Battle again</Link>
           </div>
         </div>

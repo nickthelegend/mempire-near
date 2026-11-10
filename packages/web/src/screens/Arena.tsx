@@ -208,7 +208,7 @@ function PlayerCard({ mm }: { mm: Matchmaking }) {
         <div><b className="num">{me && stats.data ? stats.data.matches : '—'}</b><span>Matches</span></div>
         <div><b className="num">{me && stats.data ? stats.data.streak : '—'}</b><span>Streak</span></div>
       </div>
-      <a className="btn btn--blue btn--pill" href="#signin">{me ? 'My account' : 'Sign in'} <Icon name="arrow" size={18} /></a>
+      {me ? <Link className="btn btn--blue btn--pill" to="/app/profile">My profile <Icon name="arrow" size={18} /></Link> : <a className="btn btn--blue btn--pill" href="#signin">Sign in <Icon name="arrow" size={18} /></a>}
       <Link to="/app/deck" className="player-deck" aria-label="Your battle deck: edit">
         <span className="player-deck-k">Battle deck</span>
         <span className="player-deck-row">{deck.map((id, i) => <Avatar key={i} id={id} size={28} />)}</span>
@@ -280,7 +280,7 @@ function DeckBlock({ deck }: { deck: number[] }) {
           <span className="pill pill--elixir"><Icon name="drop" size={14} />{avg.toFixed(1)} avg cost</span>
           <span className={`pill${buffed ? ' pill--jade' : ''}`}><Icon name="up" size={14} />{market.list.length ? `${buffed} buffed today` : 'Reading market…'}</span>
         </div>
-        <Link to="/app/deck" className="btn btn--green btn--wide btn--lg">Edit deck <Icon name="cards" size={20} /></Link>
+        <div className="cta-row"><Link to="/app/deck" className="btn btn--green btn--lg">Edit deck <Icon name="cards" size={20} /></Link><Link to="/app/cards" className="btn btn--white btn--lg">All cards</Link></div>
       </div>
     </section>
   );
@@ -293,8 +293,8 @@ function Leaderboard({ me }: { me: string | null }) {
   return (
     <section className="panel" aria-labelledby="lb-title">
       <div className="panel-head">
-        <div><p className="kicker">Season {season.data?.current ?? '…'}</p><h2 id="lb-title" className="title-lg">Season leaderboard</h2></div>
-        <span className="fine">{info ? <>Ends in <Countdown to={Number(info.end_ms) / 1000} /></> : season.error ? 'Season unavailable' : '…'}</span>
+        <div><p className="kicker">Season {season.data?.current ?? '…'}</p><h2 id="lb-title" className="title-lg">Season leaderboard</h2><p className="fine">{info ? <>Ends in <Countdown to={Number(info.end_ms) / 1000} /></> : season.error ? 'Season unavailable' : '…'}</p></div>
+        <Link to="/app/leaderboard" className="link-strong">Full leaderboard <Icon name="arrow" size={16} /></Link>
       </div>
       {season.loading ? <Loading label="Loading the season" lines={3} /> : season.error ? <StateBox kind="error" title="Season unavailable">{shortError(season.error)}</StateBox> : info && (
         <table className="tbl">

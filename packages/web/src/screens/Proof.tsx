@@ -21,7 +21,7 @@ export function MatchCard({ m, me }: { m: MatchView; me?: string | null }) {
   const won0 = m.state === 3 && m.winner === 0, won1 = m.state === 3 && m.winner === 1;
   return (
     <li>
-      <Link to={`/app/battle/${m.id}`} className={`mcard${mine ? ' mcard--mine' : ''}`} aria-label={`Match ${m.id}: ${resultOf(m)}`}>
+      <Link to={m.state === 2 ? `/app/battle/${m.id}` : `/app/match/${m.id}`} className={`mcard${mine ? ' mcard--mine' : ''}`} aria-label={`Match ${m.id}: ${resultOf(m)}`}>
         <span className="mcard-id num">#{m.id}</span>
         <span className={`mcard-side${won0 ? ' is-win' : ''}`}><Avatar id={m.deck0[0] ?? 0} size={36} ring={won0 ? 'gold' : undefined} /><span className="mcard-name">{shortAcct(m.p0)}</span></span>
         <span className="mcard-vs" aria-hidden>VS</span>

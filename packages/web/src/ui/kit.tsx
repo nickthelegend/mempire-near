@@ -5,7 +5,7 @@ import { ART } from '../lib/art';
 import type { PulseState } from '../state/market';
 
 /* ── Icons: chunky line glyphs drawn here ──────────────────────────────── */
-type IconName = 'swords' | 'cards' | 'trophy' | 'scroll' | 'flame' | 'lock' | 'out' | 'wallet' | 'clock' | 'check' | 'x'
+export type IconName = 'swords' | 'cards' | 'trophy' | 'scroll' | 'flame' | 'lock' | 'out' | 'wallet' | 'clock' | 'check' | 'x'
   | 'share' | 'replay' | 'shield' | 'up' | 'down' | 'play' | 'pause' | 'crown' | 'bolt' | 'key' | 'mail' | 'cpu' | 'layers' | 'arrow'
   | 'castle' | 'chevL' | 'chevR' | 'drop' | 'user';
 const PATHS: Record<IconName, ReactNode> = {
@@ -144,7 +144,7 @@ export function FighterCard({
 export function Avatar({ id, size = 40, ring }: { id: number; size?: number; ring?: 'gold' | 'jade' | 'crimson' }) {
   return (
     <span className={`avatar${ring ? ` avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}>
-      <Art src={artOf(id)} fallback={<span className="avatar-ph">{fighter(id).ticker.slice(0, 1)}</span>} />
+      <Art src={artOf(id)} eager fallback={<span className="avatar-ph">{fighter(id).ticker.slice(0, 1)}</span>} />
     </span>
   );
 }
@@ -199,6 +199,19 @@ export function Big({ value, unit, loading, error, tone }: { value?: string; uni
     <span className={`big big--${tone ?? 'ivory'}`}>
       {loading ? <span className="skeleton" style={{ display: 'inline-block', width: 84, height: '0.8em' }} /> : error ? <span title={error}>n/a</span> : value}
       {unit && <small>{unit}</small>}
+    </span>
+  );
+}
+
+/** Three crown slots, lit for each crown a side took. */
+export function Crowns({ n, side = 'blue', size = 34 }: { n: number; side?: 'blue' | 'red'; size?: number }) {
+  return (
+    <span className={`crowns3 crowns3--${side}`} role="img" aria-label={`${n} of 3 crowns`}>
+      {[0, 1, 2].map((i) => (
+        <span key={i} className={`crown3${i < n ? ' is-on' : ''}`} style={{ width: size, height: size, ['--i' as string]: i }}>
+          <Art src={ART.crown} fallback={<Icon name="crown" size={Math.round(size * 0.7)} />} />
+        </span>
+      ))}
     </span>
   );
 }
