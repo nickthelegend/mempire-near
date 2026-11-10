@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 import { roster } from '@mempire/sdk';
-import { ARCHETYPES } from '@mempire/sim';
+import { ARCHETYPES, FP, TICKS_PER_SEC, TRAITS, effectiveDef, scaleStat, traitFor, type Archetype } from '@mempire/sim';
 
 export type Fighter = (typeof roster.fighters)[number];
 
@@ -51,3 +51,35 @@ export function shortError(message: string, max = 180): string {
 }
 export const TIER_BADGES = ['pauper', 'knight', 'duke', 'emperor'] as const;
 export const HOUSE_LEVEL = ['Easy', 'Normal', 'Hard'] as const;
+
+/** A card's battle numbers exactly as the sim builds them (level 1, its trait folded in, then the market change). */
+export function statsOf(id: number, bps = 0) {
+  const f = fighter(id);
+  const arch = f.archetype as Archetype;
+  const trait = traitFor(f.ticker);
+  const def = effectiveDef(ARCHETYPES[arch], trait, arch);
+  const spell = f.archetype === 5;
+  return {
+    trait: TRAITS[trait],
+    elixir: def.elixir,
+    hp: spell ? null : scaleStat(def.hp, 1, bps),
+    baseHp: spell ? null : scaleStat(def.hp, 1, 0),
+    damage: scaleStat(def.damage, 1, bps),
+    baseDamage: scaleStat(def.damage, 1, 0),
+    hitSpeed: spell ? null : def.hitTicks / TICKS_PER_SEC,
+    range: spell ? null : def.rangeFP / FP,
+    speed: spell ? null : (def.speedFP * TICKS_PER_SEC) / FP,
+    count: def.count,
+    splash: def.splashFP ? def.splashFP / FP : null,
+    aura: def.auraFP ? def.auraFP / FP : null,
+    delay: spell ? def.spellDelayTicks / TICKS_PER_SEC : null,
+  };
+}
+export const CLASS_BLURB = [
+  'Slow and huge. Walks to the nearest tower and soaks the hits.',
+  'Four quick fighters at once. Great at swarming a single big target.',
+  'Shoots from far away. Keep something in front of it.',
+  'Hits everything around its target. Clears swarms.',
+  'Makes nearby friends attack faster.',
+  'Lands anywhere on the field after one second and blasts an area.',
+] as const;
