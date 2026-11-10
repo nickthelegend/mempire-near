@@ -128,7 +128,7 @@ h1, h2, h3 { font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
 .chip--sky { background: #d6f1ff; }
 .chip--live { background: var(--grass); color: #fff; }
 .chip--live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
-.chip--btn { cursor: pointer; min-height: 36px; }
+.chip--btn { cursor: pointer; min-height: 44px; }
 .pill { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border-radius: 999px; background: #f1edff; color: var(--ink-2); font-size: 13px; font-weight: 800; }
 .pill--gold { background: var(--gold-hi); color: var(--ink); }
 .pill--jade { background: #c9f7d3; color: #0e5a24; }
@@ -162,7 +162,7 @@ h1, h2, h3 { font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
 }
 .input:focus { outline: none; border-color: var(--royal); box-shadow: 0 0 0 4px rgba(122, 60, 255, 0.2); }
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 5px; border-radius: 18px; background: #e3effc; }
-.seg button { min-height: 40px; border-radius: 11px; font-weight: 900; font-size: 15px; color: var(--ink-2); display: grid; place-items: center; line-height: 1.1; padding: 4px 8px; transition: background var(--t-fast), color var(--t-fast); }
+.seg button { min-height: 44px; border-radius: 11px; font-weight: 900; font-size: 15px; color: var(--ink-2); display: grid; place-items: center; line-height: 1.1; padding: 4px 8px; transition: background var(--t-fast), color var(--t-fast); }
 .seg button small { font-size: 11px; font-weight: 700; color: var(--ink-soft); font-family: var(--mono); }
 .seg button[aria-pressed='true'] { background: linear-gradient(180deg, #4d8dff, #2f6cf2); color: #fff; box-shadow: 0 3px 0 #1b4fc4; }
 .seg button[aria-pressed='true'] small { color: rgba(255, 255, 255, 0.85); }

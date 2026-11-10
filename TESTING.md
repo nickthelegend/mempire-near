@@ -13,8 +13,8 @@ sandbox, and the testnet runs are real transactions (hashes in `deployments/`).
 | Rust sandbox: weekly season, top-one paid 50 %, unearned shares roll over, paid once | same | 1 | pass |
 | SDK (base58, NEAR amounts, 24 h move, NEP-366 delegate round trip, panic parsing) | `pnpm --filter @mempire/sdk test` | 5 | pass |
 | Relayer (exact e8 parsing, signed payload verifies, tampered payload fails) | `pnpm --filter @mempire/relayer test` | 2 | pass |
-| Web (v3 art paths, card frames by market buff, deck rules, troop-drop snapping) | `pnpm --filter @mempire/web test` | 4 | pass |
-| **Total automated** | | **23** | **pass** |
+| Web (v3 art paths, card frames by market buff, deck rules, troop-drop snapping; all-time ladder from settled matches, player portraits, card numbers vs the sim, receipt transactions by match id, crowns from tower hit points) | `pnpm --filter @mempire/web test` | 9 | pass |
+| **Total automated** | | **28** | **pass** |
 
 Sandbox gas: a Rush match with 18 plays settled in 13–18 TGas; with 60 TGas per call the referee checkpointed at tick 532
 and finished in a second call.
@@ -35,6 +35,17 @@ and finished in a second call.
 9 drops clicked, **8 landed** from the session key (2.2–12 s to land under RPC 429s; one landed after the 5 s window and the
 arena refused it) → the page asked the referee to settle (meta tx) → **Replay & verify: this browser's replay matches the
 referee** → session key deleted. No uncaught page errors.
+
+## Route QA, more screens (Nov 10, headless Chrome, 1440×900 and 375×812, relayer running locally)
+
+`/`, `/app`, `/app/cards`, `/app/cards/btc`, `/app/deck`, `/app/practice`, `/app/practice/ryu`, `/app/leaderboard`,
+`/app/season`, `/app/houses`, `/app/profile`, `/app/player/aiko-8197.mempire-relay-41966.testnet`, `/app/match/8`,
+`/app/proof`, `/app/how`, `/app/battle/8`: root renders, no uncaught page errors, `scrollWidth - innerWidth = 0` at both
+widths. The only console errors are the public `test.rpc.fastnear.com` answering 429 without CORS headers; the SDK falls
+back to `rpc.testnet.near.org` and the page still loads. `/app/match/8` replays the stored plays in the browser:
+"Verified: same winner, same final tick, same state hash" (hash 2350323608, tick 600). Scripted practice against Tora:
+Start battle → 3-2-1 → 14 drops → result screen with crowns and towers left. Reduced motion: the card page's float and
+rays stop (`animation-name: none`); keyboard focus shows a 3 px outline. Segmented buttons and chip buttons are 44 px tall.
 
 ## Route QA, v3 redesign (Nov 10, headless Chrome, 1440×900, 390×844 and 375×812)
 

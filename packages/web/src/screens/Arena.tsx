@@ -176,7 +176,7 @@ function SideCards({ mm }: { mm: Matchmaking }) {
         <Art className="mode-art" src={ART.chest} fallback={<span className="mode-ico"><Icon name="play" size={44} /></span>} />
         <span className="mode-k">Free · no chain</span>
         <span className="mode-t">Practice</span>
-        <span className="mode-s">A 30-second Rush against the scripted bot with today&apos;s prices.</span>
+        <span className="mode-s">A 30-second Rush with your deck: the training bot, or a house&apos;s real deck.</span>
         <span className="mode-foot">
           <span className="mode-chip"><Icon name="clock" size={13} />30 s rush</span>
           <span className="mode-faces">{[9, 10, 7].map((id) => <span key={id} className="face"><Avatar id={id} size={34} /></span>)}</span>

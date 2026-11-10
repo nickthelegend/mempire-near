@@ -10,7 +10,7 @@
 /* ── Cards ─────────────────────────────────────────────────────────────── */
 .cards-tools { display: grid; gap: 10px; min-width: min(100%, 420px); }
 .class-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.class-chips .chip { min-height: 36px; padding: 2px 14px; font-size: 13px; }
+.class-chips .chip { min-height: 44px; padding: 2px 14px; font-size: 13px; }
 .collection { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 22px 18px; }
 .coll-item { display: grid; gap: 8px; }
 .coll-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-2); padding: 0 4px; }
@@ -117,6 +117,7 @@
 .lb-block span { font-family: var(--display); font-size: 34px; color: #fff; text-shadow: var(--stroke-sm); }
 .lb-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: 20px; align-items: start; }
 .lb-side { gap: 20px; }
+.lb-tbl td { white-space: nowrap; }
 .lb-tbl .tbl-f { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); min-height: 44px; }
 .lb-tbl .tbl-f b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
 .rank--2 { background: linear-gradient(180deg, #e9eef7, #a9b8d2); }
@@ -306,6 +307,12 @@
   .cdetail-rarity { top: 16px; right: 14px; font-size: 13px; }
   .cdetail-body { padding: 20px 18px; }
   .cmarket-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cstats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .cstat { grid-template-columns: minmax(0, 1fr); padding: 10px 12px; }
+  .cstat-ico { grid-row: auto; width: 30px; height: 30px; margin-bottom: 4px; }
+  .cstat-base { grid-column: 1; }
+  .lb-tbl .tbl-f b { max-width: 104px; }
+  .lb-tbl .avatar { display: none; }
   .cmarket-row b { font-size: 18px; }
   .rarity-key .link-strong { margin-left: 0; }
   .pp-hero { grid-template-columns: minmax(0, 1fr); padding: 22px 18px; border-radius: 28px; }
