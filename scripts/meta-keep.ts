@@ -39,7 +39,7 @@ while (!stopping) {
       const response = await fetch(`${relayUrl}/prices`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(signSnapshot(key, rows)) });
       const out = await response.json() as { skipped?: boolean; hash: string; ok: boolean; error?: string };
       if (!response.ok) throw new Error(out.error || `Price relayer HTTP ${response.status}`);
-      if (out.skipped) { spent -= reserve; if (once) break; continue; }
+      if (out.skipped) { spent -= reserve; if (once) break; await sleep(1000); continue; }
       const raw = await rpc<{ transaction_outcome: { outcome: { tokens_burnt: string } }; receipts_outcome: { outcome: { tokens_burnt: string } }[] }>(net.rpc, 'tx', { tx_hash: out.hash, sender_account_id: account, wait_until: 'FINAL' });
       const gas = BigInt(raw.transaction_outcome.outcome.tokens_burnt) + raw.receipts_outcome.reduce((n, r) => n + BigInt(r.outcome.tokens_burnt), 0n);
       spent += gas - reserve;

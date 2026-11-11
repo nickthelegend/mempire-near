@@ -21,7 +21,7 @@ export async function fetchSnapshot(fetchImpl: typeof fetch = fetch) {
   const rows: [string, string, string][] = [];
   for (const sym of MARKET) {
     const url = SOURCE.replace('{SYMBOL}', sym);
-    const res = await fetchImpl(url, { headers: { 'user-agent': 'mempire-relayer/0.1' } });
+    const res = await fetchImpl(url, { headers: { 'user-agent': 'mempire-relayer/0.1' }, signal: AbortSignal.timeout(12_000) });
     if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`);
     const j = await res.json() as { open?: string; last?: string };
     if (!j.open || !j.last) throw new Error(`${url} -> no open/last`);

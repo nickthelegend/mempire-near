@@ -12,6 +12,7 @@ import { explorerUrl } from '../chain/provider';
 export function ArenaRail() {
   const [matches,setMatches]=useState<MatchView[]>([]);
   const [leaders,setLeaders]=useState<LeaderRow[]>([]);
+  const [loaded,setLoaded]=useState(false);
   const [error,setError]=useState<string|null>(null);
   const account=useWallet(s=>s.address);
   const confirmed=usePlayLog(s=>s.confirmed);
@@ -19,16 +20,17 @@ export function ArenaRail() {
   const phase=usePlayLog(s=>s.phase);
   const status=useMatch(s=>s.status);
   useEffect(()=>{
-    let alive=true;
-    const load=async()=>{try{const [m,l]=await Promise.all([reader.recent(6),leaderboard()]);if(alive){setMatches(m);setLeaders(l);setError(null);}}catch{if(alive)setError('NEAR reads unavailable. Retrying…');}};
-    void load();const timer=setInterval(()=>void load(),10000);
-    return()=>{alive=false;clearInterval(timer);};
+    let alive=true, reading=false, ranking=false;
+    const feed=async()=>{if(reading||document.hidden||status==='queuing')return;reading=true;try{const m=await reader.recent(6);if(alive){setMatches(m);setLoaded(true);setError(null);}}catch{if(alive)setError('NEAR reads unavailable. Retrying…');}finally{reading=false;}};
+    const ranks=async()=>{if(ranking||document.hidden||status==='queuing'||status==='battle')return;ranking=true;try{const l=await leaderboard();if(alive)setLeaders(l);}catch{if(alive)setError('Standings read unavailable. Retrying…');}finally{ranking=false;}};
+    void feed();void ranks();const timer=setInterval(()=>void feed(),10000), standings=setInterval(()=>void ranks(),30000);
+    return()=>{alive=false;clearInterval(timer);clearInterval(standings);};
   },[status]);
   const me=leaders.find(p=>p.address===account);
   return <aside className="desktop-rail right-rail" aria-label="NEAR matches and standings">
     {phase!=='off' && <section className="panel rail-panel"><h2 className="label">Your moves on NEAR</h2><p className="display" style={{fontSize:26,margin:'8px 0'}}>{confirmed} confirmed</p><p className="fine" style={{color:'var(--dim-on-wood)'}}>Each card drop is a separate transaction.</p>{lastHash&&<a href={explorerUrl(lastHash)} target="_blank" rel="noreferrer">Latest move receipt ↗</a>}</section>}
-    <section className="panel rail-panel"><h2 className="label">Match feed</h2><p className="fine" style={{color:'var(--dim-on-wood)',margin:'5px 0 12px'}}>Read from the NEAR arena · refreshes every 10s</p>{error&&<p role="status" className="fine">{error}</p>}
-      {!matches.length&&!error&&<p className="fine">Loading matches…</p>}
+    <section className="panel rail-panel"><h2 className="label">Match feed</h2><p className="fine" style={{color:'var(--dim-on-wood)',margin:'5px 0 12px'}}>{status==='queuing'?'Pausing reads while the stake signs':'Read from the NEAR arena · refreshes every 10s'}</p>{error&&<p role="status" className="fine">{error}</p>}
+      {!matches.length&&!error&&<p className="fine">{loaded?'No matches read yet.':'Loading matches…'}</p>}
       {matches.map(m=><Link className="rail-row" key={m.id} to={`/${m.state===2?'watch':'replay'}/${m.id}`}><span><b>#{m.id}</b> · {m.state===3?'Settled':m.state===2?'Live':m.state===1?'Waiting':'Refunded'}<br/><span className="fine">{accountName(m.p0)}{m.p1?` vs ${accountName(m.p1)}`:''}</span></span><span className="mono">{(Number(m.stake)/1e24).toFixed(2)} NEAR</span></Link>)}
     </section>
     <section className="panel rail-panel"><h2 className="label">Leaderboard</h2><p className="fine" style={{color:'var(--dim-on-wood)',margin:'5px 0 8px'}}>Settled wins · practice excluded</p>

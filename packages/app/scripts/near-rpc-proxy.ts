@@ -13,18 +13,21 @@ const queue: (() => void)[] = [];
 async function slot() { if (active >= 3) await new Promise<void>(resolve => queue.push(resolve)); else active++; }
 function release() { const next = queue.shift(); if (next) next(); else active--; }
 function ttl(r: Request) {
-  if (r.method === 'block') return 300;
+  if (r.method === 'block') return 1500;
   if (r.method !== 'query') return 0;
   if (r.params?.request_type === 'call_function') {
     if (r.params.method_name === 'get_config') return 60_000;
     if (r.params.method_name === 'get_prices') return 30_000;
     if (r.params.method_name === 'get_houses') return 4000;
+    if (['get_points', 'current_season'].includes(r.params.method_name ?? '')) return 15_000;
+    if (r.params.method_name === 'recent_matches') return 1500;
     return 300;
   }
   return r.params?.request_type === 'view_account' ? 500 : 0;
 }
 async function forward(request: Request): Promise<Reply> {
-  await slot();
+  const queuedRead = (request.method === 'query' || request.method === 'block') && request.params?.request_type !== 'view_access_key';
+  if (queuedRead) await slot();
   try {
     let last = 'NEAR RPC unavailable';
     for (let attempt = 0; attempt < 4; attempt++) {
@@ -32,7 +35,7 @@ async function forward(request: Request): Promise<Reply> {
         const response = await fetch(endpoints[attempt % endpoints.length], {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ jsonrpc: '2.0', ...request }),
-          signal: AbortSignal.timeout(request.method === 'send_tx' || request.method === 'tx' ? 60_000 : 12_000),
+          signal: AbortSignal.timeout(request.method === 'send_tx' || request.method === 'tx' ? 60_000 : 4000),
         });
         if (response.status === 429 || response.status >= 500) { last = `NEAR RPC ${response.status}`; await sleep(300 * (attempt + 1)); continue; }
         if (!response.ok) { last = `NEAR RPC ${response.status}`; continue; }
@@ -41,9 +44,9 @@ async function forward(request: Request): Promise<Reply> {
     }
     // JSON-RPC errors use HTTP 200, just as nearcore does. The client surfaces this as a failure.
     return { error: { code: -32000, message: `${last}; retry the NEAR read.` } };
-  } finally { release(); }
+  } finally { if (queuedRead) release(); }
 }
-async function middleware(req: IncomingMessage, res: ServerResponse, next: () => void) {
+export async function middleware(req: IncomingMessage, res: ServerResponse, next: () => void) {
   if (req.url !== '/near-rpc') return next();
   if (req.method !== 'POST') { res.writeHead(405); res.end(); return; }
   let raw = '';
