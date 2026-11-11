@@ -10,6 +10,8 @@ NEAR and checks the result by replaying the game inside the contract.
 
 ## Try it
 
+The approved sky-blue game app is `packages/web` on `main`: fighter cards, practice rivals, a VS intro, battle, referee receipt, podium leaderboard and profile. It uses the current v3 art. The imported Monad client remains on `monad-client` and is not this branch’s web app.
+
 The web app and relayer run locally; there is no hosted demo. Use Node.js 22+ and pnpm 10.29.2.
 Run these commands from the repository root. Practice and replay need no team credentials or sign-in.
 Testnet reads need internet access; public RPC rate limits can delay them.
@@ -50,6 +52,15 @@ Recorded deployment: November 9, 2026. These are testnet accounts, not a mainnet
 
 Sources: [deployment accounts and transactions](deployments/testnet.json),
 [match and season transactions](deployments/testnet-2026-11-09.json).
+
+
+## Keeping market prices fresh
+
+Start the configured HTTP relayer with `RELAYER_PORT=5399 RELAYER_PRICES=0 pnpm --filter @mempire/relayer start`. It needs the operator's funded testnet account and credentials described below. Then run `pnpm meta:post` - see one real signed Coinbase snapshot posted, or confirmation that the current ten-minute epoch already has one. `pnpm meta:keep` checks each minute and posts each new ten-minute epoch while it runs. Ctrl-C stops it. `META_RELAY_URL` can override `http://127.0.0.1:5399`.
+
+The keeper checks balance before writing, retains a 0.05 NEAR balance reserve and limits gas per run with `META_BUDGET_NEAR` (default 0.05 NEAR). It authenticates snapshots with the existing price key and uses the HTTP relayer's shared signing queue, avoiding sponsor nonce races. Read-back prices and exact receipts are saved under `deployments/market-meta-YYYY-MM-DD.json`. It is a local service; it must stay running for scheduled updates. The sky-blue app reads market prices each minute. Matches lock their opening modifiers; prices older than six hours are neutral.
+
+The fresh main-branch post is [AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi](https://testnet.nearblocks.io/txns/AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi), recorded in [market evidence](deployments/market-meta-2026-11-11.json). No imported-client UI was brought to `main` with this keeper.
 
 ## How it works
 
@@ -185,6 +196,8 @@ Lead: <TBD by Nick>
 
 **License.** MIT. [LICENSE](LICENSE) retains Copyright (c) 2026 Nivesh Gajengi, also present in the sibling's MIT license.
 No NOTICE file is present in this repo.
+
+The signed-price keeper was developed on the separate NEAR `monad-client` branch, then ported here from `b42ae15` and `7a93c34` without that branch’s UI. The approved main client remains `packages/web`.
 
 ## Credits
 
