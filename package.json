@@ -6,9 +6,12 @@
   "license": "MIT",
   "packageManager": "pnpm@10.29.2",
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
+    "dev": "pnpm --filter @mempire/app dev",
+    "build": "pnpm --filter @mempire/app build",
+    "preview": "pnpm --filter @mempire/app preview",
     "build:contract": "cd packages/contract && cargo near build non-reproducible-wasm --no-abi",
     "test:contract": "cd packages/contract && cargo test",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",

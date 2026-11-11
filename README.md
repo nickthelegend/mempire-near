@@ -1,25 +1,23 @@
 # Mempire on NEAR
 
-A real-time card battler where players stake testnet NEAR and the contract replays the match to decide who gets paid.
+Every coin is a fighter. The market is the meta. Every move is a NEAR transaction.
 
 ## The problem
 
-A real-time game needs a result that players can trust when money is at stake. Earlier Mempire builds paid out when
-both players' clients agreed, so two colluding clients could report a false result. This version stores their moves on
-NEAR and checks the result by replaying the game inside the contract.
+A staked game needs more than a winner reported by two players. Mempire records every card drop as its own NEAR transaction, signed by a play-only session key without wallet popups. The referee contract replays the whole match before it pays the result; anyone can check the moves and replay.
 
 ## Try it
 
-This branch adds the original Monad game's Royale Arcade client at `packages/app`: its fonts, art, sound, drag controls
-and 3D arena are reused. The NEAR chain layer is new. The earlier `packages/web` client is unchanged.
+The main app is `packages/app`. It reuses the October Monad client's fonts, art, sound, drag controls and 3D arena. Its desktop layout has live market and match rails around a wider game screen; phone controls keep their original layout. The NEAR chain layer is new. The earlier `packages/web` remains in the repo and is no longer the default.
 There is no hosted NEAR demo. Use Node.js 24+ and pnpm 10.29.2; run commands from this repository's root.
 
 1. Run `pnpm install` - see the workspace dependencies install.
-2. Run `pnpm --filter @mempire/app build` - see the production build in `packages/app/dist`.
-3. Run `pnpm --filter @mempire/app preview` - see the imported game at <http://127.0.0.1:5390/>.
+2. Run `pnpm build` - see the production build in `packages/app/dist`.
+3. Run `pnpm preview` - see the imported game at <http://127.0.0.1:5390/>.
    Keep that terminal open. Its local RPC adapter shares real NEAR reads across tabs and retries public RPC limits.
+   For development, `pnpm dev` opens the same app at the same address.
 4. Without signing in, open <http://127.0.0.1:5390/#/proof> - see deployment links and recent matches read from the arena.
-5. Open <http://127.0.0.1:5390/#/replay/8> - see the recorded match replayed in the imported 3D arena.
+5. Open <http://127.0.0.1:5390/#/replay/11> - see the recorded match replayed in the imported 3D arena.
    The verifier compares the winner, final tick and final state hash against the NEAR referee.
 6. For a new account and staked play, start the configured relayer in another terminal:
    `RELAYER_PORT=5399 STARTER_NEAR=0.15 pnpm --filter @mempire/relayer start` - see its listening message.
@@ -64,6 +62,18 @@ The imported client has fresh [match 9 recovery evidence](deployments/monad-clie
 [match 11 clean-run evidence](deployments/monad-client-match-11-2026-11-11.json). Match #11 recorded six plays and its
 browser replay matched the referee's final result. [Its settlement is on NearBlocks](https://testnet.nearblocks.io/txns/BckAqcnpP7xY1WX4QkxmgoajmwSE1z6YgL9NvG6VWW7).
 
+
+## Live market meta
+
+With the configured price-relayer key and funded relayer account, run `pnpm meta:post` - see a real signed Coinbase snapshot posted to the arena (or confirmation that this ten-minute epoch already has one). Run `pnpm meta:keep` - see new snapshots posted once per ten-minute epoch while it runs; Ctrl-C stops it. Stop the HTTP relayer's duplicate price loop with `RELAYER_PRICES=0` when running the separate keeper.
+
+The keeper checks the sender's balance before each write, reserves 0.05 NEAR of balance and limits each run to `META_BUDGET_NEAR` (default 0.05 NEAR of gas). Public transaction evidence is appended under `deployments/market-meta-YYYY-MM-DD.json`. Failed price fetches retry after a minute; they never invent quotes. The app polls prices every 30 seconds and shows the signed snapshot's actual age. Coinbase 24h moves × 2 adjust market fighter stats, capped at ±15%; the six house fighters stay neutral. After six hours, the contract treats a price as neutral. A running match uses its stored opening modifiers, even if a newer snapshot arrives.
+
+## How a match is proven
+
+**Move → NEAR transaction → referee replay → payout.** The stake/key setup happens before play. Each card drop then gets its own `play` transaction from a function-call access key restricted to that arena method. The contract replays the complete stored log, checkpoints if needed, and pays its result. The browser checks the winner, final tick and state hash against the referee. Practice stays local.
+
+[Replay match #11](http://127.0.0.1:5390/#/replay/11) and inspect its [real settlement receipt](https://testnet.nearblocks.io/txns/BckAqcnpP7xY1WX4QkxmgoajmwSE1z6YgL9NvG6VWW7). This is team testnet evidence.
 
 ## How it works
 
