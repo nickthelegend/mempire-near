@@ -7,8 +7,8 @@ import { useAccount } from '../state/account';
 import { useOpen, usePlayer, useRecent, useSeason, useTotals } from '../state/data';
 import { statFor, useMarket } from '../state/market';
 import { useMatchmaking, type Matchmaking } from '../state/matchmaking';
-import { artOf, characterOf, costOf, pct, TIER_BADGES, shortAcct, shortError } from '../lib/fighters';
-import { ART, badgeArt, houseArt } from '../lib/art';
+import { characterOf, costOf, pct, TIER_BADGES, shortAcct, shortError } from '../lib/fighters';
+import { badgeArt, houseArt, OBJ3D } from '../lib/art';
 import type { Step } from '../lib/play';
 import { AddrLink, Art, Avatar, Big, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, TxLink } from '../ui/kit';
 import { ago, money } from '../ui/market';
@@ -109,11 +109,9 @@ function NextMatch({ mm }: { mm: Matchmaking }) {
   const waitingHere = mm.waitingHere && mm.waitingHere !== '0' ? mm.waitingHere : null;
   return (
     <section className="hero-card" id="play" aria-labelledby="fight-title">
-      <span className="hero-tag">Next match</span>
-      <p className="hero-kicker">{totals.data ? `${totals.data.settled} matches refereed on-chain` : 'The arena is open'}</p>
       <h1 id="fight-title" className="hero-title">{TIER_NAMES[tier]} arena<br />{FORMAT_NAMES[format]} PvP</h1>
-      <p className="hero-sub">Real players · the chain is the referee</p>
-      <Art className="hero-mascot" src={artOf(6)} eager fallback={<span />} />
+      <p className="hero-kicker">{totals.data ? `${totals.data.settled} matches refereed on-chain so far` : 'Real players, refereed on-chain'}</p>
+      <Art className="hero-mascot" src={OBJ3D.crown} width={300} height={300} eager fallback={<span />} />
       <div className="hero-panel">
         {waiting ? (
           <div className="waiting" role="status">
@@ -162,8 +160,7 @@ function SideCards({ mm }: { mm: Matchmaking }) {
     <div className="side-cards">
       <Link to="/app/houses" className="mode mode--purple">
         <span className="mode-arrow" aria-hidden><Icon name="arrow" size={20} /></span>
-        <Art className="mode-art" src={ART.crown} fallback={<span className="mode-ico"><Icon name="castle" size={44} /></span>} />
-        <span className="mode-k">House duel</span>
+        <Art className="mode-art" src={OBJ3D.shield} width={110} height={110} fallback={<span className="mode-ico"><Icon name="castle" size={44} /></span>} />
         <span className="mode-t">Fight a house</span>
         <span className="mode-s">Kumo, Tora or Ryu: the referee plays their published bot.</span>
         <span className="mode-foot">
@@ -173,12 +170,11 @@ function SideCards({ mm }: { mm: Matchmaking }) {
       </Link>
       <Link to="/app/practice" className="mode mode--orange">
         <span className="mode-arrow" aria-hidden><Icon name="arrow" size={20} /></span>
-        <Art className="mode-art" src={ART.chest} fallback={<span className="mode-ico"><Icon name="play" size={44} /></span>} />
-        <span className="mode-k">Free · no chain</span>
+        <Art className="mode-art" src={OBJ3D.cards} width={110} height={110} fallback={<span className="mode-ico"><Icon name="play" size={44} /></span>} />
         <span className="mode-t">Practice</span>
         <span className="mode-s">A 30-second Rush with your deck: the training bot, or a house&apos;s real deck.</span>
         <span className="mode-foot">
-          <span className="mode-chip"><Icon name="clock" size={13} />30 s rush</span>
+          <span className="mode-chip"><Icon name="clock" size={13} />Free · 30 s</span>
           <span className="mode-faces">{[9, 10, 7].map((id) => <span key={id} className="face"><Avatar id={id} size={34} /></span>)}</span>
         </span>
       </Link>
@@ -222,10 +218,10 @@ function RecordTiles({ me }: { me: string | null }) {
   const season = useSeason(me);
   const v = (x: number | undefined) => (!me ? '—' : stats.loading ? '…' : stats.error ? 'n/a' : String(x ?? 0));
   const tiles = [
-    { k: 'Wins', v: v(stats.data?.wins), art: ART.trophy, icon: 'trophy' as const, tone: 'green' },
-    { k: 'Matches', v: v(stats.data?.matches), art: badgeArt('knight'), icon: 'shield' as const, tone: 'yellow' },
-    { k: 'Season points', v: !me ? '—' : season.data?.points != null ? String(season.data.points) : '…', art: ART.crown, icon: 'crown' as const, tone: 'purple' },
-    { k: 'Best streak', v: v(stats.data?.best_streak), art: ART.chest, icon: 'flame' as const, tone: 'blue' },
+    { k: 'Wins', v: v(stats.data?.wins), art: OBJ3D.trophy, icon: 'trophy' as const, tone: 'green' },
+    { k: 'Matches', v: v(stats.data?.matches), art: OBJ3D.tower, icon: 'shield' as const, tone: 'yellow' },
+    { k: 'Season points', v: !me ? '—' : season.data?.points != null ? String(season.data.points) : '…', art: OBJ3D.crown, icon: 'crown' as const, tone: 'purple' },
+    { k: 'Best streak', v: v(stats.data?.best_streak), art: OBJ3D.up, icon: 'flame' as const, tone: 'blue' },
   ];
   return (
     <section className="record" aria-labelledby="record-title">
@@ -233,7 +229,7 @@ function RecordTiles({ me }: { me: string | null }) {
       <div className="record-tiles">
         {tiles.map((t) => (
           <div key={t.k} className={`rtile rtile--${t.tone}`}>
-            <Art className="rtile-art" src={t.art} fallback={<span className="rtile-ico"><Icon name={t.icon} size={30} /></span>} />
+            <Art className="rtile-art" src={t.art} width={60} height={60} fallback={<span className="rtile-ico"><Icon name={t.icon} size={30} /></span>} />
             <div><b className="num">{t.v}</b><span>{t.k}</span></div>
           </div>
         ))}
@@ -249,12 +245,12 @@ function LiveMatches({ me }: { me: string | null }) {
   return (
     <section className="panel" aria-labelledby="live-title">
       <div className="panel-head">
-        <div><p className="kicker">On-chain matches</p><h2 id="live-title" className="title-lg">Live from the arena</h2></div>
+        <h2 id="live-title" className="title-lg">Live from the arena</h2>
         <Link to="/app/proof" className="link-strong">All proof <Icon name="out" size={16} /></Link>
       </div>
       {waiting > 0 && <div className="notice"><span className="notice-ico" aria-hidden><Icon name="bolt" size={24} /></span><div><b>{waiting} match{waiting === 1 ? '' : 'es'} waiting for an opponent</b><p className="fine">Battle at the same stake and format joins the waiting match.</p></div><a className="btn btn--blue btn--sm" href="#play">Join</a></div>}
       {recent.loading ? <Loading label="Loading matches" lines={4} /> : recent.error ? <StateBox kind="error" title="Matches unavailable">{shortError(recent.error)}</StateBox>
-        : !recent.data!.length ? <div className="notice"><span className="notice-ico" aria-hidden><Icon name="swords" size={24} /></span><div><b>No matches yet</b><p className="fine">The first staked match will appear here.</p></div></div>
+        : !recent.data!.length ? <StateBox art title="No matches yet">The first staked match will appear here.</StateBox>
           : <ul className="mlist">{recent.data!.map((m) => <MatchCard key={m.id} m={m} me={me} />)}</ul>}
     </section>
   );
@@ -267,7 +263,6 @@ function DeckBlock({ deck }: { deck: number[] }) {
   return (
     <section className="panel panel--split" aria-labelledby="deck-title">
       <div className="split-info">
-        <p className="kicker kicker--light">Deck builder</p>
         <h2 id="deck-title" className="split-title">Pick your eight</h2>
         <p>Market fighters carry today&apos;s 24 h move into the match as a hit-point and damage change. House fighters are always neutral.</p>
         <p className="split-fine">The deck is saved in this browser and sent with your stake. Elixir costs come from each fighter&apos;s class.</p>
@@ -293,7 +288,7 @@ function Leaderboard({ me }: { me: string | null }) {
   return (
     <section className="panel" aria-labelledby="lb-title">
       <div className="panel-head">
-        <div><p className="kicker">Season {season.data?.current ?? '…'}</p><h2 id="lb-title" className="title-lg">Season leaderboard</h2><p className="fine">{info ? <>Ends in <Countdown to={Number(info.end_ms) / 1000} /></> : season.error ? 'Season unavailable' : '…'}</p></div>
+        <div><h2 id="lb-title" className="title-lg">Season {season.data?.current ?? '…'} leaderboard</h2><p className="fine">{info ? <>Ends in <Countdown to={Number(info.end_ms) / 1000} /></> : season.error ? 'Season unavailable' : '…'}</p></div>
         <Link to="/app/leaderboard" className="link-strong">Full leaderboard <Icon name="arrow" size={16} /></Link>
       </div>
       {season.loading ? <Loading label="Loading the season" lines={3} /> : season.error ? <StateBox kind="error" title="Season unavailable">{shortError(season.error)}</StateBox> : info && (
@@ -325,7 +320,7 @@ function MarketTable() {
   return (
     <section className="panel" aria-labelledby="mk-title">
       <div className="panel-head">
-        <div><p className="kicker">Relayer price (testnet)</p><h2 id="mk-title" className="title-lg">Live market fighters</h2></div>
+        <h2 id="mk-title" className="title-lg">Live market fighters</h2>
         <span className="fine">{newest ? `Posted ${ago(newest)}` : m.loading ? 'Reading…' : ''}</span>
       </div>
       {m.loading && !priced.length ? <Loading label="Reading prices" lines={4} /> : m.error && !priced.length ? <StateBox kind="error" title="Prices unavailable">{shortError(m.error)}</StateBox> : (
@@ -345,7 +340,7 @@ function MarketTable() {
           </table>
         </div>
       )}
-      <p className="fine">Coinbase 24 h stats, signed by the relayer key and verified by the arena with ed25519. Each fighter gets twice its move at kick-off, capped at ±15%.</p>
+      <p className="fine">Relayer price (testnet): Coinbase 24 h stats, signed by the relayer key and verified by the arena with ed25519. Each fighter gets twice its move at kick-off, capped at ±15%.</p>
     </section>
   );
 }

@@ -8,7 +8,7 @@ import { usePlayer, useSeason } from '../state/data';
 import { loadDeck } from '../state/deck';
 import { favourites, ladder, mascotOf, seatOf, useHistory, winRate } from '../state/history';
 import { artOf, characterOf, fighter, shortAcct, shortError, TIER_BADGES } from '../lib/fighters';
-import { badgeArt } from '../lib/art';
+import { badgeArt, OBJ3D } from '../lib/art';
 import { accountUrl } from '../lib/net';
 import { Art, Avatar, FighterCard, Icon, Loading, StateBox } from '../ui/kit';
 import { MatchCard } from './Proof';
@@ -41,7 +41,7 @@ export function Profile() {
   if (!account) {
     return (
       <div className="screen">
-        <header className="screen-head"><div><p className="eyebrow">Profile</p><h1 className="h1">Your player</h1><p className="lede">Sign in to get a NEAR testnet account; your record, matches and deck show up here.</p></div></header>
+        <header className="screen-head"><Art className="head-obj obj-bob" src={OBJ3D.coin} alt="" width={104} height={104} eager fallback={<span />} /><div><h1 className="h1">Your player</h1><p className="lede">Sign in to get a NEAR testnet account; your record, matches and deck show up here.</p></div></header>
         <div className="lobby-row"><SignIn /><FindPlayer /></div>
       </div>
     );
@@ -78,10 +78,10 @@ export function Profile() {
           </div>
         </div>
         <ul className="pf-badges" aria-label="Badges">
-          <li><span className="pf-badge-ico">{topTier !== null ? <Art src={badgeArt(TIER_BADGES[topTier])} fallback={<Icon name="shield" />} /> : <Icon name="shield" size={26} />}</span><b>{topTier !== null ? TIER_NAMES[topTier] : 'No stake yet'}</b><span>highest tier</span></li>
-          <li><span className="pf-badge-ico pf-badge-ico--gold"><Icon name="trophy" size={26} /></span><b>{rank >= 0 ? `#${rank + 1}` : 'Unranked'}</b><span>all time</span></li>
-          <li><span className="pf-badge-ico pf-badge-ico--sky"><Icon name="bolt" size={26} /></span><b>{season.data?.points != null ? `${season.data.points} pts` : '…'}</b><span>season {season.data?.current ?? ''}{seasonRank >= 0 ? ` · #${seasonRank + 1}` : ''}</span></li>
-          <li><span className="pf-badge-ico pf-badge-ico--red"><Icon name="flame" size={26} /></span><b className="num">{v(s?.streak)}</b><span>current streak</span></li>
+          <li><span className="pf-badge-ico">{topTier !== null ? <Art src={badgeArt(TIER_BADGES[topTier])} fallback={<Icon name="shield" />} /> : <Art src={OBJ3D.shield} width={54} height={54} fallback={<Icon name="shield" size={26} />} />}</span><b>{topTier !== null ? TIER_NAMES[topTier] : 'No stake yet'}</b><span>highest tier</span></li>
+          <li><span className="pf-badge-ico"><Art src={OBJ3D.trophy} width={54} height={54} fallback={<Icon name="trophy" size={26} />} /></span><b>{rank >= 0 ? `#${rank + 1}` : 'Unranked'}</b><span>all time</span></li>
+          <li><span className="pf-badge-ico"><Art src={OBJ3D.crown} width={54} height={54} fallback={<Icon name="bolt" size={26} />} /></span><b>{season.data?.points != null ? `${season.data.points} pts` : '…'}</b><span>season {season.data?.current ?? ''}{seasonRank >= 0 ? ` · #${seasonRank + 1}` : ''}</span></li>
+          <li><span className="pf-badge-ico"><Art src={OBJ3D.up} width={54} height={54} fallback={<Icon name="flame" size={26} />} /></span><b className="num">{v(s?.streak)}</b><span>current streak</span></li>
         </ul>
         {isMe && <div className="pf-cta"><Link to="/app" className="btn btn--green btn--lg">Battle <Icon name="swords" size={20} /></Link>{balance !== null && <span className="pf-bal num">Ⓝ {formatNear(balance, 3)} NEAR</span>}</div>}
       </section>

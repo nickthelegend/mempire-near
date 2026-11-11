@@ -38,7 +38,6 @@ export function DeckScreen() {
       <section className="deckbar card card--gold" aria-labelledby="deck-title">
         <div className="deckbar-head">
           <div>
-            <p className="eyebrow">Deck builder</p>
             <h1 id="deck-title" className="h2">Your battle deck</h1>
             <p className="fine">Eight fighters. Tap a card below to add it, tap a slot to take it out. Saved in this browser.</p>
           </div>

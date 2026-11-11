@@ -6,7 +6,7 @@ import { net, deploymentInfo, accountUrl } from '../lib/net';
 import { useConfig, useHouses, useRecent, useSeason, useTotals } from '../state/data';
 import { useMarket } from '../state/market';
 import { CLASS_NAMES, HOUSE_LEVEL, TIER_BADGES, characterOf, costOf, pct, shortAcct, shortError } from '../lib/fighters';
-import { ART, badgeArt, houseArt } from '../lib/art';
+import { ART, badgeArt, houseArt, OBJ3D } from '../lib/art';
 import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, Logo } from '../ui/kit';
 import { MarketTicker, money } from '../ui/market';
 import { MatchCard, PotSplit } from './Proof';
@@ -200,7 +200,7 @@ function SeasonsHouses() {
       </div>
       <div className="lx-sh">
         <article className="lx-season">
-          <Art className="lx-season-art" src={ART.trophy} fallback={<Icon name="trophy" size={80} />} />
+          <Art className="lx-season-art" src={OBJ3D.trophy} fallback={<Icon name="trophy" size={80} />} />
           <h3 className="lx-season-title">Season {season.data?.current ?? '…'}</h3>
           <p className="lx-season-sub">3% of every pot funds the pool. The first settle of a new season pays the top three 50 / 30 / 20.</p>
           <div className="lx-season-nums">

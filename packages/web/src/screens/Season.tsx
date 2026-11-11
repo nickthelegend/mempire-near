@@ -4,7 +4,7 @@ import { formatNear, TIER_NAMES } from '@mempire/sdk';
 import { useAccount } from '../state/account';
 import { useConfig, usePlayer, useSeason, useTotals } from '../state/data';
 import { TIER_BADGES, shortAcct, shortError } from '../lib/fighters';
-import { ART, badgeArt } from '../lib/art';
+import { badgeArt, OBJ3D } from '../lib/art';
 import { AddrLink, Art, Big, Countdown, Icon, Loading, StateBox } from '../ui/kit';
 
 const SHARES = [50, 30, 20];
@@ -24,7 +24,6 @@ export function Season() {
     <div className="screen">
       <section className="season-hero" aria-labelledby="season-title">
         <div className="season-hero-copy">
-          <p className="eyebrow">{season.data?.current === 0 ? 'Launch season' : 'Weekly season'}</p>
           <h1 id="season-title" className="h1">Season {season.data?.current ?? '…'}</h1>
           <p className="lede">{season.data?.current === 0 ? 'A short first season so the payout can be seen on testnet. Every season after it runs 7 days.' : 'Weekly. The top three split the pool 50 / 30 / 20.'}</p>
           <div className="season-hero-nums">
@@ -32,7 +31,7 @@ export function Season() {
             <div className="hero-num"><span className="label">Ends in</span><b className="num">{info ? <Countdown to={Number(info.end_ms) / 1000} /> : '…'}</b></div>
           </div>
         </div>
-        <Art className="season-hero-art" src={ART.trophy} fallback={<Icon name="trophy" size={96} />} />
+        <Art className="season-hero-art obj-bob" src={OBJ3D.trophy} width={220} height={220} fallback={<Icon name="trophy" size={96} />} />
       </section>
 
       {season.loading ? <div className="card"><Loading label="Loading the season" lines={4} /></div> : season.error ? <StateBox kind="error" title="Season unavailable">{shortError(season.error)}</StateBox> : info && (
@@ -43,7 +42,7 @@ export function Season() {
               const t = info.top[i];
               return (
                 <li key={i} className="plinth" data-rank={i + 1} data-you={t?.account === me}>
-                  {i === 0 && <Art className="plinth-crown" src={ART.crown} fallback={<Icon name="crown" size={34} />} />}
+                  {i === 0 && <Art className="plinth-crown" src={OBJ3D.crown} fallback={<Icon name="crown" size={34} />} />}
                   <span className="plinth-name">{t ? (t.account === me ? 'You' : shortAcct(t.account)) : 'Open seat'}</span>
                   <span className="plinth-pts fine">{t ? `${t.points} point${t.points === 1 ? '' : 's'}` : 'Win a match to take it'}</span>
                   <div className="plinth-block">

@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { formatNear, TIER_NAMES } from '@mempire/sdk';
 import { useConfig } from '../state/data';
 import { CLASS_BLURB, CLASS_NAMES, TIER_BADGES } from '../lib/fighters';
-import { ART, badgeArt } from '../lib/art';
+import { ART, badgeArt, OBJ3D } from '../lib/art';
 import { Art, Avatar, Icon } from '../ui/kit';
 
 const CLASS_FACE = [6, 9, 10, 8, 4, 7];
@@ -15,13 +15,13 @@ export function HowTo() {
     { n: 1, t: 'Build a deck of 8', s: 'Pick eight fighters. Four sit in your hand; the next one waits.', art: <div className="how-cards">{[6, 8, 9].map((id) => <Avatar key={id} id={id} size={58} />)}</div>, to: '/app/deck', cta: 'Build deck' },
     { n: 2, t: 'Spend elixir', s: 'Each card costs 3 or 4 elixir. The bar refills on its own, faster near the end.', art: <div className="how-elixir"><span className="how-drop"><Icon name="drop" size={26} /><b>7</b></span><span className="how-bar"><i style={{ width: '70%' }} /></span></div> },
     { n: 3, t: 'Drop on your half', s: 'Tap a card, then tap your side of the river. Spells land anywhere.', art: <Art className="how-art" src={ART.arena} fallback={<Icon name="swords" size={48} />} /> },
-    { n: 4, t: 'Take the crowns', s: 'Each tower you knock down is a crown. The king keep is all three.', art: <Art className="how-art how-art--crown" src={ART.crown} fallback={<Icon name="crown" size={48} />} />, to: '/app/practice', cta: 'Practise now' },
+    { n: 4, t: 'Take the crowns', s: 'Each tower you knock down is a crown. The king keep is all three.', art: <Art className="how-art how-art--crown" src={OBJ3D.crown} fallback={<Icon name="crown" size={48} />} />, to: '/app/practice', cta: 'Practise now' },
   ];
   return (
     <div className="screen">
       <header className="screen-head">
+        <Art className="head-obj obj-bob" src={OBJ3D.cards} alt="" width={104} height={104} eager fallback={<span />} />
         <div>
-          <p className="eyebrow">How to play</p>
           <h1 className="h1">Four taps to your first crown</h1>
           <p className="lede">Mempire is a real-time card battle for two. Practice is free and runs in your browser; staked matches are replayed and paid by a NEAR contract.</p>
         </div>

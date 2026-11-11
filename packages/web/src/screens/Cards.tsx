@@ -9,6 +9,7 @@ import { loadDeck, saveDeck } from '../state/deck';
 import { PULSE_LABEL, statFor, useMarket } from '../state/market';
 import { CLASS_BLURB, CLASS_NAMES, artOf, characterOf, fighter, pct, rarityOf, shortError, statsOf } from '../lib/fighters';
 import { Art, FighterCard, Icon, MoveChip, StateBox, type IconName } from '../ui/kit';
+import { OBJ3D } from '../lib/art';
 import { ago, money } from '../ui/market';
 
 type Filter = 'all' | 'market' | 'house';
@@ -28,8 +29,8 @@ export function Cards() {
   return (
     <div className="screen">
       <header className="screen-head cards-head">
+        <Art className="head-obj obj-bob" src={OBJ3D.coin} alt="" width={104} height={104} eager fallback={<span />} />
         <div>
-          <p className="eyebrow">Card collection</p>
           <h1 className="h1">{roster.fighters.length} fighters</h1>
           <p className="lede">Tap a card to see what it does in battle. Market fighters get stronger or weaker with their real 24 h price move.</p>
         </div>
@@ -151,7 +152,7 @@ export function CardDetail() {
                 <div className="cmarket-row">
                   <div><span className="label">{f.ticker} price</span><b className="num">{p.price !== null ? money(p.price) : '—'}</b></div>
                   <div><span className="label">24 h move</span><b className={`num ${p.moveBps != null && p.moveBps >= 0 ? 'up' : 'down'}`}>{p.moveBps != null ? pct(p.moveBps, 2) : '—'}</b></div>
-                  <div><span className="label">In battle</span><MoveChip statBps={p.statBps} state={p.state} /></div>
+                  <div><span className="label">In battle</span><span className="cmarket-buff">{p.statBps !== 0 && p.state === 'live' && <Art className="cmarket-token" src={p.statBps > 0 ? OBJ3D.up : OBJ3D.down} alt="" width={36} height={36} fallback={<span />} />}<MoveChip statBps={p.statBps} state={p.state} /></span></div>
                 </div>
                 <p className="fine">{PULSE_LABEL[p.state]} · relayer price (testnet), posted {p.updatedAt ? ago(p.updatedAt) : '—'}. At kick-off the arena stores twice the 24 h move, capped at ±15%, as this card&apos;s hit-point and damage change{p.state !== 'live' ? '; a stale or missing price plays neutral' : ''}.</p>
               </>

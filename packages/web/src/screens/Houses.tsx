@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { formatNear, FORMAT_NAMES } from '@mempire/sdk';
 import { useMatchmaking } from '../state/matchmaking';
 import { HOUSE_LEVEL, shortError } from '../lib/fighters';
-import { houseArt } from '../lib/art';
+import { houseArt, OBJ3D } from '../lib/art';
 import { accountUrl } from '../lib/net';
 import { Art, Avatar, Icon, Loading, StateBox } from '../ui/kit';
 import { StepList } from './Arena';
@@ -17,8 +17,8 @@ export function Houses() {
   return (
     <div className="screen">
       <header className="screen-head">
+        <Art className="head-obj obj-bob" src={OBJ3D.shield} alt="" width={104} height={104} eager fallback={<span />} />
         <div>
-          <p className="eyebrow">House challenges</p>
           <h1 className="h1">Beat a house, take its stake.</h1>
           <p className="lede">Each house is a NEAR sub-account of the arena with its own treasury. Challenge one and the referee plays its published bot inside the replay, so a house never signs a move. Records and treasuries are public.</p>
         </div>

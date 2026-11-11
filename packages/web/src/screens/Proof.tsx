@@ -6,7 +6,8 @@ import { useAccount } from '../state/account';
 import { useConfig, useRecent, useTotals } from '../state/data';
 import { shortAcct, shortError } from '../lib/fighters';
 import { accountUrl, deploymentInfo, net } from '../lib/net';
-import { AddrLink, Avatar, Big, Icon, Loading, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, Icon, Loading, StateBox, TxLink } from '../ui/kit';
+import { OBJ3D } from '../lib/art';
 
 export function resultOf(m: MatchView) {
   if (m.state !== 3) return STATE_NAMES[m.state] ?? String(m.state);
@@ -58,8 +59,8 @@ export function Proof() {
   return (
     <div className="screen">
       <header className="screen-head">
+        <Art className="head-obj obj-bob" src={OBJ3D.seal} alt="" width={104} height={104} eager fallback={<span />} />
         <div>
-          <p className="eyebrow">On-chain proof</p>
           <h1 className="h1">Every result here was decided by the contract.</h1>
           <p className="lede">Read live from <a href={accountUrl(net.arena)} target="_blank" rel="noreferrer" className="mono">{net.arena}</a>. Open a settled match to replay its stored plays in your browser and compare the state hash with the referee&apos;s.</p>
         </div>

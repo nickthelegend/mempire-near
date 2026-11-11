@@ -6,7 +6,7 @@ import { useAccount } from '../state/account';
 import { useSeason } from '../state/data';
 import { ladder, mascotOf, useHistory, winRate, type LadderRow } from '../state/history';
 import { artOf, shortAcct, shortError } from '../lib/fighters';
-import { ART } from '../lib/art';
+import { ART, OBJ3D } from '../lib/art';
 import { Art, Avatar, Countdown, Icon, Loading, StateBox } from '../ui/kit';
 
 const PODIUM = [1, 0, 2];
@@ -26,7 +26,7 @@ function Podium({ rows, me }: { rows: LadderRow[]; me: string | null }) {
             <li key={i} className="lb-plinth" data-rank={i + 1} data-you={r?.account === me}>
               {r ? (
                 <Link to={`/app/player/${r.account}`} className="lb-plinth-link" aria-label={`Rank ${i + 1}: ${name(r.account, me)}, ${r.wins} wins`}>
-                  {i === 0 && <Art className="lb-crown" src={ART.crown} fallback={<Icon name="crown" size={30} />} />}
+                  {i === 0 && <Art className="lb-crown" src={OBJ3D.crown} fallback={<Icon name="crown" size={30} />} />}
                   <Art className="lb-art" src={artOf(fav ?? 6)} fallback={<Avatar id={fav ?? 6} size={90} />} />
                   <span className="lb-tag">
                     <b className="lb-rank" aria-hidden>{i + 1}</b><span className="lb-name">{name(r.account, me)}</span>
@@ -53,7 +53,7 @@ export function Leaderboard() {
     <div className="screen">
       <section className="lb-hero" aria-labelledby="lb-title">
         <div className="lb-hero-copy">
-          <p className="eyebrow eyebrow--light">Leaderboard · all time</p>
+          <Art className="lb-hero-obj obj-bob" src={OBJ3D.trophy} alt="" width={84} height={84} eager fallback={<span />} />
           <h1 id="lb-title" className="h1 lb-title">Who rules the arena</h1>
           <p className="lb-lede">Ranked by wins, then NEAR won. Computed from every match the on-chain referee settled; house bots are on their own page.</p>
           {myRank >= 0 && <span className="chip chip--gold">You are #{myRank + 1} of {rows.length}</span>}
@@ -113,7 +113,8 @@ export function Leaderboard() {
               </>
             )}
           </section>
-          <section className="card card--gold stack">
+          <section className="card card--gold stack lb-climb">
+            <Art className="lb-climb-art obj-bob" src={OBJ3D.trophy} alt="" width={96} height={96} fallback={<span />} />
             <h2 className="h3">Climb it</h2>
             <p className="fine">Win staked matches against players or houses. Bigger stake tiers earn more season points, and a win streak multiplies them up to five times.</p>
             <Link to="/app" className="btn btn--green btn--wide">Battle <Icon name="swords" size={20} /></Link>
