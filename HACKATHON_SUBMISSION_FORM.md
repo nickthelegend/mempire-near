@@ -1,30 +1,38 @@
-# NEAR Hackathon submission form: Mempire on NEAR
+# NEAR HACKATHON submission form: Mempire on NEAR
 
-Fields from https://nearhackathon.com/HACKATHON.md ("What the human decides"). Human fields stay TBD; nothing is submitted
-without Nick's explicit yes.
+Draft only. Nick completes the human fields and reviews the exact values before submitting once.
+Field names and choices follow the [official form contract](https://nearhackathon.com/HACKATHON.md).
+Deadline: November 14, 2026, 23:59 UTC. The repository must be public by then.
 
 | Field | Value |
 |---|---|
-| Project name | Mempire (TBD: Nick confirms) |
-| Team lead's name | TBD by Nick |
-| Contact email | TBD by Nick |
-| Team size | TBD by Nick |
-| Tracks | games (primary), nfts (secondary: TBD, cards are not tokenised yet, see BLOCKED.md) |
-| NEAR mainnet payout account | TBD by Nick (never invented) |
-| Public repository | TBD (Nick publishes) |
-| Public demo post | TBD (Nick writes and posts) |
-| Consent to contact notice | TBD: read verbatim to Nick |
+| projectName | Mempire on NEAR |
+| leadName | TBD Nick (2-80 characters) |
+| email | TBD Nick (valid email, max 160 characters; max 2 submissions per email) |
+| size | TBD Nick: one of `1`, `2 - 4`, `4 - 6`, `6 - 8`, `8+` |
+| tracks | Proposed: `["games"]` — Real-time card battles with testnet NEAR stakes, contract-replayed results, funded house bots and season payouts. |
+| nearAddress | TBD Nick: NEAR MAINNET payout account (2-64 characters; named or implicit account). Do not use a testnet deployment account. |
+| projectUrl | TBD: public GitHub repo URL after push (max 300 characters) |
+| demoUrl | TBD: the public X post URL (max 300 characters) |
+| idea | Real-time games with staked pots need a result players can trust. Earlier Mempire builds paid out when both clients agreed, so colluding clients could report a false result. Mempire on NEAR is a real-time lane card battler where players stake testnet NEAR and submit card drops through per-match function-call keys. The arena contract replays the stored moves through a Rust simulation, checkpoints when gas runs low, and pays from the replayed result. A browser replay lets anyone compare the result hash. Signed relayer prices adjust market fighters; house bots have funded sub-accounts, and part of each pot funds season rewards. NEP-366 meta transactions sponsor session-key management and settlement. The game builds on prior Mempire work; the NEAR integration is new. The contracts are deployed on testnet. The web app and relayer run locally; practice and recorded-match replay need no sign-in. |
+| consent | Nick ticks after reading: “I agree that the organizers may use these details to review our submission and contact us about this hackathon.” |
 
-## What we built (draft, under 2000 characters)
+Idea character count: **901**, including spaces and punctuation (allowed: 20-2000).
+Project name character count: **15** (allowed: 2-80).
+Track proposal is best-fit first; cards are not tokenised, so no `nfts` track is proposed.
 
-Mempire is a real-time 1v1 lane card battler. Two players stake testnet NEAR and drop fighters into two lanes as the clock
-runs; market fighters (BTC, ETH, NEAR, SOL, ZEC) are buffed or nerfed by twice their 24 h price move, read at kick-off from
-ed25519-signed relayer prices the contract verifies. The problem with on-chain real-time games is the result: earlier
-Mempire builds trusted the two players' clients. On NEAR the chain is the referee. Every drop is a `play` transaction
-signed by a per-match function-call key limited to `play` (no pop-ups, cannot move funds), and `settle` replays the stored
-log through a Rust port of the deterministic TypeScript sim inside the contract, checkpointing across calls if gas runs
-low. A testnet Rush match with 21 plays settled in one call for 22.3 TGas, and a fake winner claim was rejected on testnet.
-Players sign in by email or as a guest; a relayer creates a sub-account for a key made in the browser and sponsors
-NEP-366 meta transactions for session keys and settlement, so the stake is the only thing a player pays for. Three house
-bots are sub-accounts with their own treasuries; the referee plays their published bot inside the replay. 3 % of each
-pot funds a weekly season whose top three are paid automatically.
+## X post draft
+
+The human posts this. The demo is local-only, so attach a video showing an action and its result; screenshots alone
+are insufficient under Q-012. No video exists in `/Volumes/Extreme SSD/Projects/grokbot/videos/mempire-near/`.
+
+```text
+can you trust a staked game result? mempire replays every move inside a NEAR contract before payout. built at NEAR HACKATHON on testnet. try practice + verify a match locally via the repo README. feedback welcome @NEARProtocol #NEARHackathon
+```
+
+Post character count: **241** (limit: 280).
+
+attach: video TBD
+
+Before submission, Nick fills the other-project names in the README disclosure, publishes the repository, records
+and posts the demo, and completes the fields above. Do not submit this draft or post on Nick's behalf.
