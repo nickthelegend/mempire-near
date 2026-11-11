@@ -124,6 +124,67 @@
           }
         ]
       }
+    },
+    {
+      "at": "2026-11-11T19:09:48.718Z",
+      "hash": "AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi",
+      "url": "https://testnet.nearblocks.io/txns/AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi",
+      "ok": true,
+      "error": null,
+      "sender": "mempire-relay-41966.testnet",
+      "tokensBurnt": "229325022149000000000",
+      "balanceBefore": "6621547801206377700000000",
+      "snapshot": {
+        "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+        "max_age_ms": "21600000",
+        "prices": [
+          {
+            "fighter_id": 6,
+            "ticker": "BTC",
+            "open_e8": "7338198000000",
+            "last_e8": "7423083000000",
+            "ts_ms": "1794424185059",
+            "status": 0,
+            "stat_bps": 231
+          },
+          {
+            "fighter_id": 7,
+            "ticker": "ETH",
+            "open_e8": "204254000000",
+            "last_e8": "207336000000",
+            "ts_ms": "1794424185059",
+            "status": 0,
+            "stat_bps": 301
+          },
+          {
+            "fighter_id": 8,
+            "ticker": "NEAR",
+            "open_e8": "356730000",
+            "last_e8": "369220000",
+            "ts_ms": "1794424185059",
+            "status": 0,
+            "stat_bps": 700
+          },
+          {
+            "fighter_id": 9,
+            "ticker": "SOL",
+            "open_e8": "8285000000",
+            "last_e8": "8456000000",
+            "ts_ms": "1794424185059",
+            "status": 0,
+            "stat_bps": 412
+          },
+          {
+            "fighter_id": 10,
+            "ticker": "ZEC",
+            "open_e8": "103243000000",
+            "last_e8": "98831000000",
+            "ts_ms": "1794424185059",
+            "status": 0,
+            "stat_bps": -854
+          }
+        ]
+      }
     }
   ]
 }
