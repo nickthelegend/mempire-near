@@ -392,8 +392,10 @@ span.lb-climb-art { display: none; }
 .cards-head .cards-tools { margin-left: auto; }
 @media (max-width: 760px) {
   .screen-head { gap: 14px; align-items: flex-start; }
-  .head-obj { width: 72px; height: 72px; border-radius: 22px; padding: 4px; }
-  .screen-head > div:first-of-type { flex-basis: calc(100% - 90px); }
+  .head-obj { border-radius: 20px; padding: 4px; }
+  .screen-head > div:first-of-type { flex-basis: 100%; }
+  .head-obj { width: 64px; height: 64px; }
+  .sky .coin { display: none; }
   .cards-head .cards-tools { margin-left: 0; }
   .lb-climb { padding-right: 18px; }
   .lb-climb-art { position: static; translate: none; width: 72px; height: 72px; }
