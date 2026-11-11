@@ -10,8 +10,8 @@ function unique(rows: Receipt[]) {
   return [...byHash.values()];
 }
 export function matchReceipts(id: number): Receipt[] {
-  const local = browserReceipts().filter(r => r.matchId === String(id) || r.label.includes(`#${id}`));
-  const chain = Object.values(recorded).filter(r => r.match?.id === String(id)).flatMap(r => r.transactions ?? []);
+  const local = browserReceipts().filter(r => r.matchId===String(id) || (!r.matchId && r.label.match(/#(\d+)/)?.[1]===String(id)));
+  const chain = Object.values(recorded).filter(r => r.match?.id === String(id)).flatMap(r => r.transactions ?? []).filter(r=>r.matchId===String(id) || (!r.matchId && r.label.match(/#(\d+)/)?.[1]===String(id)));
   return unique([...local, ...chain]);
 }
 export function allReceipts(): Receipt[] {

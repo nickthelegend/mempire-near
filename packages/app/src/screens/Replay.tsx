@@ -101,6 +101,7 @@ export function Replay() {
   const verified=verdict?.matchesChain;
   const checksOk = bundle ? bundle.checks.deckIds && bundle.checks.archetypes && bundle.checks.power : false;
   const receipts=useMemo(()=>matchReceipts(matchId),[matchId]);
+  const settlement=receipts.find(r=>r.ok!==false && r.label===`Referee settlement #${matchId}`);
   const arenaLink = DEPLOYMENT ? explorerUrl(DEPLOYMENT.arena, 'address') : undefined;
 
   return (
@@ -144,6 +145,7 @@ export function Replay() {
             {' '}Result on chain: {bundle.chainWinner === 0 ? `seat 0 (${shortAddr(bundle.seats[0])}) won` : bundle.chainWinner === 1 ? `seat 1 (${shortAddr(bundle.seats[1])}) won` : bundle.chainWinner === 2 ? 'a draw' : 'void'}
             {verdict.winner >= 0 || verdict.winner === -2 ? ` · replay: ${verdict.winner === -2 ? 'a draw' : `seat ${verdict.winner} wins`}` : ''}
             {HAS_EXPLORER && arenaLink ? <> · <a href={arenaLink} target="_blank" rel="noreferrer">arena on NearBlocks ↗</a></> : ' · NEAR testnet'}
+            {settlement && <> · <a href={explorerUrl(settlement.hash)} target="_blank" rel="noreferrer">settlement on NearBlocks ↗</a></>}
           </p>
           {bundle.checks.detail.length > 0 && (
             <ul className="fine" style={{ margin: 0, paddingLeft: 18, fontSize: 11, color: 'var(--red)' }}>
@@ -152,11 +154,6 @@ export function Replay() {
           )}
         </section>
       )}
-
-      {receipts.length>0 && <section className="well" aria-label="Match transaction receipts" style={{padding:'10px 12px',display:'grid',gap:6}}>
-        <span className="label">Transaction receipts · NearBlocks</span>
-        {receipts.map(r=><a key={r.hash} href={explorerUrl(r.hash)} target="_blank" rel="noreferrer" className="fine" style={{overflowWrap:'anywhere'}}>{r.label}{r.ok===false?' (rejected)':''} · {r.hash} ↗</a>)}
-      </section>}
 
       {bundle && (
         <>

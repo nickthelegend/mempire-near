@@ -7,6 +7,7 @@ import {createMatch} from './sim/engine';
 import {FORMATS} from './sim/types';
 import {verifyReplay,type ReplayInput} from './sim/replay';
 import {archetypeForMint} from './sim/archetypes';
+import {matchReceipts} from './lib/receipts';
 import {canRecoverInto} from './chain/session';
 import type {MatchView} from '@mempire/sdk';
 import {traitForMint} from './sim/traits';
@@ -46,5 +47,18 @@ describe('Queue recovery stake guards',()=>{
  it('refuses own seats, started matches, another stake/currency tier or a house',()=>{
   for(const bad of [{...older,p0:'b.testnet'},{...older,state:2},{...older,stake:'2'},{...older,tier:1},{...older,format:0 as const},{...older,house:0}])expect(canRecoverInto(own,bad,'b.testnet')).toBe(false);
   expect(canRecoverInto(own,older,'stranger.testnet')).toBe(false);
+ });
+});
+
+describe('Recorded match receipt attribution',()=>{
+ it('does not mix match 9 receipts into match 11',()=>{
+  const rows=matchReceipts(11);expect(rows.length).toBeGreaterThan(0);
+  expect(rows.every(r=>r.matchId==='11' || r.label.match(/#(\d+)/)?.[1]==='11')).toBe(true);
+  expect(rows.some(r=>r.label==='Referee settlement #9')).toBe(false);
+  expect(rows.some(r=>r.label==='Referee settlement #11'&&r.ok===true)).toBe(true);
+ });
+ it('retains the rejected match 9 attempt as a failure, not a paid receipt',()=>{
+  const rows=matchReceipts(9).filter(r=>r.label==='Referee settlement #9');
+  expect(rows.some(r=>r.ok===false)).toBe(true);expect(rows.some(r=>r.ok===true)).toBe(true);
  });
 });
