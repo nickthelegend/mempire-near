@@ -56,7 +56,7 @@ Sources: [deployment accounts and transactions](deployments/testnet.json),
 
 ## Keeping market prices fresh
 
-Start the configured HTTP relayer with `RELAYER_PORT=5399 RELAYER_PRICES=0 pnpm --filter @mempire/relayer start`. It needs the operator's funded testnet account and credentials described below. Then run `pnpm meta:post` - see one real signed Coinbase snapshot posted, or confirmation that the current ten-minute epoch already has one. `pnpm meta:keep` checks each minute and posts each new ten-minute epoch while it runs. Ctrl-C stops it. `META_RELAY_URL` can override `http://127.0.0.1:5399`.
+Start the configured HTTP relayer with `RELAYER_PORT=5399 RELAYER_PRICES=0 pnpm --filter @mempire/relayer start`. It needs the operator's funded testnet account and credentials described below. Then run `pnpm meta:post` - see one real signed Coinbase snapshot posted, or confirmation that the current ten-minute epoch already has one. `pnpm meta:keep` checks each minute and posts each new ten-minute epoch while it runs. Ctrl-C stops it. `META_RELAY_URL` can override `http://127.0.0.1:5399`. For guest sign-in with that port, build the web app with `VITE_RELAYER_URL=http://127.0.0.1:5399 pnpm --filter @mempire/web build`. To reuse the standard port-5299 relayer instead, set `META_RELAY_URL=http://127.0.0.1:5299` for either keeper command.
 
 The keeper checks balance before writing, retains a 0.05 NEAR balance reserve and limits gas per run with `META_BUDGET_NEAR` (default 0.05 NEAR). It authenticates snapshots with the existing price key and uses the HTTP relayer's shared signing queue, avoiding sponsor nonce races. Read-back prices and exact receipts are saved under `deployments/market-meta-YYYY-MM-DD.json`. It is a local service; it must stay running for scheduled updates. The sky-blue app reads market prices each minute. Matches lock their opening modifiers; prices older than six hours are neutral.
 
@@ -186,7 +186,7 @@ season payouts, testnet deployment evidence and NEAR app wiring. The current v3 
 in that period; they do not make the reused game rules new work. Review the
 [post-import implementation diff](../../compare/ea74ac80a45ec620e61e5ffefd31d73b1a5ed0f1...909424808cdf1ff16f9aedb8dca2819a08ea156f)
 or run `git diff ea74ac8..9094248` locally. This range includes UI/art changes as well as the NEAR integration.
-See [REPORT.md](REPORT.md) for scope and limits and [TESTING.md](TESTING.md) for recorded validation.
+See [REPORT.md](REPORT.md) for scope and limits, [TESTING.md](TESTING.md) for recorded validation and [FLOW-QA.md](FLOW-QA.md) for the approved sky-blue client’s latest full flow.
 
 **AI-assisted code.** Built with AI coding agents (Claude Code, Codex) under human direction; all code reviewed and tested by the team.
 

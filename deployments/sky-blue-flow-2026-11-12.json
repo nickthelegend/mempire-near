@@ -1,0 +1,51 @@
+{
+  "at": "2026-11-11T19:17:00.341Z",
+  "verifiedAt": "2026-11-11T19:19:09.759Z",
+  "network": "testnet",
+  "branch": "main",
+  "client": "packages/web",
+  "account": "sky-flow-8125.mempire-relay-41966.testnet",
+  "transactions": [
+    {
+      "label": "Fresh signed market snapshot",
+      "hash": "AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi",
+      "sender": "mempire-relay-41966.testnet",
+      "ok": true,
+      "tokensBurnt": "229325022149000000000",
+      "attachedYocto": "0",
+      "url": "https://testnet.nearblocks.io/txns/AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi"
+    },
+    {
+      "label": "Guest account funded with 0.02 testnet NEAR",
+      "hash": "mT2A6jCumaoa2s8YH18odCQCzgqErcinDa4hB37sibt",
+      "sender": "mempire-relay-41966.testnet",
+      "ok": true,
+      "tokensBurnt": "7114989537500000000000",
+      "attachedYocto": "20000000000000000000000",
+      "url": "https://testnet.nearblocks.io/txns/mT2A6jCumaoa2s8YH18odCQCzgqErcinDa4hB37sibt"
+    }
+  ],
+  "accessKeysAfter": {
+    "fullAccess": 1,
+    "functionCall": 0
+  },
+  "budget": {
+    "capNear": "0.05",
+    "gasBurntYocto": "7344314559649000000000",
+    "attachedYocto": "20000000000000000000000",
+    "conservativeTotalYocto": "27344314559649000000000"
+  },
+  "receipt": {
+    "id": "8",
+    "browserVerified": true,
+    "note": "Read-only replay of an existing settled match; the local practice game sends no transactions."
+  },
+  "browser": {
+    "pass": true,
+    "screenshots": 34,
+    "errors": [],
+    "httpErrors": [],
+    "overflows": []
+  },
+  "screenshots": "/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/flow-qa/mempire-near/"
+}

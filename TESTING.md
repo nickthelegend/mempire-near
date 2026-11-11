@@ -65,3 +65,11 @@ answers 429 (requests are retried). `vite build` passes.
 After launch season 0 ended, `pnpm tsx scripts/finalize-season.ts aiko 0` paid its pool of 0.0048 NEAR: aiko (2 points)
 0.0024 NEAR (50 %), bram (1 point) 0.0014 NEAR (30 %), and the unearned 20 % (0.0009 NEAR) rolled into season 1
 (`5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv`, recorded in `deployments/testnet-2026-11-09.json`).
+
+## Approved sky-blue client flow — November 12, 2026
+
+The `main` app remains `packages/web`, byte-identical to approved commit `bcf4a49`; the imported Monad UI stays on its own branch. The market keeper was ported independently. A real signed snapshot and one 0.02-NEAR guest account were created, with a conservative task total of 0.027344314559649 NEAR including gas. Public evidence is in `deployments/sky-blue-flow-2026-11-12.json`.
+
+The latest full flow captured 34 screens at 1440×900 and 375×900 with no console/page errors, failed HTTP responses or document overflow: landing, guest, lobby, collection/card page, saved/reloaded deck, Kumo practice rival, VS intro, battle, local result, verified recorded match #8 receipt, leaderboard, profile, houses, season and how-to-play. Additional screenshots show the receipt’s Verified section at both widths. Practice sends no transactions; #8 is a separate existing settled match.
+
+`pnpm test` passed 21 JavaScript tests (sim 4, SDK 5, relayer 3, web 9); workspace typechecks and the web production build passed. Rust/contract tests were not rerun because no contract changed. See [FLOW-QA.md](FLOW-QA.md) for per-step results, screenshot gallery, commands, constraints and exact transaction links.
