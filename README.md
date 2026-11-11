@@ -10,7 +10,7 @@ NEAR and checks the result by replaying the game inside the contract.
 
 ## Try it
 
-The approved sky-blue game app is `packages/web` on `main`: fighter cards, practice rivals, a VS intro, battle, referee receipt, podium leaderboard and profile. It uses the current v3 art. The imported Monad client remains on `monad-client` and is not this branch’s web app.
+The approved sky-blue game app is `packages/web` on `main`: fighter cards, practice rivals, a VS intro, battle, referee receipt, podium leaderboard and profile. It uses the v3 fighter art, plus a 3D object set in candy enamel for headers, feature cards and empty states (kit: [docs/ART-3D.md](docs/ART-3D.md)). The imported Monad client remains on `monad-client` and is not this branch’s web app.
 
 The web app and relayer run locally; there is no hosted demo. Use Node.js 22+ and pnpm 10.29.2.
 Run these commands from the repository root. Practice and replay need no team credentials or sign-in.
@@ -201,7 +201,7 @@ The signed-price keeper was developed on the separate NEAR `monad-client` branch
 
 ## Credits
 
-Art generated with ChatGPT.
+Art generated with ChatGPT, including the 3D object set (3D art generated with ChatGPT).
 
 ## License
 

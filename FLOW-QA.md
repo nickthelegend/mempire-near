@@ -42,6 +42,32 @@ Folder: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-
 
 `result.json` contains the full flow and account-creation hash; `receipt-detail.json` contains the focused read-only verification. Filenames follow `<stem>-1440.png` and `<stem>-375.png`. The gallery links every image.
 
+## UI polish and 3D objects (November 12, 2026, later)
+
+This pass changes the web client; the flow results above were recorded before it. The data paths, keeper, relayer and
+referee code are untouched (only `packages/web/src` styles, screens and `public/art/3d` changed).
+
+- **3D object kit:** eleven glossy candy-enamel objects with Mempire's own face (crown, fighter coin, card hand, tower,
+  chest, trophy, sealed scroll, shield, sleepy cloud, price-up and price-down tokens), generated with ChatGPT and
+  documented in [docs/ART-3D.md](docs/ART-3D.md). Fighter character art is unchanged.
+- **Shell:** shorter header (logo 84 → 62 px, header 168 → 108 px), menu card that fits a 900 px screen, the sidebar promo
+  rebuilt around the price-up token, battle in focus mode on desktop (menu hidden, back link in the match panel).
+- **Screens:** white screen headers with one 3D object each, caps eyebrow labels removed, lobby hero crown and
+  shield/card-hand mode cards, 3D record tiles, sleepy-cloud empty states, leaderboard trophy, receipt seal, season
+  trophy and crowns, buff/nerf tokens on the card page, crown/chest/price-down result crests.
+
+| Check | Result |
+|---|---|
+| `tsc --noEmit` and `vite build` | pass (existing bundle-size warning only) |
+| `vitest run` (web) | 9 / 9 pass |
+| Routes captured | 18 views at 1440×900 and 375×812 (landing, lobby, cards, card page, deck, practice rivals, leaderboard, season, houses, profile, player page, receipt #8, proof, how to play, replay #8, VS intro, practice battle, practice result) |
+| Horizontal overflow | 0 on all 36 captures |
+| Console / page errors | 0, apart from the expected refused request to the local relayer port 5299, which was not running (the app shows its "Setup required: relayer" state) |
+| Reduced motion | `prefers-reduced-motion: reduce` turns every object bob off (`animation-name: none`) |
+
+Before/after sheets: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-1440.jpg`, `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-375.jpg`, `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-key.jpg`.
+After screenshots: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/after/<view>-1440.png` and `<view>-375.png`.
+
 ## Testnet actions and budget
 
 The relayer balance was checked before posting: 6.6215478012063777 testnet NEAR.
