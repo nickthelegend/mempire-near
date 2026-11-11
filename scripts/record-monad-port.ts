@@ -18,7 +18,8 @@ for(const t of unique.values()){
  const out=parseOutcome(raw);
  const burnt=BigInt(raw.transaction_outcome.outcome.tokens_burnt)+raw.receipts_outcome.reduce((sum,r)=>sum+BigInt(r.outcome.tokens_burnt),0n);tokensBurnt+=burnt;
  const labelId=t.label.match(/#(\d+)/)?.[1];
- const matchId=labelId??known.get(t.hash)??(/^Guest account/.test(t.label)?undefined:id);
+ const createdId=/^Opened staked/.test(t.label)&&/^\d+$/.test(String(out.value))?String(out.value):undefined;
+ const matchId=labelId??createdId??known.get(t.hash)??(/^Guest account/.test(t.label)?undefined:id);
  if(/^Opened staked|^Joined (older|staked)/.test(t.label))attachedStakes+=10n**22n;
  txs.push({...t,matchId,url:`${net.explorer}/txns/${t.hash}`,ok:out.ok,error:out.error??null,gasBurnt:out.gasBurnt.toString(),tokensBurnt:burnt.toString()});
 }

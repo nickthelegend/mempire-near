@@ -10,25 +10,35 @@ NEAR and checks the result by replaying the game inside the contract.
 
 ## Try it
 
-The web app and relayer run locally; there is no hosted demo. Use Node.js 22+ and pnpm 10.29.2.
-Run these commands from the repository root. Practice and replay need no team credentials or sign-in.
-Testnet reads need internet access; public RPC rate limits can delay them.
+This branch adds the original Monad game's Royale Arcade client at `packages/app`: its fonts, art, sound, drag controls
+and 3D arena are reused. The NEAR chain layer is new. The earlier `packages/web` client is unchanged.
+There is no hosted NEAR demo. Use Node.js 24+ and pnpm 10.29.2; run commands from this repository's root.
 
 1. Run `pnpm install` - see the workspace dependencies install.
-2. Run `pnpm --filter @mempire/web build` - see the production build complete in `packages/web/dist`.
-3. Run `pnpm --filter @mempire/web preview` and keep that terminal open - see the app at
-   <http://127.0.0.1:5199/>. The lobby may show **Setup required: relayer**; the steps below do not need it.
-4. Open <http://127.0.0.1:5199/app/practice>, choose **Quick practice**, then **Start battle** on the first visit -
-   see the countdown and a local 30-second match against the training bot. Select a card, then click your half of the
-   field to drop it. At the bell, see crowns and towers left. Practice sends no transactions.
-5. Open <http://127.0.0.1:5199/app/match/8> - see the recorded testnet match receipt and its automatic browser replay.
-   After the reads finish, see **Verified: same winner, same final tick, same state hash**. This checks the stored
-   on-chain result without signing a transaction; the previous browser run is recorded in [TESTING.md](TESTING.md).
-6. Open <http://127.0.0.1:5199/app/proof> - see arena totals, recent matches and deployment transaction links.
+2. Run `pnpm --filter @mempire/app build` - see the production build in `packages/app/dist`.
+3. Run `pnpm --filter @mempire/app preview` - see the imported game at <http://127.0.0.1:5390/>.
+   Keep that terminal open. Its local RPC adapter shares real NEAR reads across tabs and retries public RPC limits.
+4. Without signing in, open <http://127.0.0.1:5390/#/proof> - see deployment links and recent matches read from the arena.
+5. Open <http://127.0.0.1:5390/#/replay/8> - see the recorded match replayed in the imported 3D arena.
+   The verifier compares the winner, final tick and final state hash against the NEAR referee.
+6. For a new account and staked play, start the configured relayer in another terminal:
+   `RELAYER_PORT=5399 STARTER_NEAR=0.15 pnpm --filter @mempire/relayer start` - see its listening message.
+   This needs a funded testnet relayer account and its own signing credentials, as described in [Run it](#run-it).
+7. At <http://127.0.0.1:5390/>, choose **Play now**, enter a name and choose **Play as Guest** - see a relayer-created
+   NEAR sub-account and **Starter loadout ready**. The key stays in this browser. The loadout contains eight free
+   level-1 fighters; this is not an NFT mint. Meteor Wallet is also offered for an existing NEAR testnet account.
+8. Open **Deck** - see the eight-fighter loadout and three local save slots. Then choose **Arena → Practice · free** -
+   drag a card onto your half of the 3D field and see a 30-second local battle and its result. Practice stakes nothing.
+9. Open a second browser profile and sign in separately. Choose the same stake tier and **Rush · 30s** on both -
+   see two stakes escrowed and each card drop recorded through a play-only function-call key. If both players open
+   at once, the newer open stake is refunded before joining the older match. A reload resumes the saved queue.
+10. After the play window closes, see the referee settle the match. Choose **Replay from the chain** - see the final
+    result checked against the contract. Open **Empire** for settled history, season points, wins, draws and net NEAR;
+    **Proof** contains NearBlocks links. No practice result is credited to the leaderboard.
 
-Creating a guest account or playing a new staked match also needs a configured, funded testnet relayer. That operator
-path is below in [Run it](#run-it); the public judging path above uses practice and already-settled matches.
-Email codes still need provider setup. See [BLOCKED.md](BLOCKED.md) for hosting and other unfinished integrations.
+Public proof and recorded replays need no credentials. New guests need the funded relayer; Meteor signs its own stake
+and key-management transactions. Public RPC congestion can delay play. Email, passkeys, NFT minting, clans, chests,
+paid passes and other unavailable features are listed honestly in [BLOCKED.md](BLOCKED.md).
 
 ## Live on NEAR testnet
 
@@ -50,11 +60,16 @@ Recorded deployment: November 9, 2026. These are testnet accounts, not a mainnet
 
 Sources: [deployment accounts and transactions](deployments/testnet.json),
 [match and season transactions](deployments/testnet-2026-11-09.json).
+The imported client has fresh [match 9 recovery evidence](deployments/monad-client-match-9-2026-11-11.json) and
+[match 11 clean-run evidence](deployments/monad-client-match-11-2026-11-11.json). Match #11 recorded six plays and its
+browser replay matched the referee's final result. [Its settlement is on NearBlocks](https://testnet.nearblocks.io/txns/BckAqcnpP7xY1WX4QkxmgoajmwSE1z6YgL9NvG6VWW7).
+
 
 ## How it works
 
 1. **Session key.** Before staking, the player's account adds a function-call key limited to the arena's `play`, with a
-   0.25 NEAR allowance (added by NEP-366 meta transaction; the relayer pays the gas). It is deleted after the match.
+   0.05 NEAR allowance in the imported client (the original web client uses 0.25). Guest key management is sponsored
+   through NEP-366; Meteor approves its own key changes. The key is deleted after the match.
 2. **Stake and kick-off.** `create_match` / `join_match` / `challenge_house` escrow the stake. At kick-off the arena reads
    each card's signed price, stores twice the 24 h move per card (capped at ±15 %), and derives the seed from
    `env::random_seed()`.
@@ -79,13 +94,14 @@ payload with an ed25519 key, and anyone may submit it. `post_prices` verifies it
 the arena was initialised with and refuses snapshots more than 15 minutes from the block clock. Prices older than 6 h at
 kick-off count as neutral. Stocks are not offered in this build.
 
-### Players never touch a wallet
+### Accounts and gas
 
-Email sign-in (6-digit code, needs `RESEND_API_KEY` on the relayer: **Setup required** until set) or guest sign-in: the
-browser generates a key, the relayer creates `name-NNNN.mempire-relay-41966.testnet` with that key and 0.3 testnet NEAR.
-Session keys, settlement, cancellation and key deletion go through the relayer as NEP-366 meta transactions; the relayer
-only sponsors those (see `checkDelegate` in `packages/relayer/src/server.ts`). Stakes and play gas are paid from the player
-account; the function-call key allowance caps its play spending.
+The imported client offers Guest and Meteor Wallet. Guest creates a sub-account for an ed25519 key generated and
+held in this browser, with the relayer's configured testnet starter funding (0.3 NEAR default; 0.15 in the port run).
+There is no guest recovery. The relayer sponsors permitted guest session-key management, settlement and cancellation
+through NEP-366. The player account pays its stake and play gas. Meteor accounts approve their stake and key changes
+in Meteor; the per-match key still signs card drops without popups.
+Email remains an operator setup option in the original web client, not the imported client's sign-in screen.
 
 ### Houses
 
@@ -106,14 +122,20 @@ seat 1 inside the replay, so a house never sends a move. Win/loss record and tre
 
 ## Run it
 
-For credential-free practice and replay, use [Try it](#try-it). Contract checks also need Rust and `cargo-near`;
+For credential-free proof and recorded replay, use [Try it](#try-it). Contract checks also need Rust and `cargo-near`;
 the sandbox suite uses nearcore through `near-workspaces`.
 
 For new staked matches, an operator must supply their own funded testnet relayer account and its local signing
 credentials. Set `ARENA_ACCOUNT` and `RELAYER_ACCOUNT` for the relayer; the server expects the relayer credential at
 `.near-credentials/<RELAYER_ACCOUNT>.json`. Posting fresh prices also needs `.near-credentials/price-relayer.json`
 matching the arena's configured public key. Team credentials are not part of the public reproduction path.
-Start the relayer in a separate terminal from the web preview. Never commit signing credentials.
+Start the relayer in a separate terminal from the app preview. The imported client uses port 5399 for the relayer;
+the original web client defaults to 5299. Never commit signing credentials.
+
+### Original web client and contract tools
+
+The commands and routes below refer to the unchanged `packages/web` client. The imported client uses the hash routes
+and commands in [Try it](#try-it).
 
 ```bash
 pnpm install
@@ -153,29 +175,45 @@ Do X → see Y:
 
 ## Layout
 
-`packages/sim` TypeScript engine (unchanged game rules) · `packages/contract` Rust arena + sim/bot port · `packages/sdk`
+`packages/app` imported Monad game client with NEAR adapters · `packages/sim` TypeScript engine (unchanged game rules) · `packages/contract` Rust arena + sim/bot port · `packages/sdk`
 RPC, signer, runner · `packages/relayer` sign-in, meta tx, keeper, prices · `packages/web` landing and game ·
 `scripts/` deploy, testnet run, settle · `deployments/` addresses and transaction hashes.
 
+## Prior work
+
+The Mempire Monad client was built October 5-14, 2026, before this hackathon's November 1 window. It is prior work.
+Source: `/Volumes/Extreme SSD/Projects/mempire-monad`, revision `0e0b85ede703ec6d0d7f9f575abb2846071d9aa2`
+([source repository](https://github.com/nickthelegend/mempire-monad)). Its own README credits the earlier Solana game.
+
+Commit [b2b1749](../../commit/b2b1749) imported 460 tracked `app/` and needed `shared/` files byte-for-byte into
+`packages/app` and `packages/shared`, before changing chain bindings. Its art, fonts, sound, CSS, Three.js scene,
+screens, components and game design are reused, not claimed as new NEAR work. The imported client uses the eleven
+fighters supported by the deployed NEAR arena; unsupported Monad card ownership and paid features are hidden or
+labelled. Source portraits are retained where they match; existing class crests cover fighters without a source portrait.
+
+The earlier NEAR build also reused `mempire-wif`, the Robinhood Chain port, and its Arc/Solana/Monad ancestry.
+The sibling has October 30-31 commits; its last commit before November 1 is
+`cbec50b61cdddf75a11b45a80dbaa64ad68c725b`. The import here is `ea74ac8`. Reused code remains baseline even when
+copied into this repository on November 9. Both projects carry the MIT copyright for Nivesh Gajengi.
+
+New NEAR work in the November 1-14 window: the November 9-10 Rust referee and simulation/bot port, arena, SDK,
+function-call keys, NEP-366 relayer, signed-price verification, houses, seasons, testnet deployment and app wiring;
+and the November 11 adaptation of the imported Monad client to these NEAR accounts, plays, settlement and proof.
+No new contract method or deployment is required for this client port. The earlier `packages/web` is preserved.
+
+```bash
+git show --stat b2b1749
+git diff b2b1749..HEAD -- packages/app
+git diff ea74ac8..HEAD -- packages/contract packages/sdk packages/relayer scripts deployments
+```
+
+The [post-import branch diff](../../compare/b2b1749...monad-client) separates NEAR adaptations from the imported client.
+See [PORT-PLAN.md](PORT-PLAN.md), [PORT-REPORT.md](PORT-REPORT.md) and [TESTING.md](TESTING.md) for scope and evidence.
+
 ## Hackathon disclosures
 
-Built for NEAR HACKATHON 2026 (Nov 1-14). Only the new NEAR work is submitted for judging.
-
-**Prior work / baseline.** Mempire already existed on Arc and Robinhood Chain (`mempire-wif`). The game design,
-deterministic TypeScript simulation, bot, existing art and app foundation are reused baseline, not new NEAR work.
-The sibling `mempire-wif` history includes October 30-31, 2026 commits; its last commit before November 1 is
-`cbec50b61cdddf75a11b45a80dbaa64ad68c725b`. Its README credits earlier Solana, Monad and Arc builds.
-This repo starts November 9, so its own history alone does not date the original game to before November 1.
-The import is [ea74ac8](../../commit/ea74ac80a45ec620e61e5ffefd31d73b1a5ed0f1); reused material remains baseline,
-including changes imported from the sibling's November 1 commits.
-
-**Built in the window.** November 9-10 commits add the Rust simulation/bot port and on-chain referee with checkpoints,
-the NEAR arena, function-call session keys, NEP-366 relayer and SDK, signed-price posting, funded house accounts,
-season payouts, testnet deployment evidence and NEAR app wiring. The current v3 art and app redesign were also made
-in that period; they do not make the reused game rules new work. Review the
-[post-import implementation diff](../../compare/ea74ac80a45ec620e61e5ffefd31d73b1a5ed0f1...909424808cdf1ff16f9aedb8dca2819a08ea156f)
-or run `git diff ea74ac8..9094248` locally. This range includes UI/art changes as well as the NEAR integration.
-See [REPORT.md](REPORT.md) for scope and limits and [TESTING.md](TESTING.md) for recorded validation.
+Built for NEAR HACKATHON 2026 (Nov 1-14). Only new NEAR work is offered for judging. The imported Monad client and
+earlier game/ports are baseline, as detailed in [Prior work](#prior-work).
 
 **AI-assisted code.** Built with AI coding agents (Claude Code, Codex) under human direction; all code reviewed and tested by the team.
 
@@ -183,12 +221,12 @@ See [REPORT.md](REPORT.md) for scope and limits and [TESTING.md](TESTING.md) for
 
 Lead: <TBD by Nick>
 
-**License.** MIT. [LICENSE](LICENSE) retains Copyright (c) 2026 Nivesh Gajengi, also present in the sibling's MIT license.
-No NOTICE file is present in this repo.
+**License.** MIT. [LICENSE](LICENSE) retains Copyright (c) 2026 Nivesh Gajengi.
 
 ## Credits
 
-Art generated with ChatGPT.
+Imported Monad art/audio are prior work; its README credits the earlier Solana assets and Higgsfield pipeline.
+The separate original NEAR web client uses art generated with ChatGPT. The imported asset files are preserved; the source and this repository share the MIT copyright above.
 
 ## License
 

@@ -1,5 +1,55 @@
 # Testing
 
+## Monad client port — November 11, 2026
+
+The imported client builds with `pnpm --filter @mempire/app build`. Workspace TypeScript checks pass with
+`pnpm typecheck`. The JavaScript suites pass: simulation 4, SDK 5, relayer 2, original web 9 and imported-client adapter
+12. The Rust contract and existing SDK/sim implementations were not changed by this port; their older validation is
+retained below rather than claimed as a new run.
+
+The 12 adapter tests cover deployed fighter IDs/archetypes/traits, renderer identity preserving the Rust golden hash,
+PvP and house golden replay, forged winner/hash/end-tick rejection, no verification before settlement, queue recovery
+stake/seat/format guards, and correct attribution of receipts from different matches.
+
+### Real testnet browser loop
+
+The same two browser profiles completed Guest → relayer-funded testnet sub-account → free starter loadout → deck →
+30-second local practice → staked Rush → Rust referee settlement → verified replay → proof → Empire leaderboard.
+Playwright ran under the shared `withChromeLock` from the requested scratchpad. Tests used ports 5390 and 5399.
+There is no mock chain, minted starter NFT, local payout credit or seeded leaderboard in this flow.
+
+- Guest accounts: `port-a-3345.mempire-relay-41966.testnet` and `port-b-2681.mempire-relay-41966.testnet`;
+  each received 0.15 testnet NEAR. Both are test accounts created by the team, not organic users.
+- Concurrent opens #9/#10 exposed a queue race. The newer #10 was refunded before joining #9. Match #9 stored five
+  plays and settled at tick 600, hash 2912743809. A redundant settlement attempt was rejected after the other seat
+  had already paid the pot; its failed receipt is retained in the evidence.
+- After coordinating automatic settlement, concurrent opens #11/#12 exercised recovery again. #12 was refunded;
+  #11 stored six plays (three per seat), settled at tick 600, hash 2064331241, winner seat 0. The referee paid
+  0.0184 NEAR, with 0.0006 to the season and 0.001 to treasury. Browser replay matched all three result fields.
+- After each run, both accounts had one full-access device key and **zero** arena function-call keys. Per-match keys
+  were limited to `play` with a 0.05 NEAR allowance; their deletion receipts are recorded.
+- Final full-loop run: **30 screenshots**, 1440×900 and 375×900, **zero console/page errors**, zero document horizontal
+  overflow. It covers signed-out entry, sign-in, arena, deck, practice/result, staked battle/result, cards/detail,
+  clans, Empire, proof, replay and watch routes.
+- Final read-only confirmation: 24 screenshots, zero console/page errors, zero document/main horizontal overflow,
+  zero write requests; match #11 links to its own successful settlement hash.
+
+Evidence: [match 9 / recovery](deployments/monad-client-match-9-2026-11-11.json),
+[match 11 / clean run](deployments/monad-client-match-11-2026-11-11.json).
+The files include exact transaction hashes, outcomes, stored plays, referee result, access-key counts and budget
+accounting. The second file is a cumulative transaction ledger and retains the historical rejected #9 attempt.
+
+Screenshot and sanitized browser logs:
+`/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-port/`.
+The `before-*` images show the unmodified imported client. Source-only battle baseline images use a local simulation
+fixture and sent no transactions. The `after-*` images show the NEAR port. See [PORT-REPORT.md](PORT-REPORT.md).
+
+Meteor Wallet's adapter compiles and is offered in sign-in. A real Meteor approval was not automated; the proven live
+path uses guest accounts. Prices were read from the deployed signed snapshot with stale values neutral; the test
+relayer's price poster and keeper were disabled so settlement was driven by the client.
+
+## Original NEAR web client and contract evidence (historical)
+
 Real counts from the runs on Nov 9, 2026. Nothing that touches a chain is mocked: the contract tests run a real nearcore
 sandbox, and the testnet runs are real transactions (hashes in `deployments/`).
 
