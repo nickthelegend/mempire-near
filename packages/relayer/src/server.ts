@@ -20,7 +20,7 @@ import {
   ArenaReader, KeySigner, arenaCalls, decodeSignedDelegate, fnCall, parseNear, signedDelegateAction, viewAccount,
   type Network,
 } from '@mempire/sdk';
-import { fetchSnapshot, signSnapshot } from './prices';
+import { fetchSnapshot, signSnapshot, verifySnapshot } from './prices';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 loadEnv(resolve(ROOT, '.env'));
@@ -165,6 +165,14 @@ const server = createServer(async (req, res) => {
     }
     if (req.method !== 'POST') throw new HttpError(404, 'Not found');
     const b = await body(req);
+    if (req.url === '/prices') {
+      // Reuse this signer queue: a separate keeper must not race guest/settlement nonces.
+      if (!priceKey || !verifySnapshot(priceKey, b.payload, b.signature)) throw new HttpError(403, 'A fresh signed price snapshot is required');
+      const prices = await reader.prices();
+      if (Math.floor(Math.max(0, ...prices.prices.map(p => Number(p.ts_ms))) / 600_000) >= Math.floor(Date.now() / 600_000)) return send(res, 200, { skipped: true });
+      const out = await relayer.send(ARENA, [fnCall('post_prices', { payload: b.payload, signature: b.signature }, 30)]);
+      return send(res, out.ok ? 200 : 422, out);
+    }
     if (req.url === '/auth/start') {
       const email = String(b.email ?? '').trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new HttpError(400, 'Enter a valid email');
