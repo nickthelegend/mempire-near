@@ -20,6 +20,23 @@ export const ART = {
   practiceDummy: at('practice-dummy'),
 } as const;
 
+// The 3D object kit (docs/ART-3D.md): glossy candy-enamel objects with Mempire's tiny face, for heroes, feature cards,
+// empty states and headers. Fighters keep their character renders above.
+const OBJ = (name: string) => `/art/3d/mp-3d-${name}.webp`;
+export const OBJ3D = {
+  crown: OBJ('crown'),
+  coin: OBJ('coin'),
+  cards: OBJ('cards'),
+  tower: OBJ('tower'),
+  chest: OBJ('chest'),
+  trophy: OBJ('trophy'),
+  seal: OBJ('seal'),
+  shield: OBJ('shield'),
+  cloud: OBJ('cloud'),
+  up: OBJ('up'),
+  down: OBJ('down'),
+} as const;
+
 export const badgeArt = (tier: 'pauper' | 'knight' | 'duke' | 'emperor') => at(`badge-${tier}`);
 /** House crest by house name (Kumo, Tora, Ryu); null for an unknown house. */
 export function houseArt(name: string): string | null {
