@@ -4,9 +4,10 @@ import {formatNear,type MatchView,type Totals} from '@mempire/sdk';
 import deployment from '../../../../deployments/testnet.json';
 import {reader,explorerUrl} from '../chain/provider';
 import {Pill} from '../components/ui';
+import {allReceipts} from '../lib/receipts';
 export function Proof(){
  const nav=useNavigate();const [matches,setMatches]=useState<MatchView[]>([]);const [totals,setTotals]=useState<Totals|null>(null);const [error,setError]=useState('');const [id,setId]=useState('8');
- const [receipts]=useState<{label:string;hash:string}[]>(()=>{try{return JSON.parse(localStorage.getItem('mempire:near:receipts')||'[]');}catch{return[];}});
+ const [receipts]=useState(allReceipts);
  useEffect(()=>{let live=true;void Promise.all([reader.recent(12),reader.totals()]).then(([m,t])=>{if(live){setMatches(m);setTotals(t);}}).catch(e=>{if(live)setError(String(e));});return()=>{live=false;};},[]);
  return <div style={{padding:'18px 16px',display:'flex',flexDirection:'column',gap:20}}>
  <header><h1 className="display" style={{fontSize:30}}>Proof</h1><p className="fine">NEAR testnet · stored moves, referee results and transaction receipts</p></header>

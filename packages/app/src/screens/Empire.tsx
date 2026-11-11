@@ -43,7 +43,7 @@ function Leaderboard({ me }: { me: string }) {
     <section aria-label="Leaderboards">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
         <span className="label">Leaderboards</span>
-        <span className="label" style={{ fontSize: 12 }}>money columns are chain-verified</span>
+        <span className="label" style={{ fontSize: 12 }}>settled only</span>
       </div>
       <div role="tablist" aria-label="Leaderboard" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, marginBottom: 8 }}>
         {BOARDS.map((b) => (
@@ -200,7 +200,7 @@ export function Empire() {
                       {h.draw ? 'DRAW' : h.won ? 'WON' : 'REKT'}
                     </span>
                     <span className="fine" style={{ fontSize: 12 }}>
-                      pot {fmtStake(h.potSol, h.currency ?? 'NEAR')} · {h.hashes} commits
+                      pot {fmtStake(h.potSol, h.currency ?? 'NEAR')} · referee result
                     </span>
                     {h.escrowed && h.matchId ? (
                       <button

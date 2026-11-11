@@ -55,7 +55,11 @@ async function startStaked(m:MatchView,g:number){if(g!==generation)return;stop()
  useMatch.setState({status:'found',mode:'human',practice:false,perspective:seat,playerDeck:seat===0?a:b,botDeck:seat===0?b:a,opponentName:seat===0?(m.p1??'Opponent'):m.p0,stakeSol:Number(m.stake)/1e24,waitingForHuman:false});
  useEscrow.setState({phase:'live',matchId:Number(m.id),stake:Number(m.stake)/1e24});usePlayLog.setState({phase:'live',matchId:Number(m.id)});
  const r=new MatchRunner({net,matchId:m.id,seat,session:sessionFor(m.id),pollMs:250,
- settle:async claim=>{useEscrow.setState({phase:'claiming'});try{const after=await settleMatch(m.id,claim);await chainDone(after);}catch(e){useEscrow.setState({lastError:String(e)});throw e;}},
+ settle:async claim=>{useEscrow.setState({phase:'claiming'});try{
+  // Seat 0 settles first; seat 1 remains a fallback if that browser leaves.
+  if(seat===1){const delay=Number(m.close_ms)+8000-r.chainNow();if(delay>0)await new Promise(resolve=>setTimeout(resolve,delay));const done=await reader.match(m.id);if(done?.state===3){await chainDone(done);return;}}
+  const after=await settleMatch(m.id,claim);await chainDone(after);
+ }catch(e){useEscrow.setState({lastError:String(e)});throw e;}},
  onEvent:(e:RunnerEvent)=>{if(g!==generation)return;noteRunnerEvent(e);
  if(e.type==='state'){const sim=viewState(e.state);if(useMatch.getState().status==='found')useMatch.setState({status:'battle'});showState(sim);}
  if(e.type==='playRefused')useMatch.setState({error:`Play refused: ${e.error}`});

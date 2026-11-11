@@ -9,6 +9,7 @@ import { useMatch } from '../state/match';
 import { shortAddr } from '../lib/format';
 import { BattleScene } from '../three/BattleScene';
 import { vfx } from '../three/vfx';
+import {matchReceipts} from '../lib/receipts';
 
 /*
  * A staked match, re-run from Monad.
@@ -99,6 +100,7 @@ export function Replay() {
   const crowns = sim ? crownsOf(sim) : [0, 0];
   const verified=verdict?.matchesChain;
   const checksOk = bundle ? bundle.checks.deckIds && bundle.checks.archetypes && bundle.checks.power : false;
+  const receipts=useMemo(()=>matchReceipts(matchId),[matchId]);
   const arenaLink = DEPLOYMENT ? explorerUrl(DEPLOYMENT.arena, 'address') : undefined;
 
   return (
@@ -150,6 +152,11 @@ export function Replay() {
           )}
         </section>
       )}
+
+      {receipts.length>0 && <section className="well" aria-label="Match transaction receipts" style={{padding:'10px 12px',display:'grid',gap:6}}>
+        <span className="label">Transaction receipts · NearBlocks</span>
+        {receipts.map(r=><a key={r.hash} href={explorerUrl(r.hash)} target="_blank" rel="noreferrer" className="fine" style={{overflowWrap:'anywhere'}}>{r.label}{r.ok===false?' (rejected)':''} · {r.hash} ↗</a>)}
+      </section>}
 
       {bundle && (
         <>

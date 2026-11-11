@@ -59,7 +59,9 @@ export async function recoverWaiting(own: MatchView): Promise<MatchView> {
 }
 export async function settleMatch(id:string,claim:Claim|null){const s=activeSigner();if(!s)throw new Error('Sign in to ask the referee to settle.');
  for(let i=0;i<20;i++){const m=await reader.match(id);if(m?.state===3)return m;if(!m||m.state!==2)throw new Error('This match is not active.');
- const out=await sendSponsored(s,net.arena,[arenaCalls.settle(id,claim)],`Referee settlement #${id}`);
+ let out;
+ try{out=await sendSponsored(s,net.arena,[arenaCalls.settle(id,claim)],`Referee settlement #${id}`);}
+ catch(error){const after=await reader.match(id);if(after?.state===3)return after;throw error;}
  if((out.value as {status?:string})?.status==='settled')break;}
  const m=await reader.match(id);if(m?.state!==3)throw new Error('Replay is still in progress. Retry settlement.');
  await removeSession(id);return m;

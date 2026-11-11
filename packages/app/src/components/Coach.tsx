@@ -96,7 +96,7 @@ export function Coach() {
       </div>
       <p className="fine" style={{ margin: 0, fontSize: 13, color: 'var(--dim-on-wood)' }}>
         {finished
-          ? 'That is the whole game. Finish this practice, then stake a dollar in Ranked — the contract pays the winner.'
+          ? 'That is the whole game. Finish this practice, then stake testnet NEAR in Ranked — the contract pays the winner.'
           : s.body}
       </p>
       <div style={{ display: 'flex', gap: 8 }}>
