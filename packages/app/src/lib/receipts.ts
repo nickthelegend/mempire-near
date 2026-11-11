@@ -1,6 +1,6 @@
 export interface Receipt { label: string; hash: string; ok?: boolean; matchId?: string }
 interface Evidence { match?: { id: string }; transactions?: Receipt[] }
-const recorded = import.meta.glob<Evidence>('../../../../deployments/monad-client-match-*.json', { eager: true, import: 'default' });
+const recorded = import.meta.glob<Evidence>(['../../../../deployments/monad-client-match-*.json', '../../../../deployments/reposition-match-*.json'], { eager: true, import: 'default' });
 function browserReceipts(): Receipt[] {
   try { return JSON.parse(localStorage.getItem('mempire:near:receipts') || '[]'); } catch { return []; }
 }

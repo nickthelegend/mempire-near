@@ -65,9 +65,9 @@ browser replay matched the referee's final result. [Its settlement is on NearBlo
 
 ## Live market meta
 
-With the configured price-relayer key and funded relayer account, run `pnpm meta:post` - see a real signed Coinbase snapshot posted to the arena (or confirmation that this ten-minute epoch already has one). Run `pnpm meta:keep` - see new snapshots posted once per ten-minute epoch while it runs; Ctrl-C stops it. Stop the HTTP relayer's duplicate price loop with `RELAYER_PRICES=0` when running the separate keeper.
+Start the HTTP relayer on port 5399 with `RELAYER_PRICES=0` first. With the configured price-relayer key and funded relayer account, run `pnpm meta:post` - see a real signed Coinbase snapshot posted to the arena (or confirmation that this ten-minute epoch already has one). Run `pnpm meta:keep` - see new snapshots posted once per ten-minute epoch while it runs; Ctrl-C stops it. Stop the HTTP relayer's duplicate price loop with `RELAYER_PRICES=0` when running the separate keeper.
 
-The keeper checks the sender's balance before each write, reserves 0.05 NEAR of balance and limits each run to `META_BUDGET_NEAR` (default 0.05 NEAR of gas). Public transaction evidence is appended under `deployments/market-meta-YYYY-MM-DD.json`. Failed price fetches retry after a minute; they never invent quotes. The app polls prices every 30 seconds and shows the signed snapshot's actual age. Coinbase 24h moves × 2 adjust market fighter stats, capped at ±15%; the six house fighters stay neutral. After six hours, the contract treats a price as neutral. A running match uses its stored opening modifiers, even if a newer snapshot arrives.
+The keeper sends authenticated snapshots through the running relayer's shared signing queue, so price posts cannot race its guest or settlement nonces. `META_RELAY_URL` can point to another configured relayer URL (default `http://127.0.0.1:5399`). The keeper checks the sender's balance before each write, reserves 0.05 NEAR of balance and limits each run to `META_BUDGET_NEAR` (default 0.05 NEAR of gas). Public transaction evidence is appended under `deployments/market-meta-YYYY-MM-DD.json`. Failed price fetches retry after a minute; they never invent quotes. The app polls prices every 30 seconds and shows the signed snapshot's actual age. Coinbase 24h moves × 2 adjust market fighter stats, capped at ±15%; the six house fighters stay neutral. After six hours, the contract treats a price as neutral. A running match uses its stored opening modifiers, even if a newer snapshot arrives.
 
 ## How a match is proven
 
@@ -208,7 +208,7 @@ copied into this repository on November 9. Both projects carry the MIT copyright
 
 New NEAR work in the November 1-14 window: the November 9-10 Rust referee and simulation/bot port, arena, SDK,
 function-call keys, NEP-366 relayer, signed-price verification, houses, seasons, testnet deployment and app wiring;
-and the November 11 adaptation of the imported Monad client to these NEAR accounts, plays, settlement and proof.
+and the November 11 adaptation of the imported Monad client to these NEAR accounts, plays, settlement and proof. The later November 11 market/proof positioning, responsive desktop rails, periodic price reads and price keeper are also new NEAR work; the underlying game and visual assets remain baseline.
 No new contract method or deployment is required for this client port. The earlier `packages/web` is preserved.
 
 ```bash

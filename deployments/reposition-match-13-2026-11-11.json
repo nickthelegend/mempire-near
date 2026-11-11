@@ -1,0 +1,333 @@
+{
+  "network": "testnet",
+  "arena": "mempire-arena-41966.testnet",
+  "at": "2026-11-11T17:47:30.062Z",
+  "verifiedAt": "2026-11-11T17:55:22.592Z",
+  "client": "packages/app",
+  "players": [
+    {
+      "accountId": "v5-a-7997.mempire-relay-41966.testnet",
+      "onboardHash": "DZFwoQ7kpJBzUPJgesvL4emX25fmS1yTWwWbxFabSSEA"
+    },
+    {
+      "accountId": "port-b-2681.mempire-relay-41966.testnet",
+      "onboardHash": "GgpSeg11bnfDRJnd5rwR1zLYs4EBvUAdDXMQDZDjn2Y8"
+    }
+  ],
+  "match": {
+    "id": "13",
+    "p0": "v5-a-7997.mempire-relay-41966.testnet",
+    "p1": "port-b-2681.mempire-relay-41966.testnet",
+    "house": null,
+    "stake": "10000000000000000000000",
+    "tier": 0,
+    "format": 1,
+    "state": 3,
+    "winner": 2,
+    "deck0": [
+      0,
+      9,
+      2,
+      10,
+      4,
+      7,
+      3,
+      1
+    ],
+    "deck1": [
+      0,
+      9,
+      2,
+      10,
+      4,
+      7,
+      3,
+      1
+    ],
+    "mods": [
+      0,
+      748,
+      0,
+      -649,
+      0,
+      618,
+      0,
+      0,
+      0,
+      748,
+      0,
+      -649,
+      0,
+      618,
+      0,
+      0
+    ],
+    "status": [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1
+    ],
+    "seed": 3151383011,
+    "created_ms": "1794419410883",
+    "start_ms": "1794419437502",
+    "close_ms": "1794419473502",
+    "plays0": 2,
+    "plays1": 1,
+    "session0": "ed25519:Hn6H8gFn1NahqJHbpbeZkSnZZ7bvG5V2aSuruCuuUp9k",
+    "session1": "ed25519:J3kcpMVDzsJEJ3MusdDJ8AXdWBvSeznCvDnK641vaU9E",
+    "end_tick": 600,
+    "final_hash": 2333292079,
+    "paid": "18400000000000000000000",
+    "to_season": "600000000000000000000",
+    "to_treasury": "1000000000000000000000",
+    "season": 1,
+    "referee_calls": 1,
+    "settled_ms": "1794419480447",
+    "checkpoint_tick": null
+  },
+  "storedPlays": [
+    {
+      "tick": 293,
+      "seat": 0,
+      "deck_index": 0,
+      "x": 14685,
+      "y": 2879
+    },
+    {
+      "tick": 395,
+      "seat": 1,
+      "deck_index": 4,
+      "x": 6665,
+      "y": 29889
+    },
+    {
+      "tick": 500,
+      "seat": 0,
+      "deck_index": 4,
+      "x": 14685,
+      "y": 2879
+    }
+  ],
+  "browserReplay": {
+    "winner": 2,
+    "endTick": 600,
+    "finalHash": 2333292079,
+    "matchesChain": true
+  },
+  "accessKeysAfter": [
+    {
+      "account": "v5-a-7997.mempire-relay-41966.testnet",
+      "fullAccess": 1,
+      "playOnly": 0
+    },
+    {
+      "account": "port-b-2681.mempire-relay-41966.testnet",
+      "fullAccess": 1,
+      "playOnly": 0
+    }
+  ],
+  "transactions": [
+    {
+      "hash": "DZFwoQ7kpJBzUPJgesvL4emX25fmS1yTWwWbxFabSSEA",
+      "label": "Guest funding",
+      "sender": "mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/DZFwoQ7kpJBzUPJgesvL4emX25fmS1yTWwWbxFabSSEA",
+      "tokensBurnt": "7114989537500000000000",
+      "attachedYocto": "100000000000000000000000"
+    },
+    {
+      "label": "Added play-only session key (0.05 NEAR allowance)",
+      "hash": "BCHSdBf7L8kHq8fDhxEG7GqqYXTxUNJNYmAqfoxbQ1DD",
+      "player": "a",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/BCHSdBf7L8kHq8fDhxEG7GqqYXTxUNJNYmAqfoxbQ1DD",
+      "tokensBurnt": "103108904688500000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Opened staked match",
+      "hash": "B6uYGM4pQhsnccJa3ZAKcb3iBN95e5hHDKU9fByECveR",
+      "player": "a",
+      "sender": "v5-a-7997.mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/B6uYGM4pQhsnccJa3ZAKcb3iBN95e5hHDKU9fByECveR",
+      "tokensBurnt": "224695910133100000000",
+      "attachedYocto": "10000000000000000000000"
+    },
+    {
+      "label": "Play executed in 2960 ms",
+      "hash": "3Zu12ziXh6P8fPiUYijYN9xTxFvUMNconUrrMLDNrmxP",
+      "matchId": "13",
+      "player": "a",
+      "sender": "v5-a-7997.mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/3Zu12ziXh6P8fPiUYijYN9xTxFvUMNconUrrMLDNrmxP",
+      "tokensBurnt": "239130011961600000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Play executed in 3001 ms",
+      "hash": "BhET6qzfnV5bCPvDPv9XZJKkgr9NYhYwYUvcP8NJPJjp",
+      "matchId": "13",
+      "player": "a",
+      "sender": "v5-a-7997.mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/BhET6qzfnV5bCPvDPv9XZJKkgr9NYhYwYUvcP8NJPJjp",
+      "tokensBurnt": "241632173060100000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Referee settlement #13",
+      "hash": "GokdgdSAkwjgSXuwzGybbidLEnz23CzBVhRbbc1dn38L",
+      "player": "a",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/GokdgdSAkwjgSXuwzGybbidLEnz23CzBVhRbbc1dn38L",
+      "tokensBurnt": "940754307838300000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Deleted session key #13",
+      "hash": "36u669KQ2EWgh9Dq95GqsiFYUrVSVRL6LqejDjAUCGy2",
+      "player": "a",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/36u669KQ2EWgh9Dq95GqsiFYUrVSVRL6LqejDjAUCGy2",
+      "tokensBurnt": "100901837500000000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Added play-only session key (0.05 NEAR allowance)",
+      "hash": "Dg3b8m3J9Bf2ogiaAAbVGdPJuXSsxbfnwYWtAHDcQyKT",
+      "player": "b",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/Dg3b8m3J9Bf2ogiaAAbVGdPJuXSsxbfnwYWtAHDcQyKT",
+      "tokensBurnt": "103108904688500000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Opened staked match",
+      "hash": "BZHaME6xVzMkpEwAdPdnMvuarTSvbUas2ZyG1neaeHg9",
+      "player": "b",
+      "sender": "port-b-2681.mempire-relay-41966.testnet",
+      "matchId": "14",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/BZHaME6xVzMkpEwAdPdnMvuarTSvbUas2ZyG1neaeHg9",
+      "tokensBurnt": "233956664207400000000",
+      "attachedYocto": "10000000000000000000000"
+    },
+    {
+      "label": "Refunded newer open match #14",
+      "hash": "6h8c62dPg4ENd4cKhUrSaDswXJ7d4eKC5WKuhrJ3ubDo",
+      "player": "b",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "14",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/6h8c62dPg4ENd4cKhUrSaDswXJ7d4eKC5WKuhrJ3ubDo",
+      "tokensBurnt": "337854674291200000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Joined older match #13 after refund",
+      "hash": "C7DBCckuzs5K1FAqHxXhqZJpud7Doq8HbqD2cWXHb8rt",
+      "matchId": "13",
+      "player": "b",
+      "sender": "port-b-2681.mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/C7DBCckuzs5K1FAqHxXhqZJpud7Doq8HbqD2cWXHb8rt",
+      "tokensBurnt": "232366094558500000000",
+      "attachedYocto": "10000000000000000000000"
+    },
+    {
+      "label": "Play executed in 3396 ms",
+      "hash": "6HZNzwjEaWDanPWhU1GUPydRSUbNzPEptskfQdJKHGYB",
+      "matchId": "13",
+      "player": "b",
+      "sender": "port-b-2681.mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/6HZNzwjEaWDanPWhU1GUPydRSUbNzPEptskfQdJKHGYB",
+      "tokensBurnt": "241340474587900000000",
+      "attachedYocto": "0"
+    },
+    {
+      "label": "Deleted session key #13",
+      "hash": "CkuWUTq8cDV3qpqQyxH8StjnRhSRCkc1LzPuaKWkunGt",
+      "player": "b",
+      "sender": "mempire-relay-41966.testnet",
+      "matchId": "13",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/CkuWUTq8cDV3qpqQyxH8StjnRhSRCkc1LzPuaKWkunGt",
+      "tokensBurnt": "100901837500000000000",
+      "attachedYocto": "0"
+    },
+    {
+      "hash": "3SASKUzz1XPokto9bWDBY8NVDcyKUxBG37CSun32oggW",
+      "label": "Signed market snapshot",
+      "sender": "mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/3SASKUzz1XPokto9bWDBY8NVDcyKUxBG37CSun32oggW",
+      "tokensBurnt": "229335607985000000000",
+      "attachedYocto": "0"
+    },
+    {
+      "hash": "7NSVhHFFGsnkC88PegPuMYuZfTfPTDdmYpNDEgtRceWV",
+      "label": "Signed market snapshot",
+      "sender": "mempire-relay-41966.testnet",
+      "ok": true,
+      "error": null,
+      "url": "https://testnet.nearblocks.io/txns/7NSVhHFFGsnkC88PegPuMYuZfTfPTDdmYpNDEgtRceWV",
+      "tokensBurnt": "229335607985000000000",
+      "attachedYocto": "0"
+    }
+  ],
+  "budget": {
+    "capNear": "0.5",
+    "gasBurntYocto": "10673412548485100000000",
+    "attachedYocto": "130000000000000000000000",
+    "conservativeTotalYocto": "140673412548485100000000",
+    "note": "Counts new guest funding, stake attachments again and all recorded gas, including the market snapshots. Existing opponent funding predates this task. No redeployment."
+  },
+  "browserErrors": [
+    {
+      "label": "a",
+      "type": "console",
+      "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    }
+  ],
+  "screenshots": "/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-v5/"
+}

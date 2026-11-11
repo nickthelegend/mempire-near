@@ -1,9 +1,18 @@
 // SPDX-License-Identifier: MIT
 import { describe, expect, it } from 'vitest';
 import { KeyPair } from 'near-api-js';
-import { signSnapshot, toE8, SOURCE } from './prices';
+import { signSnapshot, verifySnapshot, toE8, SOURCE } from './prices';
 
 describe('price relayer', () => {
+  it('authenticates keeper posts and rejects tampering, expiry and malformed signatures', () => {
+    const key=KeyPair.fromRandom('ed25519');
+    const rows: [string,string,string][]=['BTC','ETH','NEAR','SOL','ZEC'].map(s=>[s,'100','101']);
+    const signed=signSnapshot(key,rows,1000000);
+    expect(verifySnapshot(key,signed.payload,signed.signature,1000000)).toBe(true);
+    expect(verifySnapshot(key,signed.payload.replace('101','102'),signed.signature,1000000)).toBe(false);
+    expect(verifySnapshot(key,signed.payload,signed.signature,2000000)).toBe(false);
+    expect(verifySnapshot(key,signed.payload,'invalid',1000000)).toBe(false);
+  });
   it('converts decimal prices to 8-decimal integers without floats', () => {
     expect(toE8('75011.37')).toBe(7501137000000n);
     expect(toE8('3.6045')).toBe(360450000n);

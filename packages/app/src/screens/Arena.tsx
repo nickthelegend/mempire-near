@@ -698,7 +698,7 @@ function AiOpponentPicker() {
   };
   return (
     <div role="group" aria-label="AI opponent" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span className="label" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>AI seat</span>
+      <span className="label" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>Practice bot</span>
       {opt('classic')}
       {opt('kimi')}
     </div>

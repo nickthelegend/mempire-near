@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { reader } from '../chain/provider';
 import type { MatchView } from '@mempire/sdk';
 import { leaderboard, type LeaderRow } from '../lib/near-data';
-import { shortAddr } from '../lib/format';
+const accountName = (account: string) => account.includes('.') ? account.split('.')[0] : `${account.slice(0,6)}…${account.slice(-4)}`;
 import { useWallet } from '../state/wallet';
 import { useMatch } from '../state/match';
 import { usePlayLog } from '../state/playLog';
@@ -29,10 +29,10 @@ export function ArenaRail() {
     {phase!=='off' && <section className="panel rail-panel"><h2 className="label">Your moves on NEAR</h2><p className="display" style={{fontSize:26,margin:'8px 0'}}>{confirmed} confirmed</p><p className="fine" style={{color:'var(--dim-on-wood)'}}>Each card drop is a separate transaction.</p>{lastHash&&<a href={explorerUrl(lastHash)} target="_blank" rel="noreferrer">Latest move receipt ↗</a>}</section>}
     <section className="panel rail-panel"><h2 className="label">Match feed</h2><p className="fine" style={{color:'var(--dim-on-wood)',margin:'5px 0 12px'}}>Read from the NEAR arena · refreshes every 10s</p>{error&&<p role="status" className="fine">{error}</p>}
       {!matches.length&&!error&&<p className="fine">Loading matches…</p>}
-      {matches.map(m=><Link className="rail-row" key={m.id} to={`/${m.state===2?'watch':'replay'}/${m.id}`}><span><b>#{m.id}</b> · {m.state===3?'Settled':m.state===2?'Live':m.state===1?'Waiting':'Refunded'}<br/><span className="fine">{shortAddr(m.p0)}{m.p1?` vs ${shortAddr(m.p1)}`:''}</span></span><span className="mono">{(Number(m.stake)/1e24).toFixed(2)} NEAR</span></Link>)}
+      {matches.map(m=><Link className="rail-row" key={m.id} to={`/${m.state===2?'watch':'replay'}/${m.id}`}><span><b>#{m.id}</b> · {m.state===3?'Settled':m.state===2?'Live':m.state===1?'Waiting':'Refunded'}<br/><span className="fine">{accountName(m.p0)}{m.p1?` vs ${accountName(m.p1)}`:''}</span></span><span className="mono">{(Number(m.stake)/1e24).toFixed(2)} NEAR</span></Link>)}
     </section>
     <section className="panel rail-panel"><h2 className="label">Leaderboard</h2><p className="fine" style={{color:'var(--dim-on-wood)',margin:'5px 0 8px'}}>Settled wins · practice excluded</p>
-      {leaders.slice(0,4).map((p,i)=><div className="rail-row" key={p.address}><span>{i+1}. {shortAddr(p.address)}</span><b>{p.wins} W</b></div>)}
+      {leaders.slice(0,4).map((p,i)=><div className="rail-row" key={p.address}><span>{i+1}. {accountName(p.address)}</span><b>{p.wins} W</b></div>)}
       {account&&<p className="fine" style={{marginTop:10}}>You: {me?`${me.wins} wins · ${me.losses} losses · ${me.points} season points`:'No settled matches read yet.'}</p>}
       <Link to="/empire">Your empire →</Link>
     </section>
