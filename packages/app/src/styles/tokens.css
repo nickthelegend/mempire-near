@@ -434,3 +434,9 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   .market-strip { display: none; }
 }
 @media (min-width: 900px) and (max-width: 1023px) { .market-strip { display: flex; } }
+
+@media (min-width: 1024px) {
+  /* Keep the whole field visible above the desktop hand, including the home king. */
+  .battle-viewport { bottom: 220px !important; }
+  .battle-hand-row { width: min(100%, 600px); align-self: center; }
+}

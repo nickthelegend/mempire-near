@@ -595,7 +595,7 @@ export function Battle() {
         <Commentary />
       </div>
 
-      <div ref={shakeEl} style={{ position: 'absolute', inset: 0 }}>
+      <div ref={shakeEl} className="battle-viewport" style={{ position: 'absolute', inset: 0 }}>
         <BattleScene
           sceneRef={sceneEl}
           perspective={match.perspective}
@@ -644,7 +644,7 @@ export function Battle() {
       )}
 
       {/* bottom HUD */}
-      <div className="wood" style={{
+      <div className="wood battle-hand" style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
         padding: '9px 10px calc(10px + env(safe-area-inset-bottom))',
         borderTop: '3px solid var(--wood-edge)',
@@ -691,7 +691,7 @@ export function Battle() {
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+        <div className="battle-hand-row" style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
           {hand.map(({ card, deckIndex }, i) => (
             <HandCard
               key={`${card.coinId}_${i}`}
