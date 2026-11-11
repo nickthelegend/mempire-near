@@ -7,6 +7,8 @@ import {createMatch} from './sim/engine';
 import {FORMATS} from './sim/types';
 import {verifyReplay,type ReplayInput} from './sim/replay';
 import {archetypeForMint} from './sim/archetypes';
+import {canRecoverInto} from './chain/session';
+import type {MatchView} from '@mempire/sdk';
 import {traitForMint} from './sim/traits';
 const sample=(house:boolean)=>fixtures.fixtures.find(f=>(f.house!==null)===house)!;
 function replay(f:ReturnType<typeof sample>):ReplayInput{
@@ -32,4 +34,17 @@ describe('Imported renderer → NEAR referee compatibility',()=>{
  it('rejects a forged winner even if the final hash agrees',()=>{const r=replay(sample(false));r.expected!.winner=r.expected!.winner===0?1:0;expect(verifyReplay(r,[]).matchesChain).toBe(false);});
  it('rejects a forged end tick',()=>{const r=replay(sample(false));r.expected!.end_tick++;expect(verifyReplay(r,[]).matchesChain).toBe(false);});
  it('never calls an unsettled match verified',()=>{const r=replay(sample(false));r.settled=false;expect(verifyReplay(r,[]).matchesChain).toBe(false);});
+});
+
+describe('Queue recovery stake guards',()=>{
+ const own={id:'10',state:1,p0:'b.testnet',house:null,tier:0,format:1,stake:'10000000000000000000000'} as MatchView;
+ const older={...own,id:'9',p0:'a.testnet'};
+ it('lets only the newer open stake move into an older compatible opponent',()=>{
+  expect(canRecoverInto(own,older,'b.testnet')).toBe(true);
+  expect(canRecoverInto(older,own,'a.testnet')).toBe(false);
+ });
+ it('refuses own seats, started matches, another stake/currency tier or a house',()=>{
+  for(const bad of [{...older,p0:'b.testnet'},{...older,state:2},{...older,stake:'2'},{...older,tier:1},{...older,format:0 as const},{...older,house:0}])expect(canRecoverInto(own,bad,'b.testnet')).toBe(false);
+  expect(canRecoverInto(own,older,'stranger.testnet')).toBe(false);
+ });
 });

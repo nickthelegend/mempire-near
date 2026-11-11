@@ -4,6 +4,7 @@ import { useCollection, type MintedCard } from './collection';
 import { useDeck } from './deck';
 import { useLadder } from './ladder';
 import { useWallet } from './wallet';
+import {useMatch} from './match';
 import { COINS } from '../lib/coins';
 
 /**
@@ -43,6 +44,9 @@ export function useChainSync(): void {
     void loadWallet(address);
   }, [connected, address, isGuest, loadWallet, clearWallet]);
 
+
+  const mode=useChain(s=>s.mode);
+  useEffect(()=>{if(connected && mode==='onchain')void useMatch.getState().resumeWaiting().catch(e=>useMatch.setState({error:String(e)}));},[connected,address,mode]);
 
   useChainCollection();
 }

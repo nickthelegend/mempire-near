@@ -5,7 +5,7 @@ import { createMatch, viewState } from '../sim/engine';
 import type { MatchCard, SimState } from '../sim/types';
 import { net, reader } from '../chain/provider';
 import { activeSigner } from '../chain/account';
-import { openOrJoin, sessionFor, settleMatch, cancelMatch, removeSession } from '../chain/session';
+import { openOrJoin, sessionFor, settleMatch, cancelMatch, removeSession, recoverWaiting } from '../chain/session';
 import { play, startMusic, stopMusic } from '../lib/audio';
 import { COINS } from '../lib/coins';
 import { warmBattleChunk, warmMatchArt } from '../lib/warm';
@@ -21,13 +21,14 @@ export type MatchStatus='idle'|'queuing'|'found'|'battle'|'settled';
 export interface MatchOpts{practice?:boolean;ranked?:boolean;rush?:boolean;}
 export interface MatchResult{won:boolean;draw:boolean;currency?:StakeCurrency;potSol:number;payoutSol:number;rakeSol:number;hashes:number;crowns:[number,number];chest:ChestTier|null;escrowed:boolean;matchId?:number|null;trophyDelta?:number;trophiesAfter?:number;promoted?:boolean;demoted?:boolean;leagueAfter?:string;voided?:boolean;}
 export interface Shock{id:number;kind:'tower'|'deploy';forPlayer:0|1;}
-interface Store{status:MatchStatus;version:number;sim:SimState|null;playerDeck:MatchCard[];botDeck:MatchCard[];stakeSol:number;currency:StakeCurrency;result:MatchResult|null;history:MatchResult[];opponentName:string;crowns:[number,number];shock:Shock|null;practice:boolean;ranked:boolean;rush:boolean;waitingForHuman:boolean;soloVsBot:boolean;mode:'bot'|'human';perspective:0|1;error:string|null;startQueue:(opts?:MatchOpts)=>string|null;cancelQueue:()=>void;playCard:(deckIndex:number,x:number,y:number)=>void;forfeit:()=>void;dismiss:()=>void;}
+interface Store{status:MatchStatus;version:number;sim:SimState|null;playerDeck:MatchCard[];botDeck:MatchCard[];stakeSol:number;currency:StakeCurrency;result:MatchResult|null;history:MatchResult[];opponentName:string;crowns:[number,number];shock:Shock|null;practice:boolean;ranked:boolean;rush:boolean;waitingForHuman:boolean;soloVsBot:boolean;mode:'bot'|'human';perspective:0|1;error:string|null;startQueue:(opts?:MatchOpts)=>string|null;cancelQueue:()=>void;playCard:(deckIndex:number,x:number,y:number)=>void;forfeit:()=>void;dismiss:()=>void;resumeWaiting:()=>Promise<void>;}
 let loop:ReturnType<typeof setInterval>|null=null;
 let queued:InputEvent[]=[];
 let runner:MatchRunner|null=null;
 let generation=0;
 let cancelling=false;
 let waitingId:string|null=null;
+let resuming=false;
 const stop=()=>{if(loop)clearInterval(loop);loop=null;runner?.stop();runner=null;stopMusic();};
 const idsOfDeck=()=>{const cards=useCollection.getState().cards;return useDeck.getState().active.map(id=>COINS.find(c=>c.mint===cards.find(k=>k.id===id)?.mint)?.coinId??-1);};
 const viewDeck=(ids:number[],mods:number[])=>matchCards(roster.fighters,ids,mods).map(c=>({...c,coinId:COINS[c.fighterId].mint}));
@@ -62,6 +63,26 @@ async function startStaked(m:MatchView,g:number){if(g!==generation)return;stop()
  if(e.type==='error')useMatch.setState({error:e.error.message});
  }});runner=r;await r.init();if(g!==generation){r.stop();return;}startMusic();void r.run();
 }
+async function watchWaiting(id:string,g:number) {
+ waitingId=id;let checking=false;
+ const check=async()=>{
+  if(checking || g!==generation || useMatch.getState().status!=='queuing')return;
+  checking=true;
+  try {
+   let m=await reader.match(waitingId!);
+   if(m?.state===1 && !cancelling)m=await recoverWaiting(m);
+   if(g!==generation || !m)return;
+   waitingId=m.id;
+   useEscrow.setState({matchId:Number(m.id),stake:Number(m.stake)/1e24,phase:m.state===2?'live':'waiting'});
+   if(m.state===2){await startStaked(m,g);return;}
+   if(m.state===3){await chainDone(m);return;}
+   if(m.state===4){stop();await removeSession(m.id);useMatch.setState({status:'idle',error:'The waiting stake was refunded.'});}
+   if(cancelling && m.state===1){await cancelMatch(m.id);generation++;stop();waitingId=null;useMatch.setState({status:'idle'});}
+  } finally {checking=false;}
+ };
+ await check();
+ if(g===generation && useMatch.getState().status==='queuing')loop=setInterval(()=>{void check().catch(e=>useMatch.setState({error:String(e)}));},1200);
+}
 export const useMatch=create<Store>((set,get)=>({status:'idle',version:0,sim:null,playerDeck:[],botDeck:[],stakeSol:0,currency:'NEAR',result:null,history:[],opponentName:'Training bot',crowns:[0,0],shock:null,practice:false,ranked:false,rush:true,waitingForHuman:false,soloVsBot:false,mode:'bot',perspective:0,error:null,
  startQueue:(opts={})=>{if(get().status!=='idle'&&get().status!=='settled')return'A match is already open.';const ids=idsOfDeck();if(ids.length!==8||ids.some(id=>id<0)||new Set(ids).size!==8)return'Choose eight different NEAR fighters in Deck.';
  if(!opts.practice&&!activeSigner())return'Sign in before staking.';
@@ -74,12 +95,26 @@ export const useMatch=create<Store>((set,get)=>({status:'idle',version:0,sim:nul
  void openOrJoin(useDeck.getState().tier,opts.rush?1:0,ids).then(async out=>{
   waitingId=out.id;useEscrow.setState({matchId:Number(out.id),phase:out.active?'live':'waiting'});
   if(cancelling){await cancelMatch(out.id);waitingId=null;set({status:'idle'});return;}
-  const check=async()=>{if(g!==generation)return;const m=await reader.match(out.id);if(m?.state===2){await startStaked(m,g);}else if(m?.state===4){stop();set({status:'idle',error:'The waiting match was cancelled.'});}};
-  await check();if(get().status==='queuing')loop=setInterval(()=>{void check().catch(e=>set({error:String(e)}));},1200);
+  await watchWaiting(out.id,g);
  }).catch(e=>{stop();useEscrow.setState({phase:'failed',lastError:String(e)});set({status:'idle',error:e instanceof Error?e.message:String(e)});});return null;
  },
+ resumeWaiting:async()=>{
+  if(resuming || get().status!=='idle')return;
+  resuming=true;try{
+  const id=localStorage.getItem('mempire:near:waiting');const signer=activeSigner();
+  if(!id || !signer)return;
+  const m=await reader.match(id);
+  if(!m || ![m.p0,m.p1].includes(signer.accountId)){localStorage.removeItem('mempire:near:waiting');return;}
+  if(m.state===4){await removeSession(id);return;}
+  if(m.state===3){await removeSession(id);return;}
+  const g=++generation;stop();cancelling=false;
+  warmBattleChunk();set({status:'queuing',practice:false,ranked:true,rush:m.format===1,result:null,error:null,waitingForHuman:true});
+  await watchWaiting(id,g);
+  }finally{resuming=false;}
+ },
  cancelQueue:()=>{if(get().status==='battle')return;cancelling=true;if(get().practice){generation++;stop();set({status:'idle'});return;}
- if(waitingId)void cancelMatch(waitingId).then(()=>{generation++;stop();waitingId=null;set({status:'idle'});useEscrow.setState({phase:'refunded'});}).catch(e=>set({error:String(e)}));},
+ // The polling loop serializes cancellation with any queue recovery already in flight.
+ set({error:null});},
  playCard:(deckIndex,x,y)=>{const s=get();if(s.status!=='battle'||!s.sim||s.sim.phase==='ended')return;
  if(s.practice){queued.push({tick:s.sim.tick+2,player:s.perspective,deckIndex,x:Math.round(x),y:Math.round(y)});}else{try{runner?.queuePlay(deckIndex,x,y);}catch(e){set({error:String(e)});return;}}
  play('deploy');set({shock:{id:Date.now(),kind:'deploy',forPlayer:s.perspective}});

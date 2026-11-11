@@ -1,4 +1,4 @@
-import { KeyPair, KeySigner, addSessionKey, arenaCalls, deleteKey, parseNear, viewAccessKeys, type Claim } from '@mempire/sdk';
+import { KeyPair, KeySigner, addSessionKey, arenaCalls, deleteKey, parseNear, viewAccessKeys, type Claim, type MatchView } from '@mempire/sdk';
 import { net, reader, relayer } from './provider';
 import { activeSigner, type Signer } from './account';
 export const STAKE_MON_NEEDED=0.01;
@@ -23,6 +23,39 @@ export async function openOrJoin(tier:number,format:0|1,deck:number[]):Promise<{
  localStorage.setItem(storageKey(id),kp.toString());localStorage.setItem('mempire:near:waiting',id);
  }catch(e){await sendSponsored(s,s.accountId,[deleteKey(kp.getPublicKey().toString())],'Removed unused session key').catch(()=>{});throw e;}
  return{id,active:(await reader.match(id))?.state===2};
+}
+/** A higher match ID yields to an older compatible opponent, so two opens cannot deadlock. */
+export function canRecoverInto(own: MatchView, older: MatchView | null, account: string): older is MatchView {
+ return own.state===1 && own.p0===account && !!older && older.state===1 && older.house===null
+  && older.p0!==account && BigInt(older.id)<BigInt(own.id)
+  && older.tier===own.tier && older.format===own.format && older.stake===own.stake;
+}
+export async function recoverWaiting(own: MatchView): Promise<MatchView> {
+ const signer=activeSigner();
+ if(!signer || own.state!==1 || own.p0!==signer.accountId)return own;
+ const slots=await reader.openMatches();const id=slots[own.tier*2+own.format];
+ if(!id || id==='0' || id===own.id)return own;
+ const older=await reader.match(id);
+ if(!canRecoverInto(own,older,signer.accountId))return own;
+ const session=sessionFor(own.id);
+ const secret=localStorage.getItem(storageKey(own.id));
+ if(!session || !secret)throw new Error('This browser has no key for the waiting match. Cancel it in Empire.');
+ // Refund first; retain the scoped key until the join is confirmed.
+ await sendSponsored(signer,net.arena,[arenaCalls.cancel(own.id)],`Refunded newer open match #${own.id}`);
+ try {
+  const out=await signer.send(net.arena,[arenaCalls.joinMatch(older.id,own.deck0,session.publicKey,own.stake)]);
+  recordStep({label:`Joined older match #${older.id} after refund`,hash:out.hash,matchId:older.id});
+  if(!out.ok)throw new Error(out.error ?? 'The older match could not be joined.');
+  localStorage.setItem(storageKey(older.id),secret);localStorage.removeItem(storageKey(own.id));
+  localStorage.setItem('mempire:near:waiting',older.id);
+  const joined=await reader.match(older.id);
+  if(!joined)throw new Error('Join submitted; the match read is delayed. Reload to resume.');
+  return joined;
+ } catch(error) {
+  // Never leave a cancelled match's key or pretend that a failed join is a game.
+  await removeSession(own.id).catch(()=>{});
+  throw error;
+ }
 }
 export async function settleMatch(id:string,claim:Claim|null){const s=activeSigner();if(!s)throw new Error('Sign in to ask the referee to settle.');
  for(let i=0;i<20;i++){const m=await reader.match(id);if(m?.state===3)return m;if(!m||m.state!==2)throw new Error('This match is not active.');
