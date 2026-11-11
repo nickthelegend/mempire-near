@@ -21,7 +21,8 @@ import { PracticePick } from './screens/PracticePick';
 import { HowTo } from './screens/HowTo';
 import { Art, Countdown, Icon, Logo, type IconName } from './ui/kit';
 import { accountUrl, net } from './lib/net';
-import { artOf, shortAcct } from './lib/fighters';
+import { shortAcct } from './lib/fighters';
+import { OBJ3D } from './lib/art';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/battle.css';
@@ -91,10 +92,9 @@ function Sky() {
 function Promo() {
   return (
     <Link to="/app/deck" className="promo">
-      <span className="promo-k">Market up?</span>
-      <span className="promo-t">Fighter<br />hits harder!</span>
-      <span className="promo-s">Twice the 24 h move, ±15% cap</span>
-      <Art className="promo-art" src={artOf(8)} fallback={<span />} />
+      <Art className="promo-art" src={OBJ3D.up} alt="" width={84} height={84} fallback={<span />} />
+      <span className="promo-t">Market up, fighter hits harder</span>
+      <span className="promo-s">Twice the 24 h move, capped at ±15%</span>
     </Link>
   );
 }

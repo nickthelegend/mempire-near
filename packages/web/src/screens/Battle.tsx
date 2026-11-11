@@ -19,7 +19,7 @@ import { removeSession, settle } from '../lib/play';
 import { costOf, fighter, pct, shortAcct, statusLabel, shortError } from '../lib/fighters';
 import { BattleBoard, dropDecision } from '../battle/BattleBoard';
 import { AddrLink, Art, Avatar, Big, BotAvatar, Crowns, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
-import { ART } from '../lib/art';
+import { ART, OBJ3D } from '../lib/art';
 
 type TxRow = { key: string; label: string; hash?: string; ms?: number; state: 'sent' | 'ok' | 'in' | 'no' };
 type Replay = Awaited<ReturnType<typeof replayFromChain>>;
@@ -288,7 +288,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
               youDeck={seat === 0 ? match.deck0 : match.deck1} foeDeck={seat === 0 ? match.deck1 : match.deck0}
               note={`${TIER_NAMES[match.tier]} · ${formatNear(BigInt(match.stake) * 2n)} NEAR pot · refereed on-chain`} count={Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} />
           )}
-          {toast && <div key={toast.key} className={`crown-toast${toast.foe ? ' crown-toast--foe' : ''}`} role="status"><Art src={ART.crown} fallback={<Icon name="crown" size={28} />} /><b>{toast.text}</b></div>}
+          {toast && <div key={toast.key} className={`crown-toast${toast.foe ? ' crown-toast--foe' : ''}`} role="status"><Art src={OBJ3D.crown} fallback={<Icon name="crown" size={28} />} /><b>{toast.text}</b></div>}
           {lastDrop && <span key={lastDrop.key} className="drop-ghost" aria-hidden><Avatar id={lastDrop.fid} size={64} ring="gold" /></span>}
           {replay && !replay.done && (
             <div className="replay-bar">
@@ -349,6 +349,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
       </div>
 
       <aside className="bside" aria-label="Match details">
+        <nav className="crumbs bside-back" aria-label="Breadcrumb"><Link to={practice ? '/app/practice' : '/app'}><Icon name="chevL" size={16} />{practice ? 'Practice rivals' : 'Lobby'}</Link></nav>
         {error && !settled && <StateBox kind="error" title="Heads up">{shortError(error, 240)}</StateBox>}
         {practice ? (
           <section className="card stack">
@@ -447,7 +448,7 @@ function Ceremony({ practice, rivalName, rivalIsBot, crowns, sim, seat, match, m
       <div className={`ceremony${result === 'Defeat' ? ' ceremony--defeat' : ''}`}>
         {result === 'Victory' && <Confetti />}
         <div className="cer-card">
-          <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
+          <Art className="cer-crest" src={result === 'Draw' ? OBJ3D.chest : result === 'Defeat' ? OBJ3D.down : OBJ3D.crown} fallback={<Icon name="crown" size={64} />} />
           <h2 className="cer-title">{result}</h2>
           {crowns && <div className="cer-crowns"><div><span className="label">You</span><Crowns n={crowns[0]} /></div><div><span className="label cer-rival">{rivalIsBot && <BotAvatar size={28} ring="crimson" />}{rivalName}</span><Crowns n={crowns[1]} side="red" /></div></div>}
           <ul className="cer-stats">
@@ -472,7 +473,7 @@ function Ceremony({ practice, rivalName, rivalIsBot, crowns, sim, seat, match, m
       <div className={`ceremony${result === 'Defeat' ? ' ceremony--defeat' : ''}`}>
         {result === 'Victory' && <Confetti />}
         <div className="cer-card">
-          <Art className="cer-crest" src={result === 'Draw' ? ART.chest : ART.crown} fallback={<Icon name="crown" size={64} />} />
+          <Art className="cer-crest" src={result === 'Draw' ? OBJ3D.chest : result === 'Defeat' ? OBJ3D.down : OBJ3D.crown} fallback={<Icon name="crown" size={64} />} />
           <h2 className="cer-title">{result}</h2>
           {crowns && <div className="cer-crowns"><div><span className="label">Seat {seat}</span><Crowns n={crowns[0]} /></div><div><span className="label">Seat {1 - seat}</span><Crowns n={crowns[1]} side="red" /></div></div>}
           <div className="cer-vs">
@@ -509,7 +510,7 @@ function Ceremony({ practice, rivalName, rivalIsBot, crowns, sim, seat, match, m
     return (
       <div className="ceremony ceremony--defeat">
         <div className="cer-card">
-          <Art className="cer-crest" src={ART.chest} fallback={<Icon name="castle" size={56} />} />
+          <Art className="cer-crest" src={OBJ3D.chest} fallback={<Icon name="castle" size={56} />} />
           <h2 className="cer-title">Refunded</h2>
           <p className="fine">This match was cancelled before anyone joined, and its stake went back to its creator.</p>
           <Link className="btn btn--gold" to="/app#play">Back to the lobby</Link>

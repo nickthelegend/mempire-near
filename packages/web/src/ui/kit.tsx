@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { accountUrl, txUrl } from '../lib/net';
 import { artOf, characterOf, costOf, fighter, pct, rarityOf, shortAcct, CLASS_NAMES } from '../lib/fighters';
-import { ART } from '../lib/art';
+import { ART, OBJ3D } from '../lib/art';
 import type { PulseState } from '../state/market';
 
 /* ── Icons: chunky line glyphs drawn here ──────────────────────────────── */
@@ -172,7 +172,7 @@ export function StateBox({ kind = 'empty', title, children, action, art }: {
 }) {
   return (
     <div className={`state state--${kind}${art ? ' state--art' : ''}`} role={kind === 'error' ? 'alert' : undefined}>
-      {art && <Art className="state-art" src={ART.chest} fallback={<Icon name="castle" size={36} />} />}
+      {art && <Art className="state-art" src={OBJ3D.cloud} width={96} height={96} fallback={<Icon name="castle" size={36} />} />}
       {!art && <span className="state-ico" aria-hidden><Icon name={kind === 'error' ? 'x' : kind === 'setup' ? 'key' : 'castle'} size={18} /></span>}
       <div className="stack" style={{ gap: 4, flex: 1, minWidth: 0 }}>
         <div className="state-title">{title}</div>
@@ -218,7 +218,7 @@ export function Crowns({ n, side = 'blue', size = 34 }: { n: number; side?: 'blu
     <span className={`crowns3 crowns3--${side}`} role="img" aria-label={`${n} of 3 crowns`}>
       {[0, 1, 2].map((i) => (
         <span key={i} className={`crown3${i < n ? ' is-on' : ''}`} style={{ width: size, height: size, ['--i' as string]: i }}>
-          <Art src={ART.crown} fallback={<Icon name="crown" size={Math.round(size * 0.7)} />} />
+          <Art src={OBJ3D.crown} fallback={<Icon name="crown" size={Math.round(size * 0.7)} />} />
         </span>
       ))}
     </span>

@@ -81,10 +81,10 @@ h1, h2, h3 { font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
 .warn { color: var(--red-deep); }
 .label { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
 .eyebrow { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--royal); }
-.h1 { font-size: clamp(32px, 4.4vw, 52px); }
+.h1 { font-size: clamp(30px, 3.3vw, 44px); line-height: 1.02; }
 .h2 { font-size: clamp(26px, 3vw, 34px); }
 .h3 { font-size: 20px; letter-spacing: -0.01em; }
-.lede { font-size: 17px; line-height: 1.5; color: var(--dim); max-width: 62ch; }
+.lede { font-size: 16px; line-height: 1.55; color: var(--ink-2); max-width: 62ch; }
 
 /* ── Buttons: glossy 3D game buttons: top highlight, thick darker bottom edge that collapses on press ── */
 .btn {
@@ -236,8 +236,12 @@ button.fcard:disabled { filter: saturate(0.55); opacity: 0.8; cursor: not-allowe
 .state-ico { flex: none; width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: #fff; box-shadow: 0 3px 0 #dfe8f3; }
 .state--error .state-ico { background: var(--red); color: #fff; box-shadow: 0 3px 0 #c41c31; }
 .state--setup .state-ico { background: linear-gradient(180deg, #ffe066, #ffb800); box-shadow: 0 3px 0 #d98a00; }
-.state--art { align-items: center; }
-.state-art { width: 84px; height: 84px; object-fit: contain; flex: none; }
+.state--art { align-items: center; gap: 18px; padding: 22px 24px; background: linear-gradient(180deg, #f6fbff, #eaf5ff); box-shadow: inset 0 0 0 2px #dcebfa; }
+.state--art .state-title { font-size: 19px; }
+.state-art { width: 96px; height: 96px; object-fit: contain; flex: none; }
+@media (prefers-reduced-motion: no-preference) { .state-art, .obj-bob { animation: bob 5.5s ease-in-out infinite alternate; } }
+@keyframes bob { from { translate: 0 0; } to { translate: 0 -5px; } }
+@media (max-width: 480px) { .state--art { flex-direction: column; align-items: flex-start; } .state-art { width: 80px; height: 80px; } }
 .art-ph.state-art { background: var(--cream-2); border-radius: 20px; border: 2px solid var(--ink); }
 .skeleton { display: block; border-radius: 8px; background: linear-gradient(90deg, #ece7fb 25%, #f8f6ff 50%, #ece7fb 75%); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; min-height: 12px; }
 @keyframes shimmer { to { background-position: -200% 0; } }
