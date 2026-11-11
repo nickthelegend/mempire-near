@@ -52,13 +52,15 @@ Recorded deployment: November 9, 2026. These are testnet accounts, not a mainnet
 |---|---|
 | Deploy and initialise the arena | [3eN5K22AYytBbDADBsZF2cw7jKdVdKebzsjiCyJruCfw](https://testnet.nearblocks.io/txns/3eN5K22AYytBbDADBsZF2cw7jKdVdKebzsjiCyJruCfw) |
 | Add a play-only session key through a sponsored meta transaction | [4isQkQzAfqnFmE9mGDmgnfVkouw3UDNycCwzeG7Ai65r](https://testnet.nearblocks.io/txns/4isQkQzAfqnFmE9mGDmgnfVkouw3UDNycCwzeG7Ai65r) |
-| Reject a fake winner claim in match #2 | [J8Bbuhcdjimhzjq1YRU9mToiauzMU5WTVZc52AFQzHJy](https://testnet.nearblocks.io/txns/J8Bbuhcdjimhzjq1YRU9mToiauzMU5WTVZc52AFQzHJy) |
-| Settle match #2 with the replayed result | [BiJqVsL7cPsc3s71EHtCcHtqPBBgsnyxhM7aCY2KaYJB](https://testnet.nearblocks.io/txns/BiJqVsL7cPsc3s71EHtCcHtqPBBgsnyxhM7aCY2KaYJB) |
-| Pay season 0; roll over the unearned third share | [5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv](https://testnet.nearblocks.io/txns/5MGKPyqUgg6bkfs9BXFCUgk8NeyZgxwRMFY8CUCxTcuv) |
+| Card drop in match #16, player 1 | [9xSJccGFaGFxDdFToHUDrrkA4T8KcVvhKaD8HKp37PE3](https://testnet.nearblocks.io/txns/9xSJccGFaGFxDdFToHUDrrkA4T8KcVvhKaD8HKp37PE3) |
+| Card drop in match #16, player 2 | [HmLffNf9UAPbtREpXSEwRrF216D5JYkRhUPzyaa5vhQC](https://testnet.nearblocks.io/txns/HmLffNf9UAPbtREpXSEwRrF216D5JYkRhUPzyaa5vhQC) |
+| Referee replay and payout for match #16 | [6TWkZ5UfoWnSrcA1qBtPxkfg4chTqVT911R3VPdCp9pY](https://testnet.nearblocks.io/txns/6TWkZ5UfoWnSrcA1qBtPxkfg4chTqVT911R3VPdCp9pY) |
 
 Sources: [deployment accounts and transactions](deployments/testnet.json),
 [match and season transactions](deployments/testnet-2026-11-09.json).
-The imported client has fresh [match 9 recovery evidence](deployments/monad-client-match-9-2026-11-11.json) and
+The current client also has [market/keeper evidence](deployments/market-meta-2026-11-11.json) and [six-play match #16 evidence](deployments/reposition-match-16-2026-11-11.json). [Its real settlement receipt](https://testnet.nearblocks.io/txns/6TWkZ5UfoWnSrcA1qBtPxkfg4chTqVT911R3VPdCp9pY) paid 0.0184 testnet NEAR to the winner.
+
+The imported client has earlier [match 9 recovery evidence](deployments/monad-client-match-9-2026-11-11.json) and
 [match 11 clean-run evidence](deployments/monad-client-match-11-2026-11-11.json). Match #11 recorded six plays and its
 browser replay matched the referee's final result. [Its settlement is on NearBlocks](https://testnet.nearblocks.io/txns/BckAqcnpP7xY1WX4QkxmgoajmwSE1z6YgL9NvG6VWW7).
 
@@ -218,7 +220,7 @@ git diff ea74ac8..HEAD -- packages/contract packages/sdk packages/relayer script
 ```
 
 The [post-import branch diff](../../compare/b2b1749...monad-client) separates NEAR adaptations from the imported client.
-See [PORT-PLAN.md](PORT-PLAN.md), [PORT-REPORT.md](PORT-REPORT.md) and [TESTING.md](TESTING.md) for scope and evidence.
+See [PORT-PLAN.md](PORT-PLAN.md), [PORT-REPORT.md](PORT-REPORT.md), [REPOSITION-REPORT.md](REPOSITION-REPORT.md) and [TESTING.md](TESTING.md) for scope and evidence.
 
 ## Hackathon disclosures
 

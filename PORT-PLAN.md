@@ -1,5 +1,7 @@
 # Mempire Monad client → NEAR port plan
 
+Historical import plan, completed through `c1eec03`. The owner later approved the desktop market/proof layout and positioning documented in [REPOSITION-REPORT.md](REPOSITION-REPORT.md); the source import remains disclosed baseline.
+
 Source: `/Volumes/Extreme SSD/Projects/mempire-monad`, revision
 `0e0b85ede703ec6d0d7f9f575abb2846071d9aa2`. The Monad client was built October 5-14, 2026;
 its screens, art, fonts, audio, Three.js rendering and game design are prior work.

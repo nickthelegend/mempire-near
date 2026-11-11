@@ -1,5 +1,7 @@
 # Mempire Monad → NEAR port report
 
+Historical port checkpoint through `c1eec03`. The subsequent owner-approved desktop/positioning and market keeper work is documented in [REPOSITION-REPORT.md](REPOSITION-REPORT.md).
+
 Implemented on `monad-client`; nothing was pushed. The original `packages/web`, NEAR contract, SDK, relayer and
 shared simulation are unchanged from `main`. No new contract method or deployment was needed.
 

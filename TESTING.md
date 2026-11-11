@@ -1,5 +1,25 @@
 # Testing
 
+## Market/proof repositioning — November 11, 2026
+
+The default app is now `packages/app`: `pnpm dev`, `pnpm build`, `pnpm preview`. The final root build and workspace typechecks passed. All **34 JavaScript tests** passed: sim 4, SDK 5, app 13, relayer 3, legacy web 9. New tests reject tampered/expired keeper signatures and confirm that broadcasts and nonce reads complete while three background proxy reads are held open. No contract or game-rule changes were needed.
+
+A fresh signed price snapshot and two successive epoch keeper posts are recorded in [market evidence](deployments/market-meta-2026-11-11.json). The final keeper uses authenticated `/prices` requests through the HTTP relayer's existing signer queue, avoiding cross-process sponsor nonce collisions. Price ages use signed timestamps; battles keep stored opening modifiers.
+
+The full live browser flow covered guest restoration, eight-fighter deck, local practice and result, two-profile staked Rush with card drops, referee settlement, receipt/replay, Proof and Empire. The initial run also created the new guest `v5-a-7997.mempire-relay-41966.testnet` with 0.1 NEAR. The opponent reused `port-b-2681.mempire-relay-41966.testnet`.
+
+- Match #13: three recorded plays, verified draw; newer #14 refunded before joining #13. Its first full run retained one HTTP 500, so it is not described as a clean pass.
+- Match #15: five recorded plays and a clean 30-screenshot loop, before correcting the desktop hand/canvas fit.
+- Final match #16 after the fit correction: six recorded plays (three per seat), winner seat 0, final tick 600, hash 2248064605. The referee paid 0.0184 NEAR, 0.0006 to the season and 0.001 to treasury. Browser replay matched winner, tick and hash. Both players ended with one device full-access key and zero arena play keys.
+- Final full loop: 30 screenshot calls at 1440×900 and 375×900; **zero console/page errors, zero HTTP failures and zero document/main horizontal overflow**. The canvas and confirmed move receipts are visible in live battle captures at both widths.
+- Final read-only confirmation: 24 screenshots, zero errors/overflow/transaction writes; match #16 links to its exact settlement receipt.
+- Before capture: 28 screenshots, zero console errors, overflow or transaction writes, from the pre-change production build. The first run's error and two RPC setup timeouts remain in the screenshot directory. No stake landed during the setup timeouts; a 0.02 NEAR reserve still covers their possible unrecorded gas.
+- New task conservative accounting: **0.2100559475797427 NEAR**, including 0.1 guest funding, all stake attachments again, recorded gas and the retry reserve; below the 0.5 cap. No deployment or mainnet spend.
+
+Exact receipts, replay, key counts and ledger: [match 13](deployments/reposition-match-13-2026-11-11.json), [match 15](deployments/reposition-match-15-2026-11-11.json), [match 16](deployments/reposition-match-16-2026-11-11.json). Screenshots and sanitized logs: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-v5/`. The shared `withChromeLock` guarded every browser run. Swap free exceeded 500 MB before builds/browser work. Ports 5390/5399 were used, never 8787; task-started servers/browsers were closed.
+
+See [REPOSITION-REPORT.md](REPOSITION-REPORT.md) for the final screenshot gallery and read-only confirmation. The following section is the earlier port checkpoint, not a claim that its stale-price setup remains current.
+
 ## Monad client port — November 11, 2026
 
 The imported client builds with `pnpm --filter @mempire/app build`. Workspace TypeScript checks pass with

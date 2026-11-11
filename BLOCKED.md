@@ -1,6 +1,6 @@
 # Blocked, unavailable or setup required
 
-The imported Monad client is `packages/app`. The original `packages/web` remains available and unchanged.
+The default NEAR app is `packages/app` (`pnpm dev`, `pnpm build`, `pnpm preview`). The original `packages/web` remains available and unchanged.
 
 | Item | State in the imported NEAR client | What remains |
 |---|---|---|
@@ -23,3 +23,7 @@ The imported Monad client is `packages/app`. The original `packages/web` remains
 Public testnet RPCs can rate-limit. The local preview/dev server shares reads across tabs and retries the two public
 RPC endpoints. That adapter is supplied by Vite locally; a static deployment needs its own RPC configuration or proxy.
 No fixed block/finality performance is promised. The heartbeat shows observed NEAR block intervals and timestamp lag.
+
+## Live market operation
+
+`pnpm meta:keep` needs the running HTTP relayer on port 5399 (or `META_RELAY_URL`) and the operator's existing price-signing credential by path. It is a local keeper, not a hosted service. It sends authenticated snapshots through the HTTP relayer's shared transaction queue, checks balance/budget before writes and stops when its per-run gas reserve is reached. Run the HTTP relayer with `RELAYER_PRICES=0` when using this separate keeper. If it stops, the UI's snapshot age continues to rise; the contract neutralises prices older than six hours. A match keeps its opening snapshot. No fabricated moves or automatic hosted freshness is claimed.
