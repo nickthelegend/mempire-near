@@ -1,6 +1,7 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { WalletPicker } from './WalletPicker';
+import { ArenaRail } from './ArenaRail';
 import { MarketBoard } from './MarketBoard';
 import { useChainSync } from '../state/useChainSync';
 import { useMatch } from '../state/match';
@@ -18,10 +19,6 @@ const TABS = [
 // a place you go, so it lives behind the + on the Crowns pill — next to the
 // number it changes. Five tabs also give each one room the six never had.
 
-/**
- * Layout law: one centered 430px column on the quilted field, gutters
- * intentionally empty (reserved: future ads). Battle hides the tab bar.
- */
 export function Shell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const inBattle = pathname === '/battle';
@@ -43,11 +40,17 @@ export function Shell({ children }: { children: ReactNode }) {
 
   // The gutters the layout law reserves for ads. Battle takes the whole screen,
   // and a phone has no gutters to give — `.gutter` handles the width rule.
-  const showGutters = !inBattle;
+  const [showGutters, setShowGutters] = useState(() => matchMedia('(min-width: 1024px)').matches);
+  useEffect(() => {
+    const query = matchMedia('(min-width: 1024px)');
+    const resize = () => setShowGutters(query.matches);
+    query.addEventListener('change', resize);
+    return () => query.removeEventListener('change', resize);
+  }, []);
 
   return (
     <div
-      className={inBattle ? undefined : 'hall'}
+      className={`hall game-shell${inBattle ? ' game-shell-battle' : ''}`}
       /* Height, not min-height, and the scroll lives inside the column.
        *
        * With the page free to grow, a full coin list made the document ~5700px
@@ -60,11 +63,11 @@ export function Shell({ children }: { children: ReactNode }) {
        * painted layer one screen tall no matter how long the list gets. */
       style={{ height: '100dvh', overflow: 'hidden', display: 'flex', justifyContent: 'center' }}
     >
-      {showGutters && <div className="gutter"><MarketBoard side="left" /></div>}
+      {showGutters && <aside className="desktop-rail left-rail" aria-label="Live market meta"><div className="rail-intro"><h2 className="display">The market is the meta.</h2><p className="fine">24h price move × 2 → fighter stats. Capped at ±15%. Six house fighters stay neutral.</p></div><MarketBoard side="left" /><MarketBoard side="right" /><p className="fine rail-note">Coinbase prices, signed by the testnet relayer. Each match locks its opening snapshot.</p></aside>}
       <div
-        className={inBattle ? undefined : 'quilt'}
+        className={`game-column${inBattle ? '' : ' quilt'}`}
         style={{
-          width: 'min(100vw, 430px)', height: '100dvh', minHeight: 0, position: 'relative',
+          height: '100dvh', minHeight: 0, position: 'relative',
           display: 'flex', flexDirection: 'column', flexShrink: 0,
           // The gold rule is what makes the column an object standing in the
           // hall rather than a lit patch of the same wall.
@@ -166,7 +169,7 @@ export function Shell({ children }: { children: ReactNode }) {
         )}
         <WalletPicker />
       </div>
-      {showGutters && <div className="gutter"><MarketBoard side="right" /></div>}
+      {showGutters && <ArenaRail />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useChain } from '../state/chain';
 import { keyedUrl } from '../lib/chromaKey';
 import type { MintedCard } from '../state/collection';
 import { coinByMint, tickerOf } from '../lib/coins';
@@ -102,6 +103,7 @@ export function CardFrame({
   card: MintedCard; width?: number; selected?: boolean; dimmed?: boolean;
   disabled?: boolean; fluid?: boolean; onClick?: () => void;
 }) {
+  useChain(s => s.marketVersion);
   const coin = coinByMint(card.mint);
   if (!coin) return null;
   const cost = ARCHETYPES[card.archetype].elixir;
@@ -137,6 +139,7 @@ export function CardFrame({
         display: 'block',
       }}
     >
+      {(coin.metaBps ?? 0) !== 0 && <span aria-label="Market stat modifier" style={{position:'absolute',right:5,top:5,zIndex:2,padding:'2px 4px',borderRadius:4,background:'var(--ink)',color:(coin.metaBps??0)>0?'var(--teal)':'var(--red)',fontSize:10,fontWeight:800}}>{(coin.metaBps??0)>0?'+':''}{((coin.metaBps??0)/100).toFixed(1)}%</span>}
       {/* Portrait well. Stops short of the foot so the level banner sits below
           the art rather than over it. */}
       <div style={{

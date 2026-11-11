@@ -249,7 +249,7 @@ interface DragState {
 const TAP_SLOP_PX = 8;
 
 /**
- * Crowns earned — the Clash Royale scoreline, one per tower felled.
+ * Crowns earned — the tower scoreline, one per tower felled.
  *
  * The newest crown slams in. Felling a tower is the loudest thing that happens
  * in a match and it used to register as a colour fade, which read as a value
@@ -578,6 +578,9 @@ export function Battle() {
           {match.mode === 'bot' && <OpponentBrainBadge />}
         </div>
         <PlayTicker />
+        <p className="fine" style={{textAlign:'center',fontSize:10,color:'var(--dim)',margin:0}}>
+          Market locked at kickoff: {match.playerDeck.filter(c=>c.metaBps!==0).map(c=>`${c.name} ${c.metaBps>0?'+':''}${(c.metaBps/100).toFixed(1)}%`).join(' · ') || 'neutral'}
+        </p>
         {/* A third row, not an absolute overlay — it was landing on top of the
             crown score for the entire double-elixir phase and all of overtime. */}
         {doubleElixir && sim.phase !== 'ended' && (

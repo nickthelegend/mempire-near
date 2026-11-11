@@ -119,10 +119,10 @@ export function WalletPicker() {
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
           <div>
             <h2 className="display" style={{ fontSize: 25, lineHeight: 1.1 }}>
-              Play Mempire
+              Every coin is a fighter.
             </h2>
             <p className="fine" style={{ color: 'var(--dim-on-wood)' }}>
-              {NETWORK_LABEL} · test tokens only
+              {NETWORK_LABEL} · the market is the meta
             </p>
           </div>
           <button
@@ -148,7 +148,7 @@ export function WalletPicker() {
           <p role="alert" className="fine" style={{ color: 'var(--red-on-wood)', textAlign: 'center' }}>{error}</p>
         )}
         <p className="fine" style={{ color: 'var(--dim-on-wood)', textAlign: 'center' }}>
-          Mempire never asks for a seed phrase, and never touches anything you hold.
+          In staked play, every move is a NEAR transaction. Your play-only session key signs card drops without wallet popups. Test tokens only.
         </p>
       </div>
     </div>

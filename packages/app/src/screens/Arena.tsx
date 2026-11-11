@@ -1,5 +1,6 @@
 import { IS_MAINNET, NETWORK_LABEL } from '../chain/provider';
 import { apiFetch } from '../lib/api';
+import { MatchProof } from '../components/MatchProof';
 import { MarketStrip } from '../components/MarketBoard';
 import { STAKE_MON_NEEDED } from '../chain/session';
 import { MonadPipeline } from '../components/MonadPipeline';
@@ -114,7 +115,7 @@ function Chip({ icon, value, tone }: { icon: string; value: string; tone: 'gold'
 function ConnectHero() {
   const openPicker = useWallet((s) => s.openPicker);
   return (
-    <div style={{
+    <div className="connect-hero" style={{
       flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
       padding: '40px 22px', gap: 20, textAlign: 'center',
     }}
@@ -126,16 +127,17 @@ function ConnectHero() {
           come from winning, and nothing is staked. It is also the first thing
           anyone reads, so it was the most-seen wrong sentence in the app. */}
       <p className="display" style={{ fontSize: 21, lineHeight: 1.2 }}>
-        Every coin is a fighter.
+        Every coin is a fighter.<br />The market is the meta.<br />Every move is a NEAR transaction.
       </p>
       <p style={{ color: 'var(--dim)', fontSize: 14, maxWidth: 320, margin: '-8px auto 0' }}>
-        Crypto and house fighters, buffed or nerfed by signed market prices. Stake testnet NEAR; every card you drop is recorded while you play.
+        Build a team from coins. Market moves buff and nerf your fighters. In staked play, every card drop is a transaction and the referee replays the whole match before payout.
       </p>
       <div style={{ padding: '0 12px', marginTop: 6 }}>
         <Pill onClick={openPicker} tone="gold" style={{ fontSize: 19 }}>Play now</Pill>
       </div>
       <span className="label" style={{ fontSize: 12 }}>{IS_MAINNET ? 'NEAR mainnet · real funds' : `${NETWORK_LABEL} · guest sign-in · no extension needed`}</span>
       <div style={{ textAlign: 'left' }}><MarketStrip /></div>
+      <div style={{ textAlign: 'left' }}><MatchProof /></div>
       <div style={{ textAlign: 'left' }}><MonadPipeline /></div>
     </div>
   );
@@ -376,9 +378,11 @@ export function Arena() {
   // comes down and the wordmark gives up the rest: the app is already open,
   // and nobody needs a 102px logo to know which one they are in.
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '10px 16px 6px' }}>
+    <div className="lobby" style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '10px 16px 6px' }}>
       <TopHud onReplayTutorial={() => setShowTutorial(true)} />
       <Logo width={168} />
+      <h1 className="display" style={{fontSize:22,lineHeight:1.15}}>Every coin is a fighter.<br />The market is the meta.</h1>
+      <p className="fine" style={{color:'var(--dim)',margin:0}}>Every move is a NEAR transaction. Staked play proves the whole match.</p>
       <StarterKit />
       <PrivySigner />
 
@@ -585,6 +589,7 @@ export function Arena() {
         </div>
       </section>
 
+      <MatchProof />
       <MarketStrip />
       <MonadPipeline compact />
       <LiveNow />

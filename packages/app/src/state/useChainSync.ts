@@ -25,6 +25,13 @@ export function useChainSync(): void {
   const clearWallet = useChain((s) => s.clearWallet);
 
   useEffect(() => { void init(); }, [init]);
+  const refreshMarket = useChain(s => s.refreshMarket);
+  useEffect(() => {
+    const refresh = () => { if (!document.hidden) void refreshMarket(); };
+    const timer = setInterval(refresh, 30_000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', refresh); };
+  }, [refreshMarket]);
 
   // Ladder standing is per-wallet and read-only here; the match store writes it.
   useEffect(() => {

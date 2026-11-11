@@ -8,7 +8,7 @@
  *
  * Trophies are **rating**, crowns are **performance**. A crown is earned per
  * tower felled inside one match; trophies persist across matches and decide who
- * you are matched against. Clash Royale runs both for the same reason: one tells
+ * you are matched against. These measure different things: one tells
  * you how a match went, the other tells you how good you are.
  */
 
