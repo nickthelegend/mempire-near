@@ -1,0 +1,68 @@
+{
+  "network": "testnet",
+  "arena": "mempire-arena-41966.testnet",
+  "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+  "transactions": [
+    {
+      "at": "2026-11-11T17:41:21.800Z",
+      "hash": "3SASKUzz1XPokto9bWDBY8NVDcyKUxBG37CSun32oggW",
+      "url": "https://testnet.nearblocks.io/txns/3SASKUzz1XPokto9bWDBY8NVDcyKUxBG37CSun32oggW",
+      "ok": true,
+      "error": null,
+      "sender": "mempire-relay-41966.testnet",
+      "tokensBurnt": "229335607985000000000",
+      "balanceBefore": "6736724547848302500000000",
+      "snapshot": {
+        "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+        "max_age_ms": "21600000",
+        "prices": [
+          {
+            "fighter_id": 6,
+            "ticker": "BTC",
+            "open_e8": "7320255000000",
+            "last_e8": "7442358000000",
+            "ts_ms": "1794418877645",
+            "status": 0,
+            "stat_bps": 333
+          },
+          {
+            "fighter_id": 7,
+            "ticker": "ETH",
+            "open_e8": "202674000000",
+            "last_e8": "208942000000",
+            "ts_ms": "1794418877645",
+            "status": 0,
+            "stat_bps": 618
+          },
+          {
+            "fighter_id": 8,
+            "ticker": "NEAR",
+            "open_e8": "352500000",
+            "last_e8": "376260000",
+            "ts_ms": "1794418877645",
+            "status": 0,
+            "stat_bps": 1348
+          },
+          {
+            "fighter_id": 9,
+            "ticker": "SOL",
+            "open_e8": "8227000000",
+            "last_e8": "8535000000",
+            "ts_ms": "1794418877645",
+            "status": 0,
+            "stat_bps": 748
+          },
+          {
+            "fighter_id": 10,
+            "ticker": "ZEC",
+            "open_e8": "103722000000",
+            "last_e8": "100352000000",
+            "ts_ms": "1794418877645",
+            "status": 0,
+            "stat_bps": -649
+          }
+        ]
+      }
+    }
+  ]
+}
