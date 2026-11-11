@@ -1,4 +1,3 @@
-import { IS_MAINNET } from '../chain/provider';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { click } from '../lib/audio';
@@ -29,12 +28,12 @@ const STEPS: TutorialStep[] = [
   {
     anchor: 'deck',
     title: 'Any coin, your army',
-    body: 'Every card is a real asset — a coin, a memecoin or a stock — as a fighter. You never have to hold it. Today\'s market buffs or nerfs it a little; win matches to earn duplicates and merge them to level it up.',
+    body: 'The NEAR arena supports eleven free level-1 fighters. Pick eight different fighters for your loadout. Signed market prices buff or nerf market fighters; NFT minting and upgrades are not on NEAR yet.',
   },
   {
     anchor: 'tier',
     title: 'Pick your stakes',
-    body: `Each tier stakes ${IS_MAINNET ? '' : 'testnet '}AUSD dollars or MON. Both players pay in, the contract pays the winner 90% of the pot — the house keeps 10%, and says so. Without a stake a match counts for rating only.`,
+    body: 'Both players escrow testnet NEAR. The contract replays the stored moves: 92% to the winner, 3% to the weekly season and 5% to the treasury. Practice is free and never changes your record.',
   },
   {
     anchor: 'practice',

@@ -10,11 +10,11 @@ import { useChain } from './chain';
 export const TIERS = [
   { crowns: 1, mon: 0.01, ausd: 1, name: 'Pauper' },
   { crowns: 2, mon: 0.05, ausd: 5, name: 'Knight' },
-  { crowns: 3, mon: 0.25, ausd: 25, name: 'Duke' },
-  { crowns: 4, mon: 1, ausd: 100, name: 'Emperor' },
+  { crowns: 3, mon: 0.1, ausd: 25, name: 'Duke' },
+  { crowns: 4, mon: 0.25, ausd: 100, name: 'Emperor' },
 ] as const;
 
-export type StakeCurrency = 'MON' | 'AUSD';
+export type StakeCurrency = 'NEAR' | 'AUSD';
 
 export const stakeOf = (tier: number, currency: StakeCurrency): number =>
   (currency === 'AUSD' ? TIERS[tier].ausd : TIERS[tier].mon);
@@ -45,7 +45,7 @@ export const useDeck = create<DeckState>((set, get) => ({
   // Filled from the account's on-chain cards by useChainSync.
   active: [],
   tier: 0,
-  currency: 'AUSD',
+  currency: 'NEAR',
   setCurrency: (c) => set({ currency: c }),
   slots: [[], [], []],
   slot: 0,

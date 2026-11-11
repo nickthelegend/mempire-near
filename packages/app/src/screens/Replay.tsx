@@ -97,7 +97,7 @@ export function Replay() {
 
   const sim = simRef.current;
   const crowns = sim ? crownsOf(sim) : [0, 0];
-  const verified = verdict && verdict.compared > 0 && verdict.divergedAt === null && verdict.seatsDisagreeAt === null;
+  const verified=verdict?.matchesChain;
   const checksOk = bundle ? bundle.checks.deckIds && bundle.checks.archetypes && bundle.checks.power : false;
   const arenaLink = DEPLOYMENT ? explorerUrl(DEPLOYMENT.arena, 'address') : undefined;
 
@@ -115,7 +115,7 @@ export function Replay() {
       )}
       {!error && !bundle && (
         <section className="well" style={{ padding: 12 }}>
-          <p className="fine" style={{ margin: 0 }}>Reading match #{matchId} from the chain — plays, checkpoints, decks…</p>
+          <p className="fine" style={{ margin: 0 }}>Reading match #{matchId} from the chain — plays, result hash, decks…</p>
         </section>
       )}
 
@@ -127,9 +127,9 @@ export function Replay() {
         >
           <span className="label" style={{ fontSize: 13, color: verified && checksOk ? 'var(--teal)' : 'var(--red)' }}>
             {verified && checksOk
-              ? `✓ Verified against ${verdict.matched} on-chain checkpoint${verdict.matched === 1 ? '' : 's'}`
+              ? '✓ Verified: same winner, final tick and referee state hash'
               : verdict.compared === 0
-                ? 'Not verifiable: no on-chain checkpoints for this match'
+                ? 'Not settled: no final referee result to compare yet'
                 : verdict.seatsDisagreeAt !== null
                   ? `The two seats posted different states at tick ${verdict.seatsDisagreeAt}`
                   : verdict.divergedAt !== null
@@ -137,11 +137,11 @@ export function Replay() {
                     : 'Deck record does not match the chain'}
           </span>
           <p className="fine" style={{ margin: 0, fontSize: 12, color: 'var(--dim)' }}>
-            Re-run from {bundle.inputs.length} on-chain plays (blocks {bundle.blocks[0]}–{bundle.blocks[1]}), seed from the matchmaker.
+            Re-run from {bundle.inputs.length} on-chain plays. Seed, decks and market modifiers come from the NEAR arena. House moves are computed by its published bot.
             Decks checked against the arena: card ids {bundle.checks.deckIds ? '✓' : '✗'} · archetypes {bundle.checks.archetypes ? '✓' : '✗'} · power {bundle.checks.power ? '✓' : '✗'}.
             {' '}Result on chain: {bundle.chainWinner === 0 ? `seat 0 (${shortAddr(bundle.seats[0])}) won` : bundle.chainWinner === 1 ? `seat 1 (${shortAddr(bundle.seats[1])}) won` : bundle.chainWinner === 2 ? 'a draw' : 'void'}
             {verdict.winner >= 0 || verdict.winner === -2 ? ` · replay: ${verdict.winner === -2 ? 'a draw' : `seat ${verdict.winner} wins`}` : ''}
-            {HAS_EXPLORER && arenaLink ? <> · <a href={arenaLink} target="_blank" rel="noreferrer">arena on MonadVision ↗</a></> : ' · local fork (no explorer)'}
+            {HAS_EXPLORER && arenaLink ? <> · <a href={arenaLink} target="_blank" rel="noreferrer">arena on NearBlocks ↗</a></> : ' · NEAR testnet'}
           </p>
           {bundle.checks.detail.length > 0 && (
             <ul className="fine" style={{ margin: 0, paddingLeft: 18, fontSize: 11, color: 'var(--red)' }}>

@@ -1,156 +1,29 @@
-import { keccak256, type Hex } from 'viem';
-import cardCatalogue from '../data/cards.json';
-import roster from '../shared/roster.json';
-
-/*
- * The roster: 36 assets, each a fighter.
- *
- * Built by `shared/roster.json`, which is generated from Pyth's own feed
- * catalogue with exact symbol matches — never a fuzzy search, which is how a
- * game ends up with a scam token wearing a real ticker. The same file registers
- * the fighters on chain in the same order, so `coinId` here is the coin id the
- * contracts use.
- *
- * A coin's identity is its Pyth price feed id. `mint` keeps its old name
- * because the whole client already keys fighters by it; on this chain it holds
- * the feed id. Archetype is `keccak256(feedId) % 6` — byte-for-byte what
- * `MempireCards.archetypeFor` computes, so client and chain cannot disagree
- * about what class a fighter is.
- */
-
+import { roster } from '@mempire/sdk';
 export type AssetKind = 'meme' | 'crypto' | 'stock';
-
-export const ASSET_KINDS: { id: AssetKind; label: string }[] = [
-  { id: 'meme', label: 'Memes' },
-  { id: 'crypto', label: 'Crypto' },
-  { id: 'stock', label: 'Stocks' },
-];
-
-export interface Coin {
-  /** The on-chain coin id (index in the roster). */
-  coinId: number;
-  /** Identity: the Pyth price feed id (0x…). Named `mint` for the rest of the client. */
-  mint: string;
-  feedId: Hex;
-  ticker: string;
-  name: string;
-  hue: number;
-  /** Demo holdings, unused on chain: holding an asset is never required. */
-  balance: number;
-  /** Live price from the relay's feed; 0 until it arrives. */
-  priceUsd: number;
-  liquidityUsd: number;
-  ageHours: number;
-  logoUrl?: string;
-  cardArt?: string;
-  kind: AssetKind;
-  decimals: number;
-  change24h?: number;
-  /** Today's market modifier from MarketMeta, in basis points (±1500). */
-  metaBps?: number;
-  fdvUsd?: number;
-  volume24h?: number;
-  pumpFun?: boolean;
-  url?: string;
-  pythSymbol: string;
+export const ASSET_KINDS: { id: AssetKind; label: string }[] = [{ id: 'meme', label: 'House' }, { id: 'crypto', label: 'Market' }];
+export interface Coin { coinId: number; mint: string; feedId: string; ticker: string; name: string; hue: number;
+ balance: number; priceUsd: number; liquidityUsd: number; ageHours: number; logoUrl?: string; cardArt?: string;
+ kind: AssetKind; decimals: number; change24h?: number; metaBps?: number; fdvUsd?: number; volume24h?: number;
+ pumpFun?: boolean; url?: string; pythSymbol: string; priceState?: string; updatedAt?: number }
+// IDs and archetypes come from the deployed NEAR roster. Artwork stays from the imported client.
+// Fighters without a matching source portrait use its existing class crest, never invented asset art.
+const HUES = [260, 260, 137, 265, 190, 320, 38, 320, 2, 265, 70];
+const SOURCE_ART: Record<string,string> = { WIF:'wif',BTC:'btc',ETH:'eth',SOL:'sol' };
+export const COINS: Coin[] = roster.fighters.map(f => ({ coinId:f.fighterId, mint:`near:${f.ticker.toLowerCase()}`,
+ feedId:`near:${f.ticker.toLowerCase()}`,ticker:f.ticker,name:f.name,hue:HUES[f.fighterId],balance:0,priceUsd:0,
+ liquidityUsd:0,ageHours:0,kind:f.kind==='house'?'meme':'crypto',decimals:24,pythSymbol:'',
+ logoUrl: SOURCE_ART[f.ticker] ? `/art/card_${SOURCE_ART[f.ticker]}.webp` : `/art/coin_${['wif','wif','doggo','peng','mooncat','rkt'][f.archetype]}.webp`,
+ cardArt: SOURCE_ART[f.ticker] ? `/art/card_${SOURCE_ART[f.ticker]}.webp` : `/art/icon_${['tank','swarm','ranged','splash','support','spell'][f.archetype]}.webp`,
+ priceState:f.kind==='house'?'House: neutral':'Price not read' }));
+export const coinByMint = (mint:string) => COINS.find(c=>c.mint===mint.toLowerCase());
+export const coinById = (id:number) => COINS[id];
+export const coinByTicker = (ticker:string) => COINS.find(c=>c.ticker===ticker.replace(/^\$+/,'').toUpperCase());
+export const tickerOf = (c:Coin) => `$${c.ticker}`;
+export const isEligible = () => true;
+export const ineligibleReason = (_c:Coin):string|null => null;
+export const REGISTRY_META = { cluster:'NEAR testnet' };
+export const archetypeForFeed = (mint:string) => roster.fighters[coinByMint(mint)?.coinId ?? 0].archetype;
+export function overlayLivePrices(rows:{coinId:number;priceUsd?:number;change24h?:number}[]) {
+ for (const row of rows) { const c=COINS[row.coinId]; if(c) { if(row.priceUsd!==undefined)c.priceUsd=row.priceUsd; c.change24h=row.change24h; } } return true;
 }
-
-interface RosterRow {
-  coinId: number;
-  ticker: string;
-  name: string;
-  kind: AssetKind;
-  feedId: Hex;
-  pythSymbol: string;
-  hue: number;
-  hasArt: boolean;
-}
-
-const KIND_BY_TICKER = new Map<string, AssetKind>(
-  (cardCatalogue.cards as { ticker: string; kind: string }[])
-    .map((c) => [c.ticker.toUpperCase(), c.kind as AssetKind]),
-);
-
-/** Tickers always render with the $ the culture uses. */
-export const tickerOf = (c: Coin): string => `$${c.ticker.replace(/^\$+/, '')}`;
-
-/*
- * The eligibility gate moved on chain: a fighter can be minted only with a
- * fresh Pyth price for it, posted in the same transaction. Every roster asset
- * has a live feed, so nothing here is ineligible — the functions stay so the
- * screens that ask still get an honest answer.
- */
-export const ELIGIBILITY = { minLiquidityUsd: 0, minAgeHours: 0 };
-export const isEligible = (_c: Coin): boolean => true;
-export const ineligibleReason = (_c: Coin): string | null => null;
-
-export const REGISTRY_META = { cluster: `chain ${roster.chainId}` };
-
-export function archetypeForFeed(feedId: string): number {
-  return Number(BigInt(keccak256(feedId as Hex)) % 6n);
-}
-
-function build(): Coin[] {
-  return (roster.coins as RosterRow[]).map((c) => ({
-    coinId: c.coinId,
-    mint: c.feedId.toLowerCase(),
-    feedId: c.feedId,
-    ticker: c.ticker,
-    name: c.name,
-    hue: c.hue,
-    balance: 0,
-    priceUsd: 0,
-    liquidityUsd: 0,
-    ageHours: 0,
-    decimals: 18,
-    kind: KIND_BY_TICKER.get(c.ticker.toUpperCase()) ?? c.kind,
-    pythSymbol: c.pythSymbol,
-    // WebP at ~58 KB rather than the 413 KB PNG; the PNG stays on disk because
-    // NFT metadata points at it. Both the card frame and the battle billboard
-    // fall back to a procedural badge if a file is missing.
-    cardArt: `/art/card_${c.ticker.toLowerCase()}.webp`,
-  }));
-}
-
-export const COINS: Coin[] = build();
-
-const BY_MINT = new Map(COINS.map((c) => [c.mint, c]));
-const BY_TICKER = new Map(COINS.map((c) => [c.ticker, c]));
-
-export const coinByMint = (mint: string): Coin | undefined => BY_MINT.get(mint.toLowerCase());
-export const coinById = (coinId: number): Coin | undefined => COINS[coinId];
-export const coinByTicker = (ticker: string): Coin | undefined =>
-  BY_TICKER.get(ticker.replace(/^\$+/, '').toUpperCase());
-
-/**
- * Overlay the relay's live market read onto the roster.
- *
- * Keyed by coin id. Reports whether anything changed so the caller can
- * re-render. Missing numbers stay missing; nothing here invents a price.
- */
-export function overlayLivePrices(
-  live: { coinId: number; priceUsd?: number; change24h?: number }[],
-): boolean {
-  let changed = false;
-  for (const row of live) {
-    const coin = COINS[row.coinId];
-    if (!coin) continue;
-    if (typeof row.priceUsd === 'number' && row.priceUsd > 0 && row.priceUsd !== coin.priceUsd) {
-      coin.priceUsd = row.priceUsd; changed = true;
-    }
-    if (typeof row.change24h === 'number' && row.change24h !== coin.change24h) {
-      coin.change24h = row.change24h; changed = true;
-    }
-  }
-  return changed;
-}
-
-/** Overlay MarketMeta's current modifiers (coinId → bps). */
-export function overlayMeta(bps: Map<number, number>): boolean {
-  let changed = false;
-  for (const coin of COINS) {
-    const v = bps.get(coin.coinId) ?? 0;
-    if (coin.metaBps !== v) { coin.metaBps = v; changed = true; }
-  }
-  return changed;
-}
+export function overlayMeta(bps:Map<number,number>) { for(const c of COINS)c.metaBps=bps.get(c.coinId)??0;return true; }

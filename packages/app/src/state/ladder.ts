@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { apiFetch, apiPost } from '../lib/api';
+import { apiFetch } from '../lib/api';
 import {
-  LEAGUES, STARTING_TROPHIES, applyMatch, leagueFor, leagueProgress, nextLeague,
+  LEAGUES, STARTING_TROPHIES, leagueFor, leagueProgress, nextLeague,
   type League, type Outcome, type TrophyChange,
 } from '../lib/ranking';
 
@@ -96,43 +96,7 @@ export const useLadder = create<LadderState>((set, get) => ({
     } catch { /* leaderboard is decoration when offline */ }
   },
 
-  record: (address, opponentTrophies, outcome, pairKey) => {
-    const change = applyMatch(get().trophies, opponentTrophies, outcome);
-    set((s) => ({
-      trophies: change.after,
-      best: Math.max(s.best, change.after),
-      wins: s.wins + (outcome === 'win' ? 1 : 0),
-      losses: s.losses + (outcome === 'loss' ? 1 : 0),
-      // A draw preserves a streak without extending it — it was not a loss.
-      streak: outcome === 'win' ? s.streak + 1 : outcome === 'loss' ? 0 : s.streak,
-      lastChange: change,
-    }));
-
-    // Fire-and-forget: the result screen must never wait on the ladder service.
-    if (address) {
-      // Signed: the server rejects an unsigned ladder update, and rightly —
-      // an unauthenticated one let anyone set anyone's rating.
-      // `opponentTrophies` is still sent for older relays; the current one
-      // reads it from its own pairing record and ignores the body's copy.
-      void apiPost(`/api/ladder/${address}`, 'ladder.post', { opponentTrophies, outcome, pairKey })
-        .then((r) => (r?.ok ? r.json() : null))
-        .then((d) => {
-          // The server sees both sides, so it is the authority. Reconcile quietly.
-          if (d && typeof d.trophies === 'number') {
-            set({
-              trophies: d.trophies,
-              best: Number(d.best) || d.trophies,
-              wins: Number(d.wins) || 0,
-              losses: Number(d.losses) || 0,
-              streak: Number(d.streak) || 0,
-              rank: d.rank ?? null,
-            });
-          }
-        })
-        .catch(() => { /* local value stands until the next load */ });
-    }
-    return change;
-  },
+  record: (_address,_opponentTrophies,_outcome,_pairKey) => {throw new Error('NEAR records results only when the referee settles.');},
 
   clearChange: () => set({ lastChange: null }),
   reset: () => set({

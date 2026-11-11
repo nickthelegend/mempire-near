@@ -53,7 +53,7 @@ function ResultOverlay() {
   const nav = useNavigate();
   if (!result) return null;
   /**
-   * Did any MON or AUSD actually move for this match.
+   * Did any NEAR or AUSD actually move for this match.
    *
    * The card below counts a pot up in gold whether or not one exists. A guest,
    * an un-minted deck, or a wallet too thin to cover the stake all leave
@@ -124,7 +124,7 @@ function ResultOverlay() {
             lands last and largest. */}
         <MoneyRow label="Pot" value={fmtMon(result.potSol)} count={{ to: result.potSol, delayMs: 340, format: fmtMon }} />
         <MoneyRow
-          label={`House rake (${result.draw ? 5 : 10}%)`}
+          label={`Season 3% + treasury 5%`}
           value={`−${fmtMon(result.rakeSol)}`}
           count={{ to: result.rakeSol, prefix: '−', delayMs: 520, format: fmtMon }}
         />
@@ -154,7 +154,7 @@ function ResultOverlay() {
             style={{ fontSize: 12, color: 'var(--gold)', margin: '8px 0 0', lineHeight: 1.35 }}
           >
             Your stake is still escrowed — this pot has not been paid out yet.
-            Settlement needs both players to report, and your opponent has not.
+            The referee is still replaying the stored moves.
             If it stays unpaid, reclaim it from Empire once the match times out.
           </p>
         )}
@@ -197,7 +197,7 @@ function ResultOverlay() {
       )}
       {/* Chests come only from the arena, on chain, for a staked win both
           seats agreed on. Unstaked wins earn none, so they get no row. */}
-      {result.won && !practice && escrowed && (
+      {false && result.won && !practice && escrowed && (
         <div className="well" style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span aria-hidden style={{ fontSize: 22 }}>🎁</span>
           <span style={{ textAlign: 'left', minWidth: 0 }}>
@@ -216,7 +216,7 @@ function ResultOverlay() {
       )}
       {escrowed && (
         <p className="fine" style={{ fontSize: 12 }}>
-          {result.hashes} state hashes committed · settled by final-state signature
+          {result.hashes} referee result · replayed and paid on NEAR
         </p>
       )}
       {escrowPhase === 'settled' && escrowMatchId !== null && (
@@ -758,13 +758,13 @@ export function Battle() {
             {match.practice
               ? 'Leave practice? Nothing is staked.'
               : quitEscrowed
-                ? `Forfeit the match? Your opponent takes the ${fmtStake(match.stakeSol * 2, match.currency)} pot.`
+                ? `Leave this view? The NEAR referee still decides the result from stored moves. Your stake stays escrowed until settlement.`
                 : 'Leave the match? Nothing was escrowed, so no money changes hands — it counts as a loss for rating only.'}
           </p>
           <Pill danger onClick={() => { setConfirmQuit(false); match.forfeit(); }}>
             {match.practice
               ? 'Leave practice'
-              : quitEscrowed ? `Forfeit — lose ${fmtStake(match.stakeSol, match.currency)}` : 'Leave the match'}
+              : quitEscrowed ? `Leave view — stake stays escrowed` : 'Leave the match'}
           </Pill>
           <Pill ghost onClick={() => setConfirmQuit(false)}>Keep fighting</Pill>
         </div>

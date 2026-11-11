@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { usePythUnavailable } from '../lib/pythCoverage';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useRef, useState } from 'react';
 import { CardDetail } from '../components/CardDetail';
 import { StarterKit } from '../components/StarterKit';
 import { CardFrame } from '../components/CardFrame';
@@ -8,238 +6,26 @@ import { ChainBadge } from '../components/ChainBadge';
 import { ChestRail } from '../components/Chests';
 import { Shop } from '../components/Shop';
 import { SeasonPassPanel } from '../components/SeasonPassPanel';
-import { CoinBadge, Pill, Spinner } from '../components/ui';
-import { mintCardTx, readableChainError, upgradeCardTx } from '../chain/actions';
-import { click, play } from '../lib/audio';
+import { CoinBadge, Pill } from '../components/ui';
+import { click } from '../lib/audio';
 import { useChain } from '../state/chain';
 import {
-  ASSET_KINDS, COINS, ineligibleReason, tickerOf,
+  ASSET_KINDS, COINS, tickerOf,
   type AssetKind, type Coin,
 } from '../lib/coins';
-import { fmtMon, fmtUsd } from '../lib/format';
-import { EASE_SNAP, usePulse } from '../lib/motion';
+import { fmtUsd } from '../lib/format';
 import { revealSection } from '../lib/scroll';
-import { FEES, useCollection } from '../state/collection';
+import { useCollection } from '../state/collection';
 import { useWallet } from '../state/wallet';
-import { Token } from '../components/Token';
-import { useMempire } from '../state/mempire';
 
 /** "All" first, then the three asset classes from the shared catalogue. */
 const FILTERS: { id: AssetKind | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   ...ASSET_KINDS,
 ];
-const TAP = { minHeight: 44 } as const;
 
-function CoinRow({ coin }: { coin: Coin }) {
-  const wallet = useWallet();
-  const { cards } = useCollection();
-  const chainMode = useChain((s) => s.mode);
-  const chainBalances = useChain((s) => s.balances);
-  const chainCards = useChain((s) => s.cards);
-  const chainSol = useChain((s) => s.solBalance);
-  const refreshSettled = useChain((s) => s.refreshSettled);
-  const noteSignature = useChain((s) => s.noteSignature);
-  const [minting, setMinting] = useState(false);
-  const [merging, setMerging] = useState(false);
-  const [chainError, setChainError] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+function CoinRow({coin}:{coin:Coin}){return <div style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0'}}><CoinBadge mint={coin.mint} size={40}/><div style={{minWidth:0}}><div style={{fontWeight:800,fontSize:14}}>{tickerOf(coin)}</div><div className="fine" style={{color:'var(--dim-on-wood)'}}>{coin.priceUsd>0?fmtUsd(coin.priceUsd):'—'}{coin.change24h!==undefined?` · ${coin.change24h.toFixed(1)}% 24h`:''}<br/>{coin.priceState}</div></div><span className="label" style={{marginLeft:'auto'}}>Free · Lv 1</span></div>;}
 
-  const onchain = chainMode === 'onchain';
-  const reason = ineligibleReason(coin);
-  // Starter cards excluded: they are not something this wallet minted, and
-  // counting them hid the Mint button on all eight of them.
-  const owned = cards.filter((c) => c.mint === coin.mint && !c.seeded).length;
-
-  /*
-   * The onchain cards for this coin, lowest id first. The oldest is the one
-   * kept — it is the one most likely to already be sitting in a deck — and
-   * every later one is a duplicate that can be merged into it for a level.
-   */
-  const mine = chainCards
-    .filter((c) => c.mint === coin.mint)
-    .sort((a, b) => a.id - b.id);
-  const keep = mine[0];
-  const dupes = mine.slice(1);
-
-  const merge = async () => {
-    if (!keep || !dupes.length) return;
-    setMerging(true);
-    setChainError(null);
-    try {
-      const { hash } = await upgradeCardTx(keep.id, dupes[0].id, keep.level);
-      noteSignature(hash);
-      play('reward');
-      void refreshSettled();
-    } catch (e) {
-      setChainError(readableChainError(e));
-      play('error');
-    } finally {
-      setMerging(false);
-    }
-  };
-  // Holdings are never read: a fighter is a character, not collateral. What
-  // the row shows instead is the market the fighter answers to today — its
-  // price, its 24h move, and the modifier MarketMeta gave it this epoch.
-  void chainBalances;
-  const affordable = onchain ? chainSol >= FEES.mintMon : wallet.mon >= FEES.mintMon;
-  // No live Pyth price (no quote, or a feed the relay's Pyth plan doesn't cover)
-  // → no signed update → the contract would refuse.
-  const pythOff = usePythUnavailable();
-  const live = coin.priceUsd > 0 && !pythOff.has(coin.coinId);
-  // Holding the coin is no longer a requirement, on chain or here. The balance
-  // still renders on the row — how much of a coin you hold is interesting — it
-  // simply no longer decides whether you may mint its card.
-
-  /**
-   * Onchain: one wallet-signed transaction; the program re-checks eligibility,
-   * charges the fee, and creates the Card PDA. The local card is only minted
-   * after the signature confirms, so the collection never shows a card the
-   * chain refused.
-   */
-  const mintOnchain = async () => {
-    setMinting(true);
-    setChainError(null);
-    try {
-      const { hash } = await mintCardTx(coin.coinId);
-      noteSignature(hash);
-      play('reward');
-      void refreshSettled();
-    } catch (e) {
-      setChainError(readableChainError(e));
-      play('error');
-    } finally {
-      setMinting(false);
-    }
-  };
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0' }}>
-      <CoinBadge mint={coin.mint} size={40} />
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontWeight: 800, fontSize: 14 }}>
-          {tickerOf(coin)}
-          {owned > 0 && (
-            <span style={{ color: 'var(--teal)', fontSize: 12, marginLeft: 6 }}>
-              {owned} card{owned > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--dim-on-wood)' }}>
-          {coin.priceUsd > 0 ? fmtUsd(coin.priceUsd) : '—'}
-          {typeof coin.change24h === 'number' && ` · ${coin.change24h >= 0 ? '+' : ''}${coin.change24h.toFixed(1)}%`}
-          {coin.metaBps ? (
-            <span style={{ marginLeft: 6, fontWeight: 800, color: coin.metaBps > 0 ? 'var(--teal)' : 'var(--red-on-wood)' }}>
-              {coin.metaBps > 0 ? '▲' : '▼'} {Math.abs(coin.metaBps / 100).toFixed(1)}% meta
-            </span>
-          ) : null}
-          {chainError && (
-            <span role="alert" style={{ display: 'block', color: 'var(--red-on-wood)', fontWeight: 700 }}>
-              {chainError}
-            </span>
-          )}
-        </div>
-      </div>
-      <div style={{ marginLeft: 'auto', textAlign: 'right', flexShrink: 0 }}>
-        {reason ? (
-          // Bare --red on wood is 2.3:1. The chip gives it a ground to sit on.
-          <span
-            className="well"
-            style={{
-              display: 'inline-block', padding: '5px 8px', fontSize: 12,
-              fontWeight: 700, color: 'var(--red-on-wood)', maxWidth: 116,
-              textAlign: 'center', lineHeight: 1.25,
-            }}
-          >
-            {reason}
-          </span>
-        ) : dupes.length > 0 && keep ? (
-          /* Duplicates are the progression now.
-             Decks are one-card-per-coin, so a second card for a coin you own
-             can never be fielded — it used to be a mint fee spent on nothing.
-             Merging it closes the duplicate, returns its rent, and buys a
-             level for the card you keep. */
-          <button
-            onClick={() => void merge()}
-            disabled={merging || keep.level >= 10}
-            aria-label={keep.level >= 10
-              ? `${tickerOf(coin)} is at maximum level`
-              : `Merge a duplicate into ${tickerOf(coin)} for level ${keep.level + 1}`}
-            className="btn-3d"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-              padding: '0 11px', ...TAP, borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-display)', fontSize: 13,
-              background: keep.level >= 10
-                ? 'var(--recess)'
-                : 'linear-gradient(180deg, var(--btn-green-hi), var(--btn-green) 52%, var(--btn-green-dark))',
-              border: '2px solid var(--ink)',
-              boxShadow: keep.level >= 10
-                ? 'var(--bevel-in)'
-                : 'inset 0 2px 0 rgba(255,255,255,.45), 0 3px 0 var(--btn-green-dark)',
-              color: 'var(--text)',
-              WebkitTextStroke: '1.8px var(--ink)', paintOrder: 'stroke fill',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {merging && <Spinner />}
-            {keep.level >= 10
-              ? 'Max level'
-              : merging ? 'Merging' : <>Merge · Lv {keep.level + 1}</>}
-          </button>
-        ) : owned > 0 ? (
-          <span
-            className="well"
-            style={{
-              display: 'inline-block', padding: '5px 10px', fontSize: 12,
-              fontWeight: 700, color: 'var(--teal)', maxWidth: 116,
-              textAlign: 'center', lineHeight: 1.25,
-            }}
-          >
-            minted
-          </span>
-        ) : (
-          <button
-            onClick={() => {
-              if (onchain) void mintOnchain();
-            }}
-            disabled={minting || !affordable || !onchain || !live}
-            title={!live ? 'No live price for this coin right now — a card is minted only at a fresh price' : affordable ? undefined : `needs ${fmtMon(FEES.mintMon)}`}
-            className="btn-3d"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '0 14px', ...TAP, borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-display)', fontSize: 14, letterSpacing: '0.03em',
-              background: affordable
-                ? 'linear-gradient(180deg, var(--btn-gold-hi), var(--btn-gold) 52%, var(--btn-gold-dark))'
-                : 'var(--recess)',
-              border: '2px solid var(--ink)',
-              boxShadow: affordable
-                ? 'inset 0 2px 0 rgba(255,255,255,.45), 0 3px 0 var(--btn-gold-dark)'
-                : 'var(--bevel-in)',
-              color: 'var(--text)',
-              WebkitTextStroke: '1.8px var(--ink)', paintOrder: 'stroke fill',
-              opacity: minting ? 0.7 : 1,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {minting && <Spinner />}
-            {minting ? 'Minting' : !live ? 'No live price' : affordable ? `Mint · ${fmtMon(FEES.mintMon)}` : 'Need MON'}
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * The last confirmed transaction, linked to the explorer.
- *
- * This row is the difference between claiming the mint was onchain and letting
- * the player check. It renders only in onchain mode, because a link that
- * resolves to nothing would be worse than no link.
- */
 function TxReceipt() {
   const sig = useChain((s) => s.lastSignature);
   const mode = useChain((s) => s.mode);
@@ -281,77 +67,22 @@ function TxReceipt() {
  * Tapping it opens the Empire wallet panel, where the account's balances and
  * the honest answer to "how do I get more" live: staked wins pay it.
  */
-function MempireBalance({ onGet }: { onGet: () => void }) {
-  const address = useWallet((s) => s.address);
-  const balance = useMempire((s) => s.balance);
-  const refresh = useMempire((s) => s.refresh);
-
-  useEffect(() => { void refresh(address || null); }, [address, refresh]);
-
-  const pulse = usePulse(balance ?? 0, [
-    { transform: 'scale(1)' },
-    { transform: 'scale(1.28)', offset: 0.38 },
-    { transform: 'scale(1)' },
-  ], { duration: 440, easing: EASE_SNAP });
-
-  return (
-    <button
-      onClick={onGet}
-      aria-label={balance === null
-        ? 'Get $MEMPIRE'
-        : `${balance.toLocaleString()} MEMPIRE — get more`}
-      className="btn-3d"
-      style={{
-        marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6,
-        minHeight: 44, padding: '0 13px', borderRadius: 999,
-        background: 'linear-gradient(180deg, var(--btn-blue-hi), var(--btn-blue))',
-        border: '2.5px solid var(--ink)',
-        boxShadow: 'inset 0 2px 0 rgba(255,255,255,.45), 0 4px 0 var(--btn-blue-dark)',
-      }}
-    >
-      <Token size={17} />
-      <span
-        ref={pulse as React.RefObject<HTMLSpanElement>}
-        className="display display--sm"
-        style={{ fontSize: 16, display: 'inline-block' }}
-      >
-        {/* An em dash until the first read lands. Rendering 0 here is the same
-            lie the throttled-RPC bug told: a funded wallet reading empty. */}
-        {balance === null ? '—' : balance.toLocaleString()}
-      </span>
-      <span className="display display--sm" style={{ fontSize: 16, opacity: 0.85 }}>+</span>
-    </button>
-  );
-}
-
 export function Cards() {
-  const nav = useNavigate();
   const cards = useCollection((s) => s.cards);
   const connected = useWallet((s) => s.connected);
   const openPicker = useWallet((s) => s.openPicker);
   /** What actually exists on chain, so the header can stop guessing. */
-  const chainCards = useChain((s) => s.cards);
   const [openCard, setOpenCard] = useState<string | null>(null);
   const bagsRef = useRef<HTMLElement>(null);
   const [kind, setKind] = useState<AssetKind | 'all'>('all');
   // Re-read when prices land: a fighter with no live price cannot be minted,
   // so it is folded into one line instead of a row of disabled buttons.
   const marketVersion = useChain((s) => s.marketVersion);
-  const pythOff = usePythUnavailable();
-  const pricesLoaded = COINS.some((c) => c.priceUsd > 0);
-  const mintable = (c: (typeof COINS)[number]) => c.priceUsd > 0 && !pythOff.has(c.coinId);
-  const shownCoins = useMemo(
-    () => (kind === 'all' ? COINS : COINS.filter((c) => c.kind === kind))
-      .filter((c) => !pricesLoaded || mintable(c)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [kind, pricesLoaded, marketVersion, pythOff],
-  );
-  const unpriced = pricesLoaded
-    ? (kind === 'all' ? COINS : COINS.filter((c) => c.kind === kind)).filter((c) => !mintable(c))
-    : [];
+
+
+  const shownCoins=useMemo(()=>kind==='all'?COINS:COINS.filter(c=>c.kind===kind),[kind,marketVersion]);
   const detail = useMemo(() => cards.find((c) => c.id === openCard), [cards, openCard]);
   // Cards at level 2 or better — the ones that have actually been won up.
-  const levelled = cards.filter((c) => !c.seeded && c.level > 1).length;
 
   if (!connected) {
     return (
@@ -362,8 +93,7 @@ export function Cards() {
       >
         <h1 className="display" style={{ fontSize: 30 }}>Cards</h1>
         <p style={{ color: 'var(--dim)', fontSize: 14 }}>
-          Connect a wallet to mint fighters you keep. Minting costs a small fee
-          and never touches the coins in your wallet.
+          Sign in to choose a free starter loadout. Every supported fighter is level 1; NFT ownership and minting are not on NEAR yet.
         </p>
         <Pill onClick={openPicker} style={{ maxWidth: 260 }}>Connect Wallet</Pill>
       </div>
@@ -380,12 +110,9 @@ export function Cards() {
               local until they mint it, and both of those words are claims. The
               count says onchain only when `chainCards` backs it. */}
           <p className="fine">
-            {chainCards.length > 0
-              ? <>{chainCards.length} minted onchain{levelled > 0 && <> · <span className="money" style={{ fontSize: 14 }}>{levelled}</span> levelled up</>}</>
-              : <>{cards.length} cards · not minted onchain yet</>}
+            {cards.length} free fighters · level 1 · no NFT ownership
           </p>
         </div>
-        <MempireBalance onGet={() => nav('/empire')} />
       </header>
 
       <StarterKit />
@@ -400,7 +127,7 @@ export function Cards() {
             visible header, so without one it read as a gap between them. */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
           <span className="label">Your cards</span>
-          <span className="label" style={{ fontSize: 12 }}>{cards.length} minted</span>
+          <span className="label" style={{ fontSize: 12 }}>{cards.length} available</span>
         </div>
         {cards.length === 0 ? (
           <div className="panel" style={{ padding: '20px 18px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 11, alignItems: 'center' }}>
@@ -426,7 +153,7 @@ export function Cards() {
 
       <section aria-label="Your bags" ref={bagsRef} style={{ scrollMarginTop: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4 }}>
-          <span className="label">Your bags · mint fee {fmtMon(FEES.mintMon)}</span>
+          <span className="label">Signed relayer prices · testnet</span>
           <ChainBadge compact />
         </div>
 
@@ -472,12 +199,6 @@ export function Cards() {
         </div>
 
         <div className="panel" style={{ padding: '4px 14px' }}>
-          {unpriced.length > 0 && (
-            <p className="fine" style={{ fontSize: 12, color: 'var(--dim-on-wood)', margin: '0 0 6px' }}>
-              {unpriced.length} fighter{unpriced.length === 1 ? '' : 's'} without a live Pyth price can&apos;t be minted right now
-              ({unpriced.slice(0, 4).map((c) => `$${c.ticker}`).join(', ')}{unpriced.length > 4 ? '…' : ''}).
-            </p>
-          )}
           {shownCoins.length === 0 ? (
             <p style={{ padding: '18px 0', textAlign: 'center', color: 'var(--dim-on-wood)', fontSize: 13 }}>
               nothing here yet, anon
@@ -489,10 +210,7 @@ export function Cards() {
           ))}
         </div>
         <p style={{ fontSize: 12, color: 'var(--dim)', marginTop: 8 }}>
-          A fighter can be minted only with a fresh Pyth price for it, posted in the
-          mint transaction itself — no live price, no card. Today&apos;s ▲▼ is the
-          market meta: Chainlink CRE (24h move) or Pyth momentum (spot vs its moving
-          average) becomes a bounded (±15%) stat modifier on chain.
+          The arena verifies signed relayer snapshots of Coinbase 24-hour prices. Market changes adjust stats by at most ±15%; stale prices are neutral. These are not Pyth or NFT mints.
         </p>
         <TxReceipt />
       </section>

@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { useChain } from '../state/chain';
 import { coinByMint, tickerOf } from '../lib/coins';
 import { fmtUsd } from '../lib/format';
-import { ARCHETYPES, scaleByLevel } from '../sim/archetypes';
+import { ARCHETYPES, scaleStat } from '../sim/archetypes';
 import { TRAITS, effectiveDef, traitForMint } from '../sim/traits';
 import { loreFor } from '../data/lore';
 
@@ -14,7 +14,7 @@ import { loreFor } from '../data/lore';
  * tags. Override with VITE_SHARE_ORIGIN if the landing page moves.
  */
 const SHARE_ORIGIN = (import.meta.env.VITE_SHARE_ORIGIN as string | undefined)
-  ?? 'https://mempire.fun';
+  ?? window.location.origin;
 
 /** The X handle, without the @. Mirrors X_HANDLE in the landing site's site.ts. */
 const X_HANDLE = 'MempireFun';
@@ -57,7 +57,7 @@ export function CardDetail({
   const chainCards = useChain((s) => s.cards);
   /*
    * The onchain twin of this card, if it has one. On Monad every card is an
-   * ERC-721 from the moment it is minted, so there is no separate tokenise
+   * free fighter from the moment it is minted, so there is no separate tokenise
    * step — just a link to the token itself.
    */
   const onChain = chainCards.find((c) => c.mint === card.mint);
@@ -77,11 +77,9 @@ export function CardDetail({
   // Showing the archetype baseline beside an "Ironclad" chip would be the sheet
   // describing a fighter the player is not going to get.
   const def = effectiveDef(ARCHETYPES[card.archetype], traitId, card.archetype);
-  const hp = scaleByLevel(def.hp, card.level);
-  const dmg = scaleByLevel(def.damage, card.level);
+  const hp = scaleStat(def.hp, card.level,coin.metaBps??0);
+  const dmg = scaleStat(def.damage, card.level,coin.metaBps??0);
   const dps = def.hitTicks > 0 ? Math.round((dmg * 20) / def.hitTicks) : dmg;
-  const nextHp = scaleByLevel(def.hp, Math.min(10, card.level + 1));
-  const nextDmg = scaleByLevel(def.damage, Math.min(10, card.level + 1));
   // Absent when no live quote has been read for this coin. It used to fall back to 0, which rendered a green "+0.00%" —
   // a number the app had invented, sitting next to figures it had actually
   // read. Missing data shows as missing, the way `fdvUsd` already does.
@@ -146,7 +144,7 @@ export function CardDetail({
               behaved. That route serves the tags in the document itself. */}
           <button
             onClick={() => {
-              const url = `${SHARE_ORIGIN}/card/${coin.ticker.toLowerCase()}`;
+              const url = `${SHARE_ORIGIN}/#/cards`;
               const text = lore
                 ? `${lore.tagline}\n\nMy $${coin.ticker} is level ${card.level} in @${X_HANDLE}.`
                 : `My $${coin.ticker} is level ${card.level} in @${X_HANDLE}.`;
@@ -194,7 +192,7 @@ export function CardDetail({
             Market
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-            <Stat icon="$" label="Price" value={fmtUsd(coin.priceUsd)} />
+            <Stat icon="$" label="Price" value={coin.priceUsd>0?fmtUsd(coin.priceUsd):'—'} />
             <Stat
               icon={up === undefined ? '·' : up >= 0 ? '📈' : '📉'}
               label="24h"
@@ -207,15 +205,14 @@ export function CardDetail({
             />
             <Stat
               icon="🪙"
-              label="Minted at"
-              value={onChain?.mintPriceUsd ? fmtUsd(onChain.mintPriceUsd) : '—'}
+              label="Availability"
+              value="Free · level 1"
             />
           </div>
           {/* The panel is headed "Market" and these look like quotes, so it
               says where each number comes from right here. */}
           <p className="fine" style={{ margin: '6px 0 0', color: 'var(--dim-on-wood)' }}>
-            Price: Pyth ({coin.pythSymbol}). Meta: Chainlink CRE or Pyth momentum → MarketMeta, ±15% max.
-            Minted at: the Pyth price posted in the card&apos;s own mint transaction.
+            {coin.priceState}. Source: signed relayer prices from Coinbase 24-hour stats. NEAR verifies the signature; stale snapshots give neutral stats. ±15% maximum.
           </p>
         </div>
 
@@ -227,11 +224,11 @@ export function CardDetail({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
             <Stat
               icon="❤️" label="Hitpoints" value={String(hp)}
-              delta={card.level < 10 ? `+${nextHp - hp}` : undefined}
+              
             />
             <Stat
               icon="⚔️" label="Damage" value={String(dmg)}
-              delta={card.level < 10 ? `+${nextDmg - dmg}` : undefined}
+              
             />
             <Stat icon="💥" label="Damage / sec" value={String(dps)} />
             <Stat icon="🏃" label="Speed" value={`${((def.speedFP / FP) * 20).toFixed(1)} t/s`} />
@@ -251,22 +248,22 @@ export function CardDetail({
         <div className="well" style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ minWidth: 0 }}>
             <span className="label" style={{ fontSize: 12, display: 'block' }}>Level</span>
-            <span className="money" style={{ fontSize: 19 }}>{card.level} of 10</span>
+            <span className="money" style={{ fontSize: 19 }}>{card.level} · NEAR</span>
             <span className="fine" style={{ display: 'block', fontSize: 12 }}>
-              {tickerOf(coin)} · won, not bought
+              {tickerOf(coin)} · free fighter
             </span>
           </span>
           <span style={{ marginLeft: 'auto', textAlign: 'right' }}>
-            <span className="label" style={{ fontSize: 12, display: 'block' }}>Next level</span>
+            <span className="label" style={{ fontSize: 12, display: 'block' }}>Upgrades</span>
             <span className="display display--sm" style={{ fontSize: 15 }}>
-              {card.level >= 10 ? 'MAX' : `Merge a duplicate → Lv ${card.level + 1}`}
+              Not on NEAR yet
             </span>
           </span>
         </div>
 
         {onChain && DEPLOYMENT && HAS_EXPLORER && (
           <a
-            href={`${explorerUrl(DEPLOYMENT.cards, 'address')!.replace('/address/', '/nft/')}/${onChain.id}`}
+            href={explorerUrl(DEPLOYMENT.arena,'address')}
             target="_blank"
             rel="noreferrer"
             className="btn-3d"
@@ -280,7 +277,7 @@ export function CardDetail({
               boxShadow: 'inset 0 2px 0 rgba(255,255,255,.5), 0 5px 0 var(--btn-green-dark)',
             }}
           >
-            Card #{onChain.id} on MonadVision
+            Arena roster on NearBlocks
           </a>
         )}
 

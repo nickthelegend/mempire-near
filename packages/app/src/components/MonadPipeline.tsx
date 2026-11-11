@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { medianMs, useMonadHeads, type BlockChip, type CommitState } from '../lib/monadHeads';
+import { useMonadHeads, type BlockChip, type CommitState } from '../lib/monadHeads';
 
 /*
  * Monad's heartbeat, on screen: the last blocks of Monad testnet moving
@@ -9,18 +9,13 @@ import { medianMs, useMonadHeads, type BlockChip, type CommitState } from '../li
  * it shows the network the game will deploy to, not the fork.
  */
 
-const LOOK: Record<CommitState, { bg: string; fg: string; label: string }> = {
-  Proposed: { bg: 'var(--recess)', fg: 'var(--dim)', label: 'proposed' },
-  Voted: { bg: 'var(--btn-blue)', fg: 'var(--text)', label: 'voted' },
-  Finalized: { bg: 'var(--btn-green)', fg: '#0d1120', label: 'final' },
-  Verified: { bg: 'var(--gold)', fg: '#0d1120', label: 'verified' },
-};
+const LOOK:Record<CommitState,{bg:string;fg:string;label:string}>={Optimistic:{bg:'var(--btn-blue)',fg:'var(--text)',label:'optimistic'},Finalized:{bg:'var(--btn-green)',fg:'#0d1120',label:'final'}};
 
 const fmt = (ms: number | null) => (ms === null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${ms} ms`);
 
 function Chip({ c }: { c: BlockChip }) {
   const look = LOOK[c.state];
-  const ms = c.state === 'Verified' ? c.verifiedMs : c.state === 'Finalized' ? c.finalizedMs : c.state === 'Voted' ? c.votedMs : undefined;
+  const ms=undefined;
   return (
     <span
       title={`block ${c.number} · ${look.label}${ms !== undefined ? ` after ${ms} ms` : ''} · ${c.hash.slice(0, 10)}…`}
@@ -32,7 +27,7 @@ function Chip({ c }: { c: BlockChip }) {
       }}
     >
       <span style={{ fontWeight: 700 }}>…{String(c.number).slice(-4)}</span>
-      <span style={{ fontSize: 9, opacity: 0.9 }}>{c.state === 'Verified' ? '✓' : ms !== undefined ? `${ms}ms` : look.label}</span>
+      <span style={{ fontSize: 9, opacity: 0.9 }}>{look.label}</span>
     </span>
   );
 }
@@ -40,17 +35,16 @@ function Chip({ c }: { c: BlockChip }) {
 export function MonadPipeline({ compact = false }: { compact?: boolean }) {
   const retain = useMonadHeads((s) => s.retain);
   const chips = useMonadHeads((s) => s.chips);
-  const history = useMonadHeads((s) => s.history);
+  const interval=useMonadHeads(s=>s.intervalMs);
+  const lag=useMonadHeads(s=>s.lagMs);
   const status = useMonadHeads((s) => s.status);
   useEffect(() => retain(), [retain]);
 
-  const voted = medianMs(history, 'votedMs');
-  const final = medianMs(history, 'finalizedMs');
   const shown = chips.slice(0, compact ? 5 : 7).reverse();
 
   return (
     <section
-      aria-label="Monad testnet block pipeline"
+      aria-label="NEAR testnet block heartbeat"
       className="well"
       style={{ padding: compact ? '6px 8px' : '8px 10px', display: 'grid', gap: 6 }}
     >
@@ -64,7 +58,7 @@ export function MonadPipeline({ compact = false }: { compact?: boolean }) {
           }}
         />
         <span className="label" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
-          Monad testnet heartbeat{status === 'live' ? '' : status === 'unavailable' ? ' · reconnecting' : ' · connecting'}
+          NEAR testnet heartbeat{status === 'live' ? '' : status === 'unavailable' ? ' · reconnecting' : ' · connecting'}
         </span>
         <span className="fine" style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--dim)', whiteSpace: 'nowrap' }}>
           {chips[0] ? `block ${Number(chips[0].number).toLocaleString('en-US')}` : 'read-only · live'}
@@ -82,15 +76,13 @@ export function MonadPipeline({ compact = false }: { compact?: boolean }) {
           ? shown.map((c) => <span role="listitem" key={c.blockId} style={{ minWidth: 0 }}><Chip c={c} /></span>)
           : (
             <span className="fine" style={{ gridColumn: '1 / -1', fontSize: 11, color: 'var(--dim)' }}>
-              {status === 'unavailable' ? 'Monad testnet WebSocket unreachable — retrying' : 'waiting for the next block…'}
+              {status === 'unavailable' ? 'NEAR RPC unreachable — retrying' : 'waiting for the next block…'}
             </span>
           )}
       </div>
       {!compact && (
         <p className="fine" style={{ margin: 0, fontSize: 11, color: 'var(--dim)' }}>
-          A block is <b style={{ color: 'var(--text)' }}>voted in {fmt(voted)}</b> and{' '}
-          <b style={{ color: 'var(--text)' }}>final in {fmt(final)}</b> — measured in this browser from{' '}
-          <code style={{ fontSize: 10 }}>monadNewHeads</code>. Every card you play is one of these transactions.
+          Observed block interval <b style={{color:'var(--text)'}}>{fmt(interval)}</b> · latest-to-final timestamp lag <b style={{color:'var(--text)'}}>{fmt(lag)}</b>. Read from NEAR RPC; these are not per-transaction timings.
         </p>
       )}
     </section>

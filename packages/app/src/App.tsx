@@ -21,6 +21,7 @@ import { Cards } from './screens/Cards';
 import { Clan } from './screens/Clan';
 import { Deck } from './screens/Deck';
 import { Empire } from './screens/Empire';
+import { Proof } from './screens/Proof';
 
 const Battle = lazy(() => import('./screens/Battle').then((m) => ({ default: m.Battle })));
 const Replay = lazy(() => import('./screens/Replay').then((m) => ({ default: m.Replay })));
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/deck" element={<Deck />} />
             <Route path="/clan" element={<Clan />} />
             <Route path="/empire" element={<Empire />} />
+            <Route path="/proof" element={<Proof />} />
             <Route
               path="/watch/:id"
               element={(

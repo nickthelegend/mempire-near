@@ -1,147 +1,38 @@
-import { generatePrivateKey, nonceManager, privateKeyToAccount } from 'viem/accounts';
-import { zeroAddress, type Address, type Hex } from 'viem';
-import { activeSigner, localSigner, type Signer } from './account';
-import { privyActorWallet, privyConsent } from '../lib/privy';
-
-/*
- * Per-match session keys.
- *
- * A match writes every card drop to the chain as it happens. Asking the
- * player's wallet to approve each one would end the game at the first card, so
- * a match gets its own throwaway key: generated in the browser, named as the
- * seat's session in the create/join transaction, and funded in that same
- * transaction with a few cents of MON for gas. The arena accepts it for that
- * seat of that match and nothing else — it can log plays, post checkpoints and
- * record the result, and it can never move a stake or a card.
- *
- * It is kept in sessionStorage for the life of the tab, so a reload mid-match
- * can still record the result rather than stranding the seat's claim.
- */
-
-/*
- * MON forwarded to the session key for its gas.
- *
- * A logged transaction is a ~45k gas limit (Monad bills the limit) at testnet's
- * 100 gwei floor, about 0.005 MON. A three-minute match is ~20–25 plays, a
- * checkpoint every 8 s (~22, and they yield to plays when the float runs low)
- * and the claim: ~45 transactions, ~0.22 MON at worst. 0.2 MON covers every
- * play with the checkpoints trimmed; whatever is left is swept back to the
- * player when the match ends, so the allowance is a float, not a fee.
- */
-export const SESSION_GAS_WEI = 200_000_000_000_000_000n; // 0.2 MON
-/**
- * MON a wallet needs to open or join a staked match: the session float plus
- * the stake transaction's own gas (~300k at 100 gwei). The relay's onboarding
- * drip (0.25) is sized to cover it.
- */
-export const STAKE_MON_NEEDED = 0.23;
-/** Kept back from logging so the seat can always afford to record its result. */
-export const CLAIM_RESERVE_WEI = 15_000_000_000_000_000n; // 0.015 MON
-
-/*
- * Privy players need none of this. Their wallet has the relay as a session
- * signer under the match policy, so the relay sends their plays and claim as
- * them — sponsored, and limited to exactly those arena calls. No throwaway key,
- * no gas float, nothing to sweep.
- */
-export const usesPrivySigner = (): boolean =>
-  activeSigner()?.kind === 'privy' && privyConsent() !== null;
-
-function privyActor(): Signer {
-  const me = activeSigner()!;
-  return { kind: 'privy', address: me.address, account: me.address, wallet: privyActorWallet(), label: 'Privy session signer', icon: null };
+import { KeyPair, KeySigner, addSessionKey, arenaCalls, deleteKey, parseNear, viewAccessKeys, type Claim } from '@mempire/sdk';
+import { net, reader, relayer } from './provider';
+import { activeSigner, type Signer } from './account';
+export const STAKE_MON_NEEDED=0.01;
+const storageKey=(id:string)=>`mempire:monad-port:near:session:${id}`;
+export interface Step {label:string;hash?:string;matchId?:string;}
+const note=(step:Step)=>{const old=JSON.parse(localStorage.getItem('mempire:near:receipts')||'[]') as Step[];localStorage.setItem('mempire:near:receipts',JSON.stringify([...old,step].slice(-100)));};
+async function sendSponsored(s:Signer,receiver:string,actions:Parameters<KeySigner['send']>[1],label:string){
+ const out=s.keySigner?await relayer.relay(await s.keySigner.signDelegate(receiver,actions)):await s.send(receiver,actions);
+ note({label,hash:out.hash});if(!out.ok)throw new Error(`${label}: ${out.error} (tx ${out.hash})`);return out;
 }
-
-/** The MON a create/join forwards to the seat's session key. None for Privy. */
-export const sessionGasWei = (): bigint => (usesPrivySigner() ? 0n : SESSION_GAS_WEI);
-
-const KEY = (matchId: number) => `mempire_session_${matchId}`;
-const PENDING = 'mempire_session_pending';
-
-interface Live {
-  matchId: number;
-  signer: Signer;
+async function newSession(s:Signer){const kp=KeyPair.fromRandom('ed25519');await sendSponsored(s,s.accountId,[addSessionKey(kp.getPublicKey().toString(),net.arena,['play'],parseNear('0.05'))],'Added play-only session key (0.05 NEAR allowance)');return kp;}
+export const sessionFor=(id:string|number)=>{const secret=localStorage.getItem(storageKey(String(id)));const s=activeSigner();return secret&&s?new KeySigner(net.rpc,s.accountId,KeyPair.fromString(secret as never)):null;};
+export async function openOrJoin(tier:number,format:0|1,deck:number[]):Promise<{id:string;active:boolean}>{
+ const s=activeSigner();if(!s)throw new Error('Sign in first.');
+ const c=await reader.config();const stake=c.tier_stakes[tier];if(!stake)throw new Error('Unsupported stake tier.');
+ const open=await reader.openMatches();const pending=open[tier*2+format];let join:string|null=null;
+ if(pending&&pending!=='0'){const m=await reader.match(pending);if(m?.state===1){if(m.p0===s.accountId)throw new Error(`Match #${pending} already holds your stake. Cancel it in Empire before opening another.`);join=pending;}}
+ const kp=await newSession(s);let id=join??'';
+ try{const out=join?await s.send(net.arena,[arenaCalls.joinMatch(join,deck,kp.getPublicKey().toString(),stake)]):await s.send(net.arena,[arenaCalls.createMatch(tier,format,deck,kp.getPublicKey().toString(),stake)]);
+ note({label:join?'Joined staked match':'Opened staked match',hash:out.hash});if(!out.ok)throw new Error(out.error);id=join??String(out.value);
+ if(!/^\d+$/.test(id))throw new Error('The stake was sent but no match ID was returned. Check NearBlocks before retrying.');
+ localStorage.setItem(storageKey(id),kp.toString());localStorage.setItem('mempire:near:waiting',id);
+ }catch(e){await sendSponsored(s,s.accountId,[deleteKey(kp.getPublicKey().toString())],'Removed unused session key').catch(()=>{});throw e;}
+ return{id,active:(await reader.match(id))?.state===2};
 }
-
-let live: Live | null = null;
-
-/** A fresh key for the match about to be created or joined. Its id is not known yet. */
-export function prepareSession(): Address {
-  if (usesPrivySigner()) return zeroAddress; // the seat's own wallet speaks for it
-  const k = generatePrivateKey();
-  try { sessionStorage.setItem(PENDING, k); } catch { /* memory only */ }
-  pending = k;
-  return privateKeyToAccount(k).address;
+export async function settleMatch(id:string,claim:Claim|null){const s=activeSigner();if(!s)throw new Error('Sign in to ask the referee to settle.');
+ for(let i=0;i<20;i++){const m=await reader.match(id);if(m?.state===3)return m;if(!m||m.state!==2)throw new Error('This match is not active.');
+ const out=await sendSponsored(s,net.arena,[arenaCalls.settle(id,claim)],`Referee settlement #${id}`);
+ if((out.value as {status?:string})?.status==='settled')break;}
+ const m=await reader.match(id);if(m?.state!==3)throw new Error('Replay is still in progress. Retry settlement.');
+ await removeSession(id);return m;
 }
-
-let pending: Hex | null = null;
-
-/** Bind the prepared key to the match id the chain assigned. */
-export function bindSession(matchId: number): Signer | null {
-  if (usesPrivySigner()) {
-    live = { matchId, signer: privyActor() };
-    return live.signer;
-  }
-  const k = pending ?? (() => {
-    try { return sessionStorage.getItem(PENDING) as Hex | null; } catch { return null; }
-  })();
-  if (!k) return null;
-  pending = null;
-  try {
-    sessionStorage.setItem(KEY(matchId), k);
-    sessionStorage.removeItem(PENDING);
-  } catch { /* memory only */ }
-  live = { matchId, signer: localSigner('guest', privateKeyToAccount(k, { nonceManager }), 'Session') };
-  return live.signer;
+export async function removeSession(id:string){const s=activeSigner();const key=sessionFor(id);if(!s||!key)return;
+ const keys=await viewAccessKeys(net.rpc,s.accountId);if(keys.keys.some(k=>k.public_key===key.publicKey))await sendSponsored(s,s.accountId,[deleteKey(key.publicKey)],`Deleted session key #${id}`);
+ localStorage.removeItem(storageKey(id));if(localStorage.getItem('mempire:near:waiting')===id)localStorage.removeItem('mempire:near:waiting');
 }
-
-/** The session signer for a match, recovered from this tab's storage if needed. */
-export function sessionFor(matchId: number): Signer | null {
-  if (live?.matchId === matchId) return live.signer;
-  if (usesPrivySigner()) {
-    live = { matchId, signer: privyActor() };
-    return live.signer;
-  }
-  try {
-    const k = sessionStorage.getItem(KEY(matchId)) as Hex | null;
-    if (!k) return null;
-    live = { matchId, signer: localSigner('guest', privateKeyToAccount(k, { nonceManager }), 'Session') };
-    return live.signer;
-  } catch {
-    return null;
-  }
-}
-
-export const hasSession = (matchId: number): boolean => sessionFor(matchId) !== null;
-
-/**
- * Return a finished match's unspent gas float to the player, then forget the key.
- * Best effort: a sweep that fails leaves dust on a key nobody will use again.
- */
-export async function sweepSession(matchId: number, to: Address): Promise<void> {
-  const s = sessionFor(matchId);
-  if (!s || s.kind === 'privy') { forgetSession(matchId); return; }
-  try {
-    const { publicClient } = await import('./provider');
-    const client = publicClient();
-    const [balance, gasPrice] = await Promise.all([
-      client.getBalance({ address: s.address }),
-      client.getGasPrice(),
-    ]);
-    const fee = gasPrice * 21_000n;
-    if (balance > fee * 2n) {
-      await s.wallet.sendTransaction({
-        account: s.account, chain: s.wallet.chain, to, value: balance - fee, gas: 21_000n, gasPrice,
-      });
-    }
-  } catch { /* dust */ }
-  forgetSession(matchId);
-}
-
-/** Forget a finished match's key. What MON it has left is dust by design. */
-export function forgetSession(matchId?: number): void {
-  if (matchId !== undefined) {
-    try { sessionStorage.removeItem(KEY(matchId)); } catch { /* nothing */ }
-  }
-  live = null;
-}
+export async function cancelMatch(id:string){const s=activeSigner();if(!s)throw new Error('Sign in first.');await sendSponsored(s,net.arena,[arenaCalls.cancel(id)],`Cancelled match #${id}`);await removeSession(id);}

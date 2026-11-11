@@ -3,19 +3,19 @@
  *
  * Every numeric formatter defends against NaN/Infinity/undefined at this
  * boundary. Saved state crosses versions and networks, so a missing field
- * arriving here is a matter of time — and "NaN MON" in a pot readout is the
+ * arriving here is a matter of time — and "NaN NEAR" in a pot readout is the
  * single worst string this app could ever render.
  */
 const safe = (n: unknown): number => (typeof n === 'number' && Number.isFinite(n) ? n : 0);
 
 export const fmtMon = (n: number): string => {
   const v = safe(n);
-  return `${v.toLocaleString('en-US', { maximumFractionDigits: v < 1 ? 3 : 2 })} MON`;
+  return `${v.toLocaleString('en-US', { maximumFractionDigits: v < 1 ? 3 : 2 })} NEAR`;
 };
 
 /** A stake or pot, in whichever currency the match is in. AUSD reads as dollars. */
-export const fmtStake = (n: number, currency: 'MON' | 'AUSD'): string => {
-  if (currency === 'MON') return fmtMon(n);
+export const fmtStake = (n: number, currency: 'NEAR' | 'AUSD'): string => {
+  if (currency === 'NEAR') return fmtMon(n);
   const v = safe(n);
   return `$${v.toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
 };

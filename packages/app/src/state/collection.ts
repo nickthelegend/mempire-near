@@ -5,9 +5,9 @@ import type { Archetype } from '../sim/types';
 
 /** Mirrors the contracts: `MempireCards.mintFee` and `MempireArena.rakeBps`/`tieRakeBps`. */
 export const FEES = {
-  mintMon: 0.01,
-  rakePct: 10,
-  tieRakePct: 5,
+  mintMon: 0,
+  rakePct: 8,
+  tieRakePct: 8,
 };
 
 // Devnet demo cooldown — mainnet is 72h; 60s here so judges can see the flow.

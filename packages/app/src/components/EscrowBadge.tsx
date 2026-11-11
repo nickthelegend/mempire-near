@@ -22,11 +22,11 @@ const LOOK: Record<EscrowPhase, { dot: string; text: string; title: string }> = 
   waiting: { dot: 'var(--gold)', text: 'stake in', title: 'Your stake is escrowed; waiting for your opponent' },
   joining: { dot: 'var(--gold)', text: 'matching…', title: 'Matching your opponent’s stake' },
   live: { dot: 'var(--teal)', text: 'pot live', title: 'Both stakes are escrowed onchain' },
-  claiming: { dot: 'var(--gold)', text: 'reporting…', title: 'Recording this seat\u2019s result on Monad' },
-  claimed: { dot: 'var(--gold)', text: 'reported', title: 'Your result is recorded; waiting for your opponent’s' },
+  claiming: { dot: 'var(--gold)', text: 'replaying…', title: 'The NEAR referee replays the stored moves' },
+  claimed: { dot: 'var(--gold)', text: 'replaying', title: 'The NEAR referee is processing the match' },
   settled: { dot: 'var(--teal)', text: 'paid', title: 'The pot has been paid out onchain' },
   refunded: { dot: 'var(--teal)', text: 'refunded', title: 'Your stake came back' },
-  failed: { dot: 'var(--dim)', text: 'ladder only', title: 'Nothing was staked — this match counts for rating only' },
+  failed: { dot: 'var(--dim)', text: 'failed', title: 'The request failed; check the transaction before retrying' },
 };
 
 export function EscrowBadge({ compact = false }: { compact?: boolean }) {

@@ -1,56 +1,45 @@
 {
-  "name": "app",
+  "name": "@mempire/app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "node scripts/sync-shared.mjs && node scripts/preflight.mjs && tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview",
-    "preflight": "node scripts/preflight.mjs",
-    "typecheck": "tsc -b",
-    "sync-shared": "node scripts/sync-shared.mjs"
+    "dev": "vite --host 127.0.0.1 --port 5390 --strictPort",
+    "build": "tsc --noEmit -p tsconfig.app.json && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5390 --strictPort",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@category-labs/mera": "^0.2.0",
     "@fontsource/hanken-grotesk": "^5.3.0",
     "@fontsource/lilita-one": "^5.3.0",
     "@fontsource/martian-mono": "^5.3.0",
-    "@privy-io/react-auth": "^3.47.0",
     "@react-three/fiber": "^9.6.1",
-    "@scure/bip32": "^2.4.0",
-    "@scure/bip39": "^2.4.0",
-    "@stripe/stripe-js": "^10.0.0",
-    "@types/three": "^0.185.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.2",
     "three": "^0.185.1",
-    "viem": "^2.57.3",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "@mempire/sdk": "workspace:*",
+    "@mempire/sim": "workspace:*",
+    "near-api-js": "^6.0.0",
+    "buffer": "^6.0.3",
+    "@near-wallet-selector/core": "10.1.4",
+    "@near-wallet-selector/meteor-wallet": "10.1.4",
+    "@near-js/utils": "^2.0.1"
   },
   "devDependencies": {
-    "@gltf-transform/core": "^4.4.2",
-    "@gltf-transform/extensions": "^4.4.2",
-    "@gltf-transform/functions": "^4.4.2",
-    "@types/node": "^24.13.2",
-    "@types/react": "^19.2.17",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "oxlint": "^1.71.0",
-    "playwright": "^1.58.0",
-    "tsx": "^4.23.1",
-    "typescript": "~6.0.2",
-    "vite": "^8.1.1"
-  },
-  "allowScripts": {
-    "esbuild@0.28.2": true
-  },
-  "overrides": {
-    "typescript": "~6.0.2"
+    "@types/three": "^0.185.1",
+    "@vitejs/plugin-react": "^5.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=24"
-  }
+  },
+  "license": "MIT"
 }

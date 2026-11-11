@@ -21,7 +21,7 @@ export function ChainBadge({ compact }: { compact?: boolean }) {
 
   const look = {
     onchain: { dot: 'var(--teal)', text: `live · ${cluster}`, title: 'Transactions are real' },
-    simulated: { dot: 'var(--gold)', text: 'simulated', title: 'Reads are real; writes are local' },
+    simulated: { dot: 'var(--gold)', text: 'read-only', title: 'Reading NEAR; sign in to stake' },
     offline: { dot: 'var(--red)', text: loading ? 'retrying…' : 'offline · retry', title: 'Cluster unreachable — tap to retry' },
   }[mode];
 

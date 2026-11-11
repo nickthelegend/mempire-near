@@ -1,83 +1,32 @@
-import { IS_MAINNET, NETWORK_LABEL } from '../chain/provider';
+import { NETWORK_LABEL } from '../chain/provider';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoneyRow, Pill } from '../components/ui';
 import { RankChip } from '../components/ClanBits';
 import { fmtMon, fmtStake, shortAddr } from '../lib/format';
-import { type LeaderRow } from '../lib/persist';
-import { apiFetch } from '../lib/api';
+import {leaderboard,allMatches} from '../lib/near-data';
+import {type MatchResult} from '../state/match';
 import { useCollection } from '../state/collection';
 import { useMatch } from '../state/match';
 import { useWallet } from '../state/wallet';
-import { useChain } from '../state/chain';
 import { LiveOnMonad } from '../components/LiveOnMonad';
 import { MonadNetworkPanel } from '../components/MonadNetworkPanel';
 import { fetchStrandedMatches, type ChainMatch } from '../chain/read';
 import { useEscrow } from '../state/escrow';
 
 /**
- * Top players by net MON / AUSD, from the persistence API.
+ * Top players by net NEAR / AUSD, from the persistence API.
  *
  * Renders nothing when the API is down or the board is empty — a leaderboard
  * with no rows is dead weight, and the rest of the screen already works
  * without the server.
  */
-type Board = 'trophies' | 'ausd' | 'mon' | 'clans';
-const BOARDS: { id: Board; label: string }[] = [
-  { id: 'trophies', label: 'Trophies' },
-  { id: 'ausd', label: 'Net $' },
-  { id: 'mon', label: 'Net MON' },
-  { id: 'clans', label: 'Clans' },
-];
-interface BoardRow { key: string; title: string; sub: string; value: string; positive: boolean; mine: boolean }
-
-/*
- * Competition in one place: the trophy ladder, chain-verified winnings in each
- * currency, and the clans. Rows come from the relay, which credits money only
- * from settled arena matches; harness wallets with no wins and no net are left
- * out. An empty board says it is empty rather than showing nothing.
- */
-async function loadBoard(board: Board, me: string): Promise<BoardRow[]> {
-  const meLc = me.toLowerCase();
-  if (board === 'trophies') {
-    const res = await apiFetch('/api/ladder');
-    if (!res?.ok) return [];
-    const { players } = await res.json() as { players: { address: string; name: string | null; trophies: number; wins: number; losses: number; league: string }[] };
-    return players.filter((p) => p.wins + p.losses > 0).map((p) => ({
-      key: p.address, title: p.name || shortAddr(p.address), sub: `${p.league} · ${p.wins}W · ${p.losses}L`,
-      value: `🏆 ${p.trophies}`, positive: true, mine: p.address.toLowerCase() === meLc,
-    }));
-  }
-  if (board === 'clans') {
-    const res = await apiFetch('/api/clans-top');
-    if (!res?.ok) return [];
-    const { clans } = await res.json() as { clans: { tag: string; name: string; memberCount: number; memberCap: number; crowns: number }[] };
-    return clans.map((c) => ({
-      key: c.tag, title: c.name, sub: `#${c.tag} · ${c.memberCount}/${c.memberCap} members`,
-      value: `♛ ${c.crowns}`, positive: true, mine: false,
-    }));
-  }
-  const currency = board === 'ausd' ? 'AUSD' : 'MON';
-  const res = await apiFetch(`/api/leaderboard?currency=${currency}`);
-  if (!res?.ok) return [];
-  const rows = await res.json() as LeaderRow[];
-  return rows
-    .map((r) => ({ r, net: (currency === 'AUSD' ? r.netAusd : r.netMon) ?? 0 }))
-    // A money board lists money that moved in its currency, nothing else.
-    .filter(({ net }) => net !== 0)
-    .map(({ r, net }) => ({
-      key: r.address, title: shortAddr(r.address), sub: `${r.wins}W · ${r.losses}L`,
-      value: `${net >= 0 ? '+' : '−'}${fmtStake(Math.abs(net), currency)}`, positive: net >= 0,
-      mine: r.address.toLowerCase() === meLc,
-    }));
-}
-
-const EMPTY: Record<Board, string> = {
-  trophies: 'No ranked matches yet — the ladder fills as people play Ranked.',
-  ausd: 'No dollar pots settled yet.',
-  mon: 'No MON pots settled yet.',
-  clans: 'No clans yet — found the first one on the Clan tab.',
-};
+type Board='trophies'|'wins'|'draws'|'mon';
+const BOARDS:{id:Board;label:string}[]=[{id:'trophies',label:'Points'},{id:'wins',label:'Wins'},{id:'draws',label:'Draws'},{id:'mon',label:'Net NEAR'}];
+interface BoardRow{key:string;title:string;sub:string;value:string;positive:boolean;mine:boolean;}
+async function loadBoard(board:Board,me:string):Promise<BoardRow[]>{const rows=await leaderboard();const field=board==='trophies'?'points':board==='mon'?'netMon':board;
+ return rows.sort((a,b)=>b[field]-a[field]).map(r=>({key:r.address,title:shortAddr(r.address),sub:`${r.wins}W · ${r.losses}L · ${r.draws}D`,value:board==='mon'?fmtStake(r.netMon,'NEAR'):String(r[field]),positive:r[field]>=0,mine:r.address===me}));}
+const EMPTY:Record<Board,string>={trophies:'No season points recorded.',wins:'No settled wins recorded.',draws:'No settled draws recorded.',mon:'No NEAR pots settled yet.'};
 
 function Leaderboard({ me }: { me: string }) {
   const [board, setBoard] = useState<Board>('trophies');
@@ -153,8 +102,6 @@ function Leaderboard({ me }: { me: string }) {
 export function Empire() {
   const nav = useNavigate();
   const wallet = useWallet();
-  const ausd = useChain((s) => s.ausdBalance);
-  const mempire = useChain((s) => s.mempireBalance);
   const openPicker = useWallet((s) => s.openPicker);
   const history = useMatch((s) => s.history);
   const cards = useCollection((s) => s.cards);
@@ -168,17 +115,9 @@ export function Empire() {
    * class of lie the result card was cured of. Rating counts all matches;
    * money counts escrowed ones, each in the currency it was staked in.
    */
-  const sumBy = (pick: (h: (typeof history)[number]) => number) => {
-    const t = { MON: 0, AUSD: 0 };
-    for (const h of history) if (h.escrowed) t[h.currency ?? 'MON'] += pick(h);
-    return t;
-  };
-  const both = (t: { MON: number; AUSD: number }) => {
-    const parts = [t.AUSD ? fmtStake(t.AUSD, 'AUSD') : '', t.MON ? fmtMon(t.MON) : ''].filter(Boolean);
-    return parts.length ? parts.join(' · ') : fmtStake(0, 'AUSD');
-  };
-  const earned = both(sumBy((h) => h.payoutSol));
-  const raked = both(sumBy((h) => h.rakeSol));
+  const earned=fmtMon(history.reduce((sum,h)=>sum+h.payoutSol,0));
+  const raked=fmtMon(history.reduce((sum,h)=>sum+h.rakeSol,0));
+  useEffect(()=>{let live=true;if(!wallet.address){useMatch.setState({history:[]});return;}void allMatches().then(ms=>{if(!live)return;const rows:MatchResult[]=ms.filter(m=>m.state===3&&(m.p0===wallet.address||m.p1===wallet.address)).map(m=>{const seat=m.p0===wallet.address?0:1;const won=m.winner===seat,draw=m.winner===2;return{won,draw,currency:'NEAR',potSol:Number(m.stake)*2/1e24,payoutSol:draw?Number(m.paid)/2/1e24:won?Number(m.paid)/1e24:0,rakeSol:(Number(m.to_season)+Number(m.to_treasury))/1e24,hashes:1,crowns:[0,0],chest:null,escrowed:true,matchId:Number(m.id)};});useMatch.setState({history:rows});}).catch(()=>{});return()=>{live=false;};},[wallet.address]);
 
   return (
     <div style={{ padding: '18px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -207,17 +146,15 @@ export function Empire() {
       {wallet.connected && (
         <>
           <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <MoneyRow stack label="MON" value={fmtMon(wallet.mon)} />
-            <MoneyRow stack label="AUSD" value={fmtStake(ausd, 'AUSD')} />
-            <MoneyRow stack label="$MEMPIRE" value={Math.floor(mempire).toLocaleString()} />
+            <MoneyRow stack label="NEAR" value={fmtMon(wallet.mon)} />
             <MoneyRow stack label="Won" value={earned} />
           </section>
 
           <section className="panel" style={{ padding: '12px 14px', display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
             {[
               ['Record', `${wins}W · ${losses}L`],
-              ['Cards', String(cards.length)],
-              ['House raked', raked],
+              ['Free fighters', String(cards.length)],
+              ['Season + treasury', raked],
             ].map(([label, value]) => (
               <div key={label}>
                 <div className="display display--sm" style={{ fontSize: 18 }}>{value}</div>
@@ -263,7 +200,7 @@ export function Empire() {
                       {h.draw ? 'DRAW' : h.won ? 'WON' : 'REKT'}
                     </span>
                     <span className="fine" style={{ fontSize: 12 }}>
-                      pot {fmtStake(h.potSol, h.currency ?? 'MON')} · {h.hashes} commits
+                      pot {fmtStake(h.potSol, h.currency ?? 'NEAR')} · {h.hashes} commits
                     </span>
                     {h.escrowed && h.matchId ? (
                       <button
@@ -281,7 +218,7 @@ export function Empire() {
                       {/* An unescrowed match moved nothing; showing ±SOL for it
                           would restate the number the result card already
                           disclaims. */}
-                      {!h.escrowed ? 'rating only' : h.payoutSol > 0 ? `+${fmtStake(h.payoutSol, h.currency ?? 'MON')}` : `−${fmtStake(h.potSol / 2, h.currency ?? 'MON')}`}
+                      {!h.escrowed ? 'rating only' : h.payoutSol > 0 ? `+${fmtStake(h.payoutSol, h.currency ?? 'NEAR')}` : `−${fmtStake(h.potSol / 2, h.currency ?? 'NEAR')}`}
                     </span>
                   </div>
                 ))}
@@ -299,17 +236,11 @@ export function Empire() {
 
           <p className="fine" style={{ fontSize: 12 }}>
             {/* A guest's browser key signs its own transactions, so on testnet
-                mints and stakes spend the same real MON a connected wallet
+                mints and stakes spend the same real NEAR a connected wallet
                 would. On mainnet a guest cannot sign at all — the browser key
                 is testnet-only by policy. */}
-            {wallet.isGuest
-              ? (IS_MAINNET
-                ? 'Guest mode on mainnet is play-only — connect a wallet to mint, stake, or hold anything real. '
-                : `Guest mode — this browser holds a real key on the ${NETWORK_LABEL}, so mints and stakes are real transactions. Sign in with a passkey to keep the account on every device. `)
-              : wallet.kind === 'passkey'
-                ? 'Passkey account — derived from your passkey, never stored. Same account on any device your passkey syncs to. '
-                : `${NETWORK_LABEL} — balances are read from the chain and staked matches escrow for real. `}
-            Mint fee 0.01 MON · rake 10% of the pot, 5% on a draw.
+            {wallet.isGuest?'Guest account: the key stays in this browser; there is no recovery. ':'Meteor Wallet: your wallet approves stakes and key management. '}
+            {NETWORK_LABEL}. Balances and results are read from the arena. Winner gets 92%; season gets 3%; treasury gets 5%. On a draw, the 92% is split.
           </p>
         </>
       )}
@@ -366,7 +297,7 @@ function StakeRecovery() {
       <span className="label">Unsettled stake</span>
       <p className="fine" style={{ color: 'var(--dim)', margin: 0 }}>
         Match #{matchId} escrowed {fmtStake(stranded.stake, stranded.currency)} and never settled.
-        After its deadline anyone can finish it — the claim that was recorded stands, and with none both stakes come home.
+        An unjoined match can be cancelled. After the play window closes, anyone can ask the referee to replay an active match and pay its result.
       </p>
       <Pill
         tone="gold"
@@ -380,7 +311,7 @@ function StakeRecovery() {
           ));
         }}
       >
-        {state === 'busy' ? 'Claiming…' : 'Claim my stake'}
+        {state === 'busy' ? 'Claiming…' : 'Resolve stake'}
       </Pill>
       {state === 'too-early' && (
         <span className="fine" style={{ color: 'var(--dim)' }}>
@@ -395,8 +326,8 @@ function StakeRecovery() {
       {state === 'failed' && (
         <span className="fine" style={{ color: 'var(--warn, var(--dim))' }}>
           {lastError
-            ? `The claim was refused: ${lastError}. Your stake is still there — try again.`
-            : 'The claim was refused. Your stake is still there — try again.'}
+            ? `The request was refused: ${lastError}. Your stake is still there — try again.`
+            : 'The request was refused. Your stake is still there — try again.'}
         </span>
       )}
     </section>

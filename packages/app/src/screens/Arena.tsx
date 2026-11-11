@@ -17,16 +17,13 @@ import { fmtMon, fmtStake, shortAddr } from '../lib/format';
 import { leagueFor } from '../lib/ranking';
 import { EASE_SNAP, usePulse } from '../lib/motion';
 import { FEES, useCollection } from '../state/collection';
-import { STEP_UP_TIER, TIERS, stakeOf, useDeck } from '../state/deck';
+import { TIERS, stakeOf, useDeck } from '../state/deck';
 import { useLadder } from '../state/ladder';
 import { useMatch } from '../state/match';
 import { warmBattleChunk } from '../lib/warm';
 import { useWallet } from '../state/wallet';
 import { useChain } from '../state/chain';
 import { fetchRecentSettlements, type ChainMatch } from '../chain/read';
-import { mintCardTx, readableChainError } from '../chain/actions';
-import { coinByMint } from '../lib/coins';
-import { confirmWithPasskey } from '../lib/passkey';
 import { loadAiStatus, useAiOpponent, type AiBrain } from '../lib/ai';
 
 /**
@@ -132,13 +129,12 @@ function ConnectHero() {
         Every coin is a fighter.
       </p>
       <p style={{ color: 'var(--dim)', fontSize: 14, maxWidth: 320, margin: '-8px auto 0' }}>
-        Coins, stocks and crypto as fighters, buffed or nerfed by today&apos;s market. Stake a dollar,
-        and every card you drop lands on Monad while you play.
+        Crypto and house fighters, buffed or nerfed by signed market prices. Stake testnet NEAR; every card you drop is recorded while you play.
       </p>
       <div style={{ padding: '0 12px', marginTop: 6 }}>
         <Pill onClick={openPicker} tone="gold" style={{ fontSize: 19 }}>Play now</Pill>
       </div>
-      <span className="label" style={{ fontSize: 12 }}>{IS_MAINNET ? 'Monad mainnet · real funds' : `${NETWORK_LABEL} · passkey sign-in · no wallet needed`}</span>
+      <span className="label" style={{ fontSize: 12 }}>{IS_MAINNET ? 'NEAR mainnet · real funds' : `${NETWORK_LABEL} · guest sign-in · no extension needed`}</span>
       <div style={{ textAlign: 'left' }}><MarketStrip /></div>
       <div style={{ textAlign: 'left' }}><MonadPipeline /></div>
     </div>
@@ -152,17 +148,6 @@ function ConnectHero() {
  * the countdown is always on the account chip, and when it runs out the account
  * shows as locked and one passkey prompt opens a new one.
  */
-function SessionLeft() {
-  const expires = useWallet((s) => s.sessionExpiresAt);
-  const [, tick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => tick((n) => n + 1), 15_000);
-    return () => clearInterval(t);
-  }, []);
-  const mins = Math.max(0, Math.ceil((expires - Date.now()) / 60_000));
-  return <>🔑 passkey · {mins}m</>;
-}
-
 function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
   const wallet = useWallet();
   const trophies = useLadder((s) => s.trophies);
@@ -197,7 +182,7 @@ function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
             className="display display--sm"
             style={{ display: 'block', fontSize: 14 }}
           >
-            {wallet.kind === 'passkey' || wallet.kind === 'injected' ? wallet.walletName : wallet.kind === 'privy' ? wallet.walletName.split(' ')[0] : 'anon_king'}
+            {wallet.kind==='injected'?wallet.walletName:'anon_king'}
           </span>
           {/* The wallet, not the address.
               "Guest · ANoN…8UEG" needed 139px in a 110px box, so it rendered
@@ -213,7 +198,7 @@ function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}
           >
-            {wallet.kind === 'passkey' ? <SessionLeft /> : wallet.kind === 'guest' ? 'Guest' : wallet.kind === 'privy' ? '✉️ Privy · gas sponsored' : wallet.walletName}
+            {wallet.kind==='guest'?'Guest':wallet.walletName}
           </span>
         </span>
       </button>
@@ -225,7 +210,7 @@ function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
             Trophies are the number a ladder game is played for; it belongs on
             screen, in the same chip shape as the two beside it. */}
         <div
-          title={`${leagueFor(trophies).name} · ${trophies} trophies`}
+          title={`${leagueFor(trophies).name} · ${trophies} season points`}
           style={{
             display: 'flex', alignItems: 'center', gap: 3,
             padding: '2px 9px 2px 2px', borderRadius: 999,
@@ -242,7 +227,7 @@ function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
           </span>
         </div>
         <Chip icon="👑" value={String(wins)} tone="blue" />
-        <Chip icon="◆" value={fmtMon(wallet.mon).replace(' MON', '')} tone="gold" />
+        <Chip icon="◆" value={fmtMon(wallet.mon).replace(' NEAR', '')} tone="gold" />
       </div>
 
       {open && (
@@ -279,30 +264,12 @@ function TopHud({ onReplayTutorial }: { onReplayTutorial: () => void }) {
             >
               Replay tutorial
             </button>
-            {wallet.kind === 'privy' && wallet.privyConsent && (
-              <button
-                onClick={() => { void wallet.revokePrivySigner(); setOpen(false); }}
-                className="menu-item"
-                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 10px', borderRadius: 8, fontSize: 13, minHeight: 44, fontWeight: 700, color: 'var(--dim-on-wood)' }}
-              >
-                Revoke session signer
-              </button>
-            )}
-            {wallet.kind === 'passkey' && (
-              <button
-                onClick={() => { wallet.lock(); setOpen(false); }}
-                className="menu-item"
-                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 10px', borderRadius: 8, fontSize: 13, minHeight: 44, fontWeight: 700, color: 'var(--dim-on-wood)' }}
-              >
-                Lock session (zero the key)
-              </button>
-            )}
             <button
               onClick={() => { wallet.disconnect(); setOpen(false); }}
               className="menu-item"
               style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 10px', borderRadius: 8, fontSize: 13, minHeight: 44, fontWeight: 700, color: 'var(--red-on-wood)' }}
             >
-              {wallet.kind === 'passkey' ? 'Sign out' : 'Disconnect'}
+              Disconnect
             </button>
           </div>
         </>
@@ -321,7 +288,6 @@ export function Arena() {
   useEffect(() => { warmBattleChunk(); }, []);
 
   const wallet = useWallet();
-  const trophies = useLadder((s) => s.trophies);
   const deck = useDeck();
   const cards = useCollection((s) => s.cards);
   const match = useMatch();
@@ -372,15 +338,6 @@ export function Arena() {
    * account from the authenticator, so it cannot be satisfied by the session.
    */
   const stakedQueue = async (opts: { ranked: boolean; rush?: boolean }) => {
-    if (wallet.kind === 'passkey' && deck.tier >= STEP_UP_TIER && chainMode === 'onchain') {
-      try {
-        const ok = await confirmWithPasskey(wallet.address);
-        if (!ok) { setError('that passkey belongs to a different account'); return; }
-      } catch {
-        setError('passkey confirmation was cancelled — big stakes need it');
-        return;
-      }
-    }
     setError(match.startQueue(opts));
   };
   const queueing = match.status === 'queuing' || match.status === 'found';
@@ -396,9 +353,6 @@ export function Arena() {
   const mintedDeck = deckCards.filter(
     (c) => c && chainCards.some((k) => k.mint === c.mint && !k.inMatch),
   ).length;
-  const unmintedMints = deckCards
-    .filter((c) => c && !chainCards.some((k) => k.mint === c.mint))
-    .map((c) => c!.mint);
   // A guest is no longer blocked by being a guest: its address is a real,
   // fundable address and it can sign for itself on testnet. What blocks anyone
   // is the same three things — an unreachable cluster, a deck that is not
@@ -406,11 +360,11 @@ export function Arena() {
   const stakeBlocker = chainMode !== 'onchain'
     ? 'The program is unreachable, so nothing is escrowed'
     : mintedDeck < 8
-      ? `${8 - mintedDeck} of your cards are not minted onchain yet`
+      ? `${8 - mintedDeck} of your cards are not available on NEAR`
       : holds < stake
         ? `You hold ${fmtStake(holds, currency)} — fund ${shortAddr(wallet.address)} to stake this tier`
-        : wallet.kind !== 'privy' && wallet.mon < STAKE_MON_NEEDED
-          ? `Not enough MON for gas — ${shortAddr(wallet.address)} needs ~${STAKE_MON_NEEDED}`
+        : wallet.mon < stake + STAKE_MON_NEEDED
+          ? `Not enough NEAR for gas — ${shortAddr(wallet.address)} needs the stake plus ~${STAKE_MON_NEEDED} for gas`
           : '';
   const canStake = stakeBlocker === '';
 
@@ -432,10 +386,10 @@ export function Arena() {
       <section className="panel" data-tut="tier" style={{ padding: 9 }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 7, gap: 8 }}>
           <span className="label">Stake tier</span>
-          {/* Dollars or MON. AUSD is Agora's dollar stablecoin: a pot that
+          {/* Dollars or NEAR. AUSD is Agora's dollar stablecoin: a pot that
               means the same thing tomorrow as it does today. */}
           <div role="radiogroup" aria-label="Stake currency" style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-            {(['AUSD', 'MON'] as const).map((c) => (
+            {(['NEAR'] as const).map((c) => (
               <button
                 key={c}
                 role="radio"
@@ -450,7 +404,7 @@ export function Arena() {
                   color: currency === c ? 'var(--ink)' : 'var(--dim-on-wood)',
                 }}
               >
-                {c === 'AUSD' ? '$ AUSD' : 'MON'}
+                {c}
               </button>
             ))}
           </div>
@@ -465,7 +419,7 @@ export function Arena() {
                 key={t.name}
                 role="radio"
                 aria-checked={active}
-                aria-label={`${t.name} tier, ${fmtStake(amount, currency)}${i >= STEP_UP_TIER ? ', asks for your passkey' : ''}`}
+                aria-label={`${t.name} tier, ${fmtStake(amount, currency)}`}
                 onClick={() => deck.setTier(i)}
                 disabled={queueing}
                 className="btn-3d"
@@ -533,7 +487,7 @@ export function Arena() {
                       // The wait is bounded now — after twenty seconds the AI
                       // steps in — so the copy promises an end rather than an
                       // open-ended "humans only" that was true and unhelpful.
-                      ? `matching near ${trophies} 🏆 · the AI steps in if nobody's about`
+                      ? 'Waiting for another player; your stake stays in the open match'
                       : `matching your deck power (${deck.power()})`}
                 </span>
               </span>
@@ -580,7 +534,7 @@ export function Arena() {
             <div data-tut="practice">
               <Pill
                 tone="green"
-                onClick={() => setError(match.startQueue({ practice: true }))}
+                onClick={() => setError(match.startQueue({ practice: true, rush: true }))}
                 style={{ fontSize: 15, minHeight: 46, padding: '10px 18px' }}
               >
                 Practice · free
@@ -589,9 +543,9 @@ export function Arena() {
             <AiOpponentPicker />
           </>
         )}
-        {error && (
+        {(error || match.error) && (
           <div role="alert" className="well" style={{ color: 'var(--red-on-wood)', fontSize: 13, textAlign: 'center', padding: '8px 10px', fontWeight: 700 }}>
-            {error}
+            {error || match.error}
           </div>
         )}
 
@@ -617,20 +571,17 @@ export function Arena() {
             color: canStake ? 'var(--teal)' : 'var(--dim-on-wood)', lineHeight: 1.3,
           }}>
             {canStake
-              ? 'Escrowed on Monad — the contract pays the winner when the second result lands.'
-              : `${stakeBlocker} · this match counts for rating only.`}
+              ? 'Stake on NEAR — the contract replays the moves and pays its result.'
+              : `${stakeBlocker} · practice is free; no stake will be sent.`}
           </span>
           {/*
             The one blocker the player can clear from here.
 
-            "3 of your cards are not minted onchain yet" is a true sentence and
+            "3 of your cards are not available on NEAR" is a true sentence and
             a useless one if the only way to act on it is eight separate mints
             on another screen. Batched three to a transaction, so a full deck is
             three prompts rather than eight.
           */}
-          {!canStake && unmintedMints.length > 0 && (
-            <MintDeckButton mints={unmintedMints} />
-          )}
         </div>
       </section>
 
@@ -705,73 +656,10 @@ export function Arena() {
 /**
  * Mint the deck's missing cards, batched.
  *
- * Deliberately not a silent background job: minting spends MON per card
+ * Deliberately not a silent background job: minting spends NEAR per card
  * and the player should be the one deciding to, with the count in front of
  * them. Progress is reported per transaction because three confirmations on
  * testnet is long enough that a static spinner reads as a hang.
- */
-function MintDeckButton({ mints }: { mints: string[] }) {
-  const [state, setState] = useState<'idle' | 'busy' | 'done'>('idle');
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const refresh = useChain((s) => s.refresh);
-
-  if (state === 'done') {
-    return (
-      <span className="fine" style={{ color: 'var(--teal)' }}>
-        Deck minted — this match will escrow.
-      </span>
-    );
-  }
-
-  return (
-    <div style={{ display: 'grid', gap: 4 }}>
-      <Pill
-        tone="blue"
-        disabled={state === 'busy'}
-        onClick={() => {
-          setState('busy');
-          setError(null);
-          void (async () => {
-            // One mint per card: each posts its own fresh Pyth price. Monad
-            // confirms each in about a block, so eight is seconds, not minutes.
-            let done = 0;
-            for (const m of mints) {
-              const coin = coinByMint(m);
-              if (!coin) continue;
-              await mintCardTx(coin.coinId);
-              done += 1;
-              setProgress(done);
-            }
-          })()
-            .then(async () => {
-              await refresh();
-              setState('done');
-            })
-            .catch((e) => {
-              setError(readableChainError(e));
-              setState('idle');
-            });
-        }}
-      >
-        {state === 'busy'
-          ? `Minting ${progress}/${mints.length}…`
-          : `Mint ${mints.length} card${mints.length === 1 ? '' : 's'} to stake`}
-      </Pill>
-      {error && (
-        <span className="fine" style={{ color: 'var(--red-on-wood)' }}>{error}</span>
-      )}
-    </div>
-  );
-}
-
-/**
- * Who plays the AI seat in Practice and in any match that falls back to the
- * AI: the classic rule bot, or Kimi. Ranked against a human is untouched.
- *
- * Kimi is offered only when the relay runs it; without a Moonshot key the
- * option is disabled and names the missing key, so the choice never promises
- * a model the relay will not run.
  */
 function AiOpponentPicker() {
   const brain = useAiOpponent((s) => s.brain);

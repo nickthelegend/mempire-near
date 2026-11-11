@@ -22,7 +22,7 @@ function label(p: PlayRecord): string {
   if (p.state === 'sent') return p.pool ? `in pool (${p.pool.toLowerCase()})` : 'sent…';
   if (p.state === 'failed') return 'not logged';
   if (p.state === 'final') return `exec ${p.executedMs} · final ${p.finalMs} ms`;
-  return IS_MONAD_NETWORK ? `exec ${p.executedMs} ms · finalizing` : `${p.executedMs} ms · fork`;
+  return IS_MONAD_NETWORK ? `exec ${p.executedMs} ms · finalizing` : `exec ${p.executedMs} ms`;
 }
 
 export function PlayTicker() {

@@ -135,93 +135,14 @@ function useChainCollection(): void {
     // the old local set would be eight dangling references, which reads to the
     // player as their deck having been wiped.
     const deck = useDeck.getState();
-    const valid = new Set(merged.map((c) => c.id));
-
-    /**
-     * Only cards this build can actually field.
-     *
-     * The coin registry lives on chain and keeps growing; the client ships with
-     * whatever list it was built against. A card minted from a coin registered
-     * after that build is real, owned, and completely unusable here —
-     * `buildDecks` resolves every deck card's mint against `COINS` and returns
-     * null on the first miss, which surfaces as "your deck has retired cards"
-     * with no way to fix it, because the offending card cannot be rendered on
-     * the Deck tab either.
-     *
-     * Auto-filling a deck with one of those manufactured exactly that dead end.
-     * The card stays in the collection — the player does own it — but it is
-     * never chosen for them.
-     */
-    const usable = merged.filter((c) => fieldableMints.has(c.mint));
-
-    const cardById = new Map(merged.map((c) => [c.id, c]));
-
-    /**
-     * Re-point one deck slot, preferring cards that actually exist on chain.
-     *
-     * Keeping whatever was saved is not enough. A staked match requires all
-     * eight deck cards to be minted, so a single seeded starter squatting in a
-     * slot is the difference between escrow opening and the match dropping to
-     * "ladder only" — and that is what happened: a wallet holding ten minted
-     * coins queued with seven seeded cards, matched a real opponent, and
-     * neither side staked anything. The deck had simply never been rebuilt
-     * after they minted, because the saved one was still fillable.
-     *
-     * So a seeded card is swapped out whenever there is a minted coin free to
-     * take its place. Seeded cards remain the fallback for a wallet that has
-     * not minted anything — they are what makes the game playable before you
-     * spend — but they never hold a slot a real card could occupy.
-     */
-    const repoint = (slot: string[]): string[] => {
-      const kept = slot.filter((id) => valid.has(id) && usable.some((c) => c.id === id));
-      const usedMints = new Set(kept.map((id) => cardById.get(id)?.mint));
-
-      // Minted, fieldable, and not already represented — one card per coin.
-      const spare = mapped
-        .filter((c) => fieldableMints.has(c.mint) && !usedMints.has(c.mint));
-
-      const promoted = kept.map((id) => {
-        const card = cardById.get(id);
-        if (!card?.seeded) return id;
-        const swap = spare.shift();
-        if (!swap) return id;
-        usedMints.delete(card.mint);
-        usedMints.add(swap.mint);
-        return swap.id;
-      });
-
-      if (promoted.length >= 8) return promoted.slice(0, 8);
-
-      // Still short: fill from anything left, minted first (`merged` is ordered
-      // chain-then-seeded), one card per coin.
-      for (const c of usable) {
-        if (promoted.length >= 8) break;
-        if (!promoted.includes(c.id) && !usedMints.has(c.mint)) {
-          promoted.push(c.id);
-          usedMints.add(c.mint);
-        }
-      }
-      return promoted;
-    };
-
-    const slots = deck.slots.map(repoint);
-    useDeck.setState({ slots, active: repoint(deck.active) });
-
-    /*
-     * Free cards still locked to a match that has already settled.
-     *
-     * Settlement frees exactly the card accounts it was handed, so a match
-     * settled by the other player leaves this wallet's eight cards naming it
-     * forever. The deck then cannot be fielded and nothing in the app fixes
-     * it — a real wallet was found with eight cards locked to a settled match
-     * and no way out short of a script.
-     *
-     * The program lets anyone pay for `release_cards` once a match is settled,
-     * so the client can clean up after itself without the opponent online.
-     * Best-effort and never awaited: it is housekeeping, and a failure leaves
-     * exactly the state that was already there.
-     */
-    // No release step: a card is locked only while the match holding it is
-    // live, so settling a match frees its cards in the same transaction.
+    const key=`mempire:near:loadout:${useWallet.getState().address}`;
+    let saved: {active?:string[];slots?:string[][];slot?:number;tier?:number} | null=null;
+    try{saved=JSON.parse(localStorage.getItem(key)||'null');}catch{/* invalid save is replaced by a free loadout */}
+    const allowed=new Set(merged.map(c=>c.id));
+    const valid=(ids:string[])=>ids.length<=8&&new Set(ids).size===ids.length&&ids.every(id=>allowed.has(id));
+    const starter=[0,9,2,10,4,7,3,1].map(id=>`chain_${id}`);
+    const active=saved?.active&&valid(saved.active)?saved.active:starter;
+    const slots=Array.from({length:3},(_,i)=>saved?.slots?.[i]&&valid(saved.slots[i])?saved.slots[i]:i===0?active:[]);
+    useDeck.setState({active,slots,slot:Math.max(0,Math.min(2,saved?.slot??deck.slot)),tier:Math.max(0,Math.min(3,saved?.tier??0))});
   }, [cards, mode]);
 }

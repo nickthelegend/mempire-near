@@ -19,10 +19,10 @@ const LOOK: Record<LogPhase, { dot: string; text: string; title: string }> = {
   off: { dot: 'var(--dim)', text: 'local sim', title: 'No session key — the match runs locally' },
   live: {
     dot: 'var(--teal)',
-    text: IS_MONAD_NETWORK ? 'on Monad' : 'local fork',
+    text: 'on NEAR',
     title: IS_MONAD_NETWORK
       ? 'Every card play is a Monad transaction from this match’s session key'
-      : 'Every card play is a transaction on the local fork of Monad testnet — instant mining, so these are not Monad timings',
+      : 'Every card play is a NEAR transaction from a function-call key limited to play; time is send to execution',
   },
   done: { dot: 'var(--teal)', text: 'logged', title: 'The match’s plays are on chain' },
 };
@@ -57,7 +57,7 @@ export function MonadLogBadge() {
       <span className="label" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
         {look.text}
         {confirmed > 0 && ` · ${confirmed}`}
-        {latency !== null && (IS_MONAD_NETWORK ? ` · exec ${latency} ms` : ` · ${latency} ms`)}
+        {latency !== null && (` · exec ${latency} ms`)}
         {IS_MONAD_NETWORK && finalMs !== null && ` · final ${finalMs} ms`}
         {playsLost > 0 && ` · ${playsLost} unlogged`}
         {marksLost > 0 && ` · ${marksLost} unmarked`}
