@@ -102,7 +102,7 @@ function Promo() {
 function GameShell() {
   const location = useLocation();
   const loadRelayer = useAccount((s) => s.loadRelayer);
-  useEffect(() => { void loadRelayer(); }, [loadRelayer]);
+  useEffect(() => { void useAccount.getState().restoreWallet(); void loadRelayer(); }, [loadRelayer]);
   const inBattle = location.pathname.startsWith('/app/battle') || /^\/app\/practice\/[^/]+/.test(location.pathname);
   return (
     <div className={`game${inBattle ? ' game--battle' : ''}`}>

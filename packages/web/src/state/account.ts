@@ -4,10 +4,12 @@
 // transactions the relayer pays for. Per-match session keys (play only) are stored per match id.
 import { create } from 'zustand';
 import { KeyPair, KeySigner, RelayerClient, viewAccount, type RelayerInfo } from '@mempire/sdk';
+import { connectNearWallet, restoreNearWallet, disconnectNearWallet, qaEnabled } from '../lib/wallet';
+import type { PlayerSigner } from '../lib/signing';
 import { net } from '../lib/net';
 
 const DEVICE = 'mempire:near:device';
-interface Device { accountId: string; key: string; email?: string }
+interface Device { accountId: string; key?: string; email?: string; kind?: 'wallet' }
 
 function read(): Device | null {
   try { const raw = localStorage.getItem(DEVICE); return raw ? JSON.parse(raw) as Device : null; } catch { return null; }
@@ -17,7 +19,7 @@ export const relayer = new RelayerClient(net.relayer!);
 
 interface AccountState {
   device: Device | null;
-  signer: KeySigner | null;
+  signer: PlayerSigner | null;
   balance: bigint | null;
   relayerInfo: RelayerInfo | null;
   relayerError: string | null;
@@ -25,6 +27,8 @@ interface AccountState {
   error: string;
   loadRelayer: () => Promise<void>;
   refresh: () => Promise<void>;
+  connectWallet: () => Promise<void>;
+  restoreWallet: () => Promise<void>;
   guest: (handle: string) => Promise<void>;
   startEmail: (email: string) => Promise<void>;
   verifyEmail: (email: string, code: string) => Promise<void>;
@@ -40,9 +44,12 @@ const pendingKey = () => {
 const initial = read();
 export const useAccount = create<AccountState>((set, get) => ({
   device: initial,
-  signer: initial ? new KeySigner(net.rpc, initial.accountId, KeyPair.fromString(initial.key as never)) : null,
+  signer: initial?.key ? new KeySigner(net.rpc, initial.accountId, KeyPair.fromString(initial.key as never)) : null,
   balance: null, relayerInfo: null, relayerError: null, busy: '', error: '',
+  restoreWallet: async()=>{if(get().device?.kind!=='wallet')return;try{const signer=await restoreNearWallet();if(signer)set({signer,device:{accountId:signer.accountId,kind:'wallet'}});else{localStorage.removeItem(DEVICE);set({device:null,signer:null});}}catch(e){set({error:(e as Error).message});}},
+  connectWallet: async()=>{set({busy:'Connecting NEAR wallet',error:''});try{const signer=await connectNearWallet();const device:Device={accountId:signer.accountId,kind:'wallet'};localStorage.setItem(DEVICE,JSON.stringify(device));set({device,signer,busy:''});await get().refresh();}catch(e){set({busy:'',error:(e as Error).message});}},
   loadRelayer: async () => {
+    if(qaEnabled||get().device?.kind==='wallet')return;
     try { set({ relayerInfo: await relayer.info(), relayerError: null }); }
     catch (e) { set({ relayerError: `Relayer unreachable at ${net.relayer} (${(e as Error).message}). Start it with pnpm --filter @mempire/relayer start.` }); }
   },
@@ -78,7 +85,7 @@ export const useAccount = create<AccountState>((set, get) => ({
       set({ device, signer: new KeySigner(net.rpc, device.accountId, kp), busy: '' });
     } catch (e) { set({ busy: '', error: (e as Error).message }); }
   },
-  signOut: () => { localStorage.removeItem(DEVICE); set({ device: null, signer: null, balance: null }); },
+  signOut: () => { if(get().device?.kind==='wallet')void disconnectNearWallet().catch(e=>set({error:(e as Error).message})); localStorage.removeItem(DEVICE); set({ device: null, signer: null, balance: null }); },
 }));
 
 export const sessionKeyFor = (id: string) => { try { return localStorage.getItem(`mempire:near:session:${id}`); } catch { return null; } };

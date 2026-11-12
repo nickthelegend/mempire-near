@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+import { PlaySessionSigner } from '../lib/signing';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import {
@@ -132,7 +133,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         const seat: 0 | 1 = me && m.p1 === me && m.house === null ? 1 : 0;
         const isPlayer = !!me && (m.p0 === me || (m.house === null && m.p1 === me));
         const key = isPlayer ? sessionKeyFor(matchId) : null;
-        const session = key ? new KeySigner(net.rpc, me!, KeyPair.fromString(key as never)) : null;
+        const session = key ? new PlaySessionSigner(net.rpc, me!, KeyPair.fromString(key as never)) : null;
         if (isPlayer && !session) setError('This match\'s session key is not in this browser, so you can watch but not play here.');
         r = new MatchRunner({
           net, matchId, seat, session,
@@ -166,7 +167,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   useEffect(() => {
     if (!settled || !matchId || !signer) return;
     chainChanged();
-    void removeSession(signer, matchId, (s) => addTx({ key: s.hash ?? s.label, label: s.label, hash: s.hash, state: 'ok' })).catch(() => {});
+    void removeSession(signer, matchId, (s) => addTx({ key: s.hash ?? s.label, label: s.label, hash: s.hash, state: 'ok' })).catch(e => setError(`Play key removal failed: ${(e as Error).message}. Reload this match to retry.`));
   }, [settled, matchId, signer]);
   useEffect(() => {
     if (!settled || resultSound.current || replay || !match || match.winner === 2) return;

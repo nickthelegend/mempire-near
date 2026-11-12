@@ -37,8 +37,8 @@ export function SignIn() {
           </div>
         </div>
         <div className="fine" style={{ overflowWrap: 'anywhere' }}><AddrLink address={s.device.accountId} full /></div>
-        <p className="fine">{s.device.email ? `Signed in with ${s.device.email}. ` : ''}Your key stays in this browser. The relayer pays gas for session keys and settlement; you pay only your stake.</p>
-        <button className="btn btn--white btn--sm" onClick={() => { if (confirm('Sign out? The key for this account lives only in this browser; without it the account cannot be used again.')) s.signOut(); }}>Sign out</button>
+        <p className="fine">{s.device.kind==='wallet'?'Your NEAR wallet signs the stake, play-key setup, settlement and key deletion. Card drops use a local play-only key; no operator relayer is needed.':<>{s.device.email ? `Signed in with ${s.device.email}. ` : ''}Your key stays in this browser. The relayer pays gas for session keys and settlement; you pay only your stake.</>}</p>
+        <button className="btn btn--white btn--sm" onClick={() => { if (s.device?.kind==='wallet'||confirm('Sign out? The key for this account lives only in this browser; without it the account cannot be used again.')) s.signOut(); }}>Sign out</button>
       </section>
     );
   }
@@ -80,6 +80,7 @@ export function SignIn() {
           )}
         </>
       )}
+      <button className="btn btn--white btn--wide" disabled={!!s.busy} onClick={()=>void s.connectWallet()}><Icon name="key" />{s.busy==='Connecting NEAR wallet'?s.busy:'Connect NEAR wallet'}</button>
       {s.error && <StateBox kind="error" title="Sign-in failed">{shortError(s.error, 240)}</StateBox>}
     </section>
   );
