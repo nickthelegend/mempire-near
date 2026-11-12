@@ -172,8 +172,18 @@ RPC, signer, runner · `packages/relayer` sign-in, meta tx, keeper, prices · `p
 
 Built for NEAR HACKATHON 2026 (Nov 1-14). Only the new NEAR work is submitted for judging.
 
-**Prior work / baseline.** Mempire already existed on Arc and Robinhood Chain (`mempire-wif`). The game design,
-deterministic TypeScript simulation, bot, existing art and app foundation are reused baseline, not new NEAR work.
+### Prior work
+
+Earlier Mempire versions are baseline, not new NEAR work. The reused game design, deterministic TypeScript simulation,
+bot, existing art and app foundation remain prior work even when imported through a later port.
+The [public owner repository inventory](https://api.github.com/users/nickthelegend/repos?type=owner&sort=full_name&direction=asc&per_page=100) (all seven pages) and the earlier READMEs were checked on November 12, 2026. Four earlier public repositories were accessible; the known `mempire-wif` import baseline is also disclosed below.
+
+- [mempire](https://github.com/nickthelegend/mempire) — original Solana card battler and the earlier game/client foundation credited by subsequent ports.
+- [mempire-arc](https://github.com/nickthelegend/mempire-arc) — Arc version with USDC stakes and market-driven fighter modifiers.
+- [mempire-monad](https://github.com/nickthelegend/mempire-monad) — Monad build from October 5–14, 2026; its game client, art, audio and design predate the NEAR window.
+- [mempire-clockin](https://github.com/nickthelegend/mempire-clockin) — Solana Mobile/Seeker edition with daily Clock-In, Ghost Duels and a Season Pass.
+- [mempire-wif](https://github.com/nickthelegend/mempire-wif) — Robinhood Chain `$WIF`/stock-token port and this repo's immediate import baseline; its public GitHub URL returned 404 at this check, but its local history and README were verified.
+
 The sibling `mempire-wif` history includes October 30-31, 2026 commits; its last commit before November 1 is
 `cbec50b61cdddf75a11b45a80dbaa64ad68c725b`. Its README credits earlier Solana, Monad and Arc builds.
 This repo starts November 9, so its own history alone does not date the original game to before November 1.
@@ -188,6 +198,10 @@ in that period; they do not make the reused game rules new work. Review the
 or run `git diff ea74ac8..9094248` locally. This range includes UI/art changes as well as the NEAR integration.
 See [REPORT.md](REPORT.md) for scope and limits, [TESTING.md](TESTING.md) for recorded validation and [FLOW-QA.md](FLOW-QA.md) for the approved sky-blue client’s latest full flow.
 
+The market-price keeper on `main` was written on **November 11, 2026**, inside the NEAR HACKATHON window (November 1–14). It was developed on the separate NEAR `monad-client` branch (`b42ae15`, `7a93c34`), then ported here without that branch's UI. It is new NEAR work, not part of the October Monad baseline.
+
+The imported Monad client lives **only on branch `monad-client` and is NOT the submitted app**. The submitted app is the approved sky-blue **`packages/web` on `main`**.
+
 **AI-assisted code.** Built with AI coding agents (Claude Code, Codex) under human direction; all code reviewed and tested by the team.
 
 **Other projects by the same team in this hackathon**
@@ -196,8 +210,6 @@ Lead: <TBD by Nick>
 
 **License.** MIT. [LICENSE](LICENSE) retains Copyright (c) 2026 Nivesh Gajengi, also present in the sibling's MIT license.
 No NOTICE file is present in this repo.
-
-The signed-price keeper was developed on the separate NEAR `monad-client` branch, then ported here from `b42ae15` and `7a93c34` without that branch’s UI. The approved main client remains `packages/web`.
 
 ## Credits
 
