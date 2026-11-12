@@ -36,11 +36,13 @@ All requested steps passed; no BLOCKED step remains in this flow. Practice is lo
 
 **34 full-flow captures** at 1440×900 and 375×900, with zero console/page errors, zero failed HTTP responses and zero horizontal document overflow. Two additional read-only captures bring the receipt's **Verified** section into view at both widths. The latter run also checks that no transaction broadcast occurs.
 
-[Open the screenshot gallery](/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/flow-qa/mempire-near/index.html).
+`index.html`.
 
-Folder: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/flow-qa/mempire-near/`.
+Folder: `mempire-near`.
 
 `result.json` contains the full flow and account-creation hash; `receipt-detail.json` contains the focused read-only verification. Filenames follow `<stem>-1440.png` and `<stem>-375.png`. The gallery links every image.
+
+Screenshots were captured locally during QA and are not committed.
 
 ## UI polish and 3D objects (November 12, 2026, later)
 
@@ -65,8 +67,10 @@ referee code are untouched (only `packages/web/src` styles, screens and `public/
 | Console / page errors | 0, apart from the expected refused request to the local relayer port 5299, which was not running (the app shows its "Setup required: relayer" state) |
 | Reduced motion | `prefers-reduced-motion: reduce` turns every object bob off (`animation-name: none`) |
 
-Before/after sheets: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-1440.jpg`, `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-375.jpg`, `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/before-after-key.jpg`.
-After screenshots: `/private/tmp/claude-501/-Volumes-Extreme-SSD-Projects-grokbot/0f121b7c-0081-4ec0-81a9-0ccb4f7f8b48/scratchpad/mempire-3d/after/<view>-1440.png` and `<view>-375.png`.
+Before/after sheets: `before-after-1440.jpg`, `before-after-375.jpg`, `before-after-key.jpg`.
+After screenshots: `<view>-1440.png` and `<view>-375.png`.
+
+Screenshots were captured locally during QA and are not committed.
 
 ## Testnet actions and budget
 
