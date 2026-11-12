@@ -28,8 +28,11 @@ Testnet reads need internet access; public RPC rate limits can delay them.
    on-chain result without signing a transaction; the previous browser run is recorded in [TESTING.md](TESTING.md).
 6. Open <http://127.0.0.1:5199/app/proof> - see arena totals, recent matches and deployment transaction links.
 
-Creating a guest account or playing a new staked match also needs a configured, funded testnet relayer. That operator
-path is below in [Run it](#run-it); the public judging path above uses practice and already-settled matches.
+7. For a new staked match without an operator relayer, open `/app#signin` and choose **Connect NEAR wallet** - see Meteor Wallet connect your own funded NEAR testnet player account. The guest relayer setup message does not block this option. Contract accounts are not used as player wallets.
+8. Open **Houses**, leave **Rush** selected and choose **Challenge Kumo** - approve adding a per-match function-call key limited to arena `play` with a **0.25 NEAR gas allowance**, then approve the smallest **0.01 NEAR stake**. These are separate wallet transactions because the key belongs to your account and the stake goes to the arena. The allowance is a spending limit, not another stake or transfer.
+9. Select cards and tap your half of the field - see each drop land as its own transaction, signed by the local play key with no card-drop wallet prompts. Approve referee settlement and play-key deletion when the wallet asks. Open the match receipt - see **Verified: same winner, same final tick, same state hash**. If key removal is cancelled, the existing error panel reports it; reload the match to retry cleanup.
+
+Guest account creation and guest-sponsored staking still need a configured, funded testnet relayer. That operator path is below in [Run it](#run-it). Wallet house matches use the player's account for setup, stake, settlement and deletion and do not use the operator relayer.
 Email codes still need provider setup. See [BLOCKED.md](BLOCKED.md) for hosting and other unfinished integrations.
 
 ## Live on NEAR testnet
@@ -53,6 +56,8 @@ Recorded deployment: November 9, 2026. These are testnet accounts, not a mainnet
 Sources: [deployment accounts and transactions](deployments/testnet.json),
 [match and season transactions](deployments/testnet-2026-11-09.json).
 
+
+The first fresh staked matches tested on the approved sky-blue client in R3 are **#17 at 1440px** and **#18 at 375px**. Each recorded six card drops, settled through the referee, replayed Verified and removed its play key. Both were losses to Kumo; the house received 0.0184 NEAR per match. The local development QA signer used real repo-owned testnet funds through Wallet Selector; no operator relayer ran during play. [All hashes, balance checks and the cumulative budget](deployments/r3-2026-11-12.json). See [FLOW-QA.md](FLOW-QA.md) for executed checks and the distinction between QA automation and human Meteor approvals.
 
 ## Keeping market prices fresh
 
@@ -120,8 +125,8 @@ seat 1 inside the replay, so a house never sends a move. Win/loss record and tre
 For credential-free practice and replay, use [Try it](#try-it). Contract checks also need Rust and `cargo-near`;
 the sandbox suite uses nearcore through `near-workspaces`.
 
-For new staked matches, an operator must supply their own funded testnet relayer account and its local signing
-credentials. Set `ARENA_ACCOUNT` and `RELAYER_ACCOUNT` for the relayer; the server expects the relayer credential at
+For the guest account and sponsored-transaction path, an operator must supply their own funded testnet relayer account and its local signing
+credentials. Wallet players can instead use the independent path in [Try it](#try-it). Set `ARENA_ACCOUNT` and `RELAYER_ACCOUNT` for the relayer; the server expects the relayer credential at
 `.near-credentials/<RELAYER_ACCOUNT>.json`. Posting fresh prices also needs `.near-credentials/price-relayer.json`
 matching the arena's configured public key. Team credentials are not part of the public reproduction path.
 Start the relayer in a separate terminal from the web preview. Never commit signing credentials.

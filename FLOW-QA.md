@@ -1,5 +1,7 @@
 # Flow QA — approved sky-blue Mempire on main
 
+The original flow below is the pre-wallet checkpoint through `964477d`; its unchanged-web-tree statements apply to that checkpoint. The later R3 wallet feature and its new staked tests are recorded in the final section.
+
 Completed November 12, 2026 (Asia/Kolkata; evidence timestamps are UTC). Branch: `main`. Client: `packages/web`.
 
 The imported Monad client remains on `monad-client`. No `packages/app` files were brought to `main`. The two requested keeper commits (`b42ae15`, `7a93c34`) were cherry-picked with non-keeper README, match evidence and imported-client changes excluded. Keeper-only timeout/backoff fixes were retained. The HTTP relayer authenticates fresh signed snapshots before sending through its existing signer queue.
@@ -91,3 +93,33 @@ The relayer balance was checked before posting: 6.6215478012063777 testnet NEAR.
 - Swap was checked; build/browser work waited until at least 500 MB was free. One build at a time. All task-started servers and browsers are stopped.
 
 README and HACKATHON_SUBMISSION_FORM describe this approved client. Prior game/simulation/art foundations remain disclosed baseline; keeper provenance is explicit. The refreshed submission idea is **1,027 characters**; proposed track remains **games**. Nothing was pushed.
+
+## R3 — own-wallet house matches on the approved app
+
+DONE on `main`, November 12, 2026. The first fresh staked match exercised on this approved sky-blue app in R3 is **#17 at 1440×900**; **#18 at 375×900** is the independent phone run. The earlier flow above tested local practice and an existing receipt only. These new matches use the player's own wallet path, not guest sponsorship. No imported client or other branch was touched.
+
+| Item | Status | Executed evidence |
+|---|---|---|
+| Dead-link fix | DONE | The required tracked-Markdown path grep prints nothing; earlier result rows and status words were preserved. |
+| Wallet connection | DONE | Optional Connect NEAR wallet uses Meteor via Wallet Selector. Real browser QA used a DEV-only injected signer through the same action codec; player identity was stored without a full-access secret. |
+| Desktop house match | DONE | #17, 1440px; 0.01 NEAR against Kumo; wallet-signed AddKey and stake, six play transactions, referee settlement, Verified receipt and key deletion. |
+| Phone house match | DONE | #18, 375px; same smallest stake and full flow; six play transactions, settlement, Verified receipt and key deletion. |
+| Play-key scope | DONE | Both live keys were limited to arena `play`, with exactly 0.25 NEAR allowance; all 12 play signatures matched the corresponding match session key. Neither key remained after settlement. |
+| Operator independence | DONE | The local price-posting relayer was stopped before browser play. Zero relayer/auth requests occurred during either match. Every game transaction was signed by the player account. |
+| Production QA exclusion | DONE | A production build with VITE_QA_SIGNER=1 still excludes the QA module, startup credential globals and evidence/budget bindings. A release guard runs at the end of every web build. |
+| Guest fallback (conditional item 3) | DONE | Not needed: the wallet action path succeeded. Both wallet runs also satisfy the fresh staked-house-match requirement. Guest sign-in and its sponsored transaction path remain available. |
+| Fresh market prices | DONE | Ran pnpm meta:post once before play; signed snapshot 4PMZ3k1b1s7q2gyAs7HfbTtLXBNmmgTUnpUqFRhMtgwv read back live. |
+
+Both matches were **Defeat**, not fabricated wins. Kumo received **0.0184 NEAR** in each, with **0.0006 NEAR** to the season and **0.001 NEAR** to treasury. The independent replays matched the referee: #17 ended at tick 600/hash 340252215; #18 at tick 600/hash 1419554228.
+
+[Sealed R3 transaction and balance evidence](deployments/r3-2026-11-12.json) records 21 successful transactions, all hashes, pre-write balance checks, per-write budget reservations, live key permissions, six stored plays per match, final replay results and deletion checks. The player was the repo's existing `aiko-8197.mempire-relay-41966.testnet`; no account funding, faucet, redeployment or mainnet action was needed.
+
+Conservative spend: **0.0479550458186581 testnet NEAR / 0.3 cap**. This includes 0.02 NEAR of player stakes, 0.02 NEAR of house stakes and 0.0079550458186581 NEAR of recorded gas, including the price post. Key allowances are limits, not transferred funds. Balances were checked before each submitted write; no keys on contract accounts were deleted.
+
+Before screenshots: `before-signin-1440.png`, `before-signin-375.png`. After screenshots: `after-signin-1440.png`, `after-signin-375.png`. The same local gallery, `index.html`, contains both views plus wallet account, houses, live battle, result and Verified receipt captures at each width. The only UI addition is the optional existing-style wallet button and wallet-specific account text; no CSS, fonts, colours, layout system or art changed. The two live runs captured 12 screens with zero console/page errors, zero document overflow and zero relayer requests. All browser work used the shared Chrome lock; memory/disk checks passed and task-started servers/browsers were stopped.
+
+Screenshots were captured locally during QA and are not committed.
+
+`pnpm test` passed **22 JavaScript tests** (sim 4, SDK 5, relayer 3, web 10). All workspace typechecks passed. The production build passed with VITE_QA_SIGNER=1 and its release guard confirmed that QA code was excluded. Existing bundle warnings remain.
+
+The automation is explicitly a development Wallet Selector signer backed by a real repo-owned testnet account, not a simulated success. Meteor's AddKey/DeleteKey action conversion was tested through its actual Wallet Selector codec. A human Meteor popup/extension approval was not automated; cancelling an approval remains a wallet/user action. No AddKey API refusal was observed, so item 2 is not BLOCKED. Production never loads the QA signer.

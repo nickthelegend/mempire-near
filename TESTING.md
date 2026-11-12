@@ -68,8 +68,22 @@ After launch season 0 ended, `pnpm tsx scripts/finalize-season.ts aiko 0` paid i
 
 ## Approved sky-blue client flow — November 12, 2026
 
+Historical checkpoint through `964477d`, before the R3 wallet addition below.
+
 The `main` app remains `packages/web`, byte-identical to approved commit `bcf4a49`; the imported Monad UI stays on its own branch. The market keeper was ported independently. A real signed snapshot and one 0.02-NEAR guest account were created, with a conservative task total of 0.027344314559649 NEAR including gas. Public evidence is in `deployments/sky-blue-flow-2026-11-12.json`.
 
 The latest full flow captured 34 screens at 1440×900 and 375×900 with no console/page errors, failed HTTP responses or document overflow: landing, guest, lobby, collection/card page, saved/reloaded deck, Kumo practice rival, VS intro, battle, local result, verified recorded match #8 receipt, leaderboard, profile, houses, season and how-to-play. Additional screenshots show the receipt’s Verified section at both widths. Practice sends no transactions; #8 is a separate existing settled match.
 
 `pnpm test` passed 21 JavaScript tests (sim 4, SDK 5, relayer 3, web 9); workspace typechecks and the web production build passed. Rust/contract tests were not rerun because no contract changed. See [FLOW-QA.md](FLOW-QA.md) for per-step results, screenshot gallery, commands, constraints and exact transaction links.
+
+## R3 — wallet-signed testnet matches, November 12, 2026
+
+Two fresh house matches ran through the approved sky-blue app on `main`, without an operator relayer: #17 at 1440×900 and #18 at 375×900. Each added a play-only 0.25-NEAR-allowance access key, staked 0.01 NEAR against Kumo, recorded six player-signed card drops, settled through the Rust referee, replayed Verified and deleted its exact play key. Both lost to the house and paid its 0.0184-NEAR winner share. All game transactions used the player's account; only the one preceding price post used the repo relayer.
+
+The production release guard checks that the DEV-only QA signer is absent even with its flag set during a production build. The wallet action test round-trips AddKey, stake and DeleteKey through the same Wallet Selector codec the Meteor adapter uses. Guest sponsorship remains the original path. No contract or simulation changes were made.
+
+See [R3 evidence](deployments/r3-2026-11-12.json) and [FLOW-QA.md](FLOW-QA.md) for exact hashes, pre-write balances, scope/deletion checks, the 0.0479550458186581-NEAR conservative total and local screenshot names. Before/after sign-in captures and the twelve live-flow captures use both requested widths. They show no console/page errors or horizontal overflow.
+
+Screenshots were captured locally during QA and are not committed.
+
+R3 executed checks: `pnpm test` passed **22 JavaScript tests** (sim 4, SDK 5, relayer 3, web 10); `pnpm typecheck` passed for every workspace; the production build passed even with VITE_QA_SIGNER=1, and its release guard confirmed no QA signer was emitted. Existing dependency/bundle warnings are non-blocking.

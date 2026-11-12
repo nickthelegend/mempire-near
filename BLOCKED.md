@@ -8,3 +8,9 @@
 | NEP-245 card tokens | Not built | Every fighter is free to field; card ownership is not tokenised |
 | Hosted web app and relayer | Not deployed | A host for `packages/web` (static) and `packages/relayer` (Node); both run locally today |
 | Mainnet | Not deployed | Nick's decision and funds; prices would move to a mainnet oracle (Rhea, contract ID to verify) |
+
+## R3 wallet path status
+
+The optional Meteor Wallet path is implemented on testnet. It signs player-owned play-key setup, smallest-tier house stakes, referee settlement and deletion without operator sponsorship. The two real browser runs, #17 and #18, used a build-gated Wallet Selector QA signer and verified receipt replays. This path is not BLOCKED by AddKey action support: the Meteor action codec round-trip and actual testnet AddKey/settle/DeleteKey flows passed. Human Meteor popup/extension approvals were not automated. Wallet cancellation or a popup failure is surfaced as an error rather than a successful transaction; cancelled cleanup can be retried by reopening the match.
+
+Guest account creation still needs the configured relayer and email still needs provider setup. These requirements do not apply to an already funded wallet player's house match. [R3 results and limits](FLOW-QA.md#r3--own-wallet-house-matches-on-the-approved-app).
