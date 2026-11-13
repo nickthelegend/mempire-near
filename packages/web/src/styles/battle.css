@@ -263,7 +263,7 @@
 .feed-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .feed-stats div { display: grid; gap: 0; padding: 8px 10px; border-radius: 14px; background: #f3f0ff; }
 .feed-stats b { font-family: var(--display); font-weight: 400; font-size: 24px; line-height: 1.1; color: var(--ink); }
-.feed-stats span { font-size: 11px; font-weight: 800; color: var(--ink-soft); }
+.feed-stats > div > span { font-size: 11px; font-weight: 800; color: var(--ink-soft); }
 .feed-empty { padding: 4px 2px; }
 .feed-list { list-style: none; display: grid; gap: 6px; align-content: start; overflow: auto; min-height: 0; }
 .feed-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 10px 7px 7px; border-radius: 14px; background: #f8f6ff; font-size: 14px; font-weight: 800; }
