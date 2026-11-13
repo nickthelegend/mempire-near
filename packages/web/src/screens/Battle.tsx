@@ -22,9 +22,9 @@ import { removeSession, settle } from '../lib/play';
 import { costOf, fighter, pct, shortAcct, statusLabel, shortError } from '../lib/fighters';
 import { BattleBoard, dropDecision } from '../battle/BattleBoard';
 import { AddrLink, Art, Avatar, Big, BotAvatar, Crowns, FighterCard, Icon, MoveChip, StateBox, TxLink } from '../ui/kit';
-import { ART, OBJ3D } from '../lib/art';
+import { ART, OBJ3D, houseArt } from '../lib/art';
+import { ArenaPulse, ChainFeed, DeckCycle, FoeCard, PotCard, Scoreboard, type TxRow } from '../battle/Rails';
 
-type TxRow = { key: string; label: string; hash?: string; ms?: number; state: 'sent' | 'ok' | 'in' | 'no' };
 type Replay = Awaited<ReturnType<typeof replayFromChain>>;
 
 const PRACTICE_BOT = [0, 9, 2, 10, 4, 7, 3, 1];
@@ -48,6 +48,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const [count, setCount] = useState(3);
   const startedRef = useRef(!practice);
   const [toast, setToast] = useState<{ text: string; key: number; foe: boolean } | null>(null);
+  const [shake, setShake] = useState(0);
   const crownsSeen = useRef<[number, number]>([0, 0]);
   const [, bump] = useState(0);
   const signer = useAccount((s) => s.signer);
@@ -114,9 +115,11 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     const [a, b] = crownsSeen.current;
     if (mine > a) setToast({ text: mine === 3 ? 'King keep down!' : 'Tower down! +1 crown', key: Date.now(), foe: false });
     else if (theirs > b) setToast({ text: theirs === 3 ? 'Your king keep fell' : 'You lost a tower', key: Date.now(), foe: true });
+    if (mine > a || theirs > b) setShake(Date.now());
     crownsSeen.current = [mine, theirs];
   }, [sim, perspective]);
-  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 1800); return () => clearTimeout(t); }, [toast]);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 2200); return () => clearTimeout(t); }, [toast]);
+  useEffect(() => { if (!shake) return; const t = setTimeout(() => setShake(0), 600); return () => clearTimeout(t); }, [shake]);
   // Re-render twice a second so the kick-off countdown moves before the first sim state arrives.
   useEffect(() => { const t = setInterval(() => bump((x) => x + 1), 500); return () => clearInterval(t); }, []);
   const botLevel = useRef<'easy' | 'normal' | 'hard'>('normal');
@@ -152,10 +155,10 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             else if (e.type === 'match') setMatch(e.match);
             else if (e.type === 'claim') setClaim(e.claim);
             else if (e.type === 'error') { console.warn('runner', e.error); setError(e.error.message); }
-            else if (e.type === 'playSent') { pendingHashes.current.set(e.hash,e.deckIndex); addTx({ key: e.hash, label: `You dropped slot ${e.deckIndex + 1} for tick ${e.tick}`, hash: e.hash, state: 'sent' }); }
+            else if (e.type === 'playSent') { pendingHashes.current.set(e.hash,e.deckIndex); const fid = Number((seat === 0 ? m.deck0 : m.deck1)[e.deckIndex]); addTx({ key: e.hash, label: `${fighter(fid).ticker} dropped · tick ${e.tick}`, hash: e.hash, state: 'sent', fighterId: fid, at: Date.now() }); }
             else if (e.type === 'playLanded') setTxs((old) => old.map((t) => (t.key === e.hash ? { ...t, state: 'ok', ms: e.ms } : t)));
             else if (e.type === 'playRefused') { const slot=pendingHashes.current.get(e.hash ?? ''); if(slot!==undefined)setPendingCards(old=>{const next=new Map(old);next.delete(slot);return next;}); console.warn('play refused', e.error); setTxs((old) => (old.some((t) => t.key === e.hash && e.hash) ? old.map((t) => (t.key === e.hash ? { ...t, state: 'no', label: `${t.label}: refused (${shortError(e.error, 60)})` } : t)) : [...old, { key: `r${Date.now()}`, label: `A drop was not sent: ${shortError(e.error, 80)}`, state: 'no' }])); }
-            else if (e.type === 'opponentPlay') addTx({ key: `o${e.input.tick}-${e.input.deckIndex}-${Math.random()}`, label: `Opponent dropped slot ${e.input.deckIndex + 1} at tick ${e.input.tick}`, state: 'in' });
+            else if (e.type === 'opponentPlay') { const fid = Number((e.input.player === 0 ? m.deck0 : m.deck1)[e.input.deckIndex]); addTx({ key: `o${e.input.tick}-${e.input.deckIndex}`, label: `Rival ${fighter(fid).ticker} · tick ${e.input.tick}`, state: 'in', fighterId: fid }); }
           },
         });
         await r.init();
@@ -235,7 +238,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const elixir = meSim ? Math.max(0,meSim.elixirFP / FP - pendingEnergy(hand,pendingCards)) : 0;
   const cap = sim ? sim.format.elixirCapFP / FP : 10;
   const regulation = sim?.format.regulationTicks ?? 0;
-  const overtime = sim ? sim.tick >= regulation : false;
+  const overtime = sim ? sim.phase === 'overtime' || (sim.format.overtimeTicks > 0 && sim.tick >= regulation && sim.phase !== 'ended') : false;
   const remainingTicks = sim ? (overtime ? regulation + sim.format.overtimeTicks - sim.tick : regulation - sim.tick) : 0;
   const clock = Math.max(0, Math.ceil(remainingTicks / 20));
   const myCrowns = sim ? crownsTaken(sim, perspective) : 0;
@@ -272,24 +275,79 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     });
   };
 
+  const lastTx = [...txs].reverse().find((t) => t.state !== 'in') ?? null;
+  const foeName = practice ? rivalName : opponent ? (match?.house !== null && match ? `${shortAcct(opponent).split('.')[0].replace(/^./, (c) => c.toUpperCase())}` : shortAcct(opponent)) : 'Loading…';
+  const foeHouseName = practice ? (house?.name ?? null) : match && match.house !== null && match.p1 ? match.p1.split('.')[0] : null;
+  const foeArt = foeHouseName ? houseArt(foeHouseName) : null;
+  const foeSub = practice ? (house ? `House · ${HOUSE_DIFFICULTY[house.difficulty] ?? 'normal'} bot · its on-chain deck` : 'Training bot · local') : match ? (match.house !== null ? `House · ${HOUSE_DIFFICULTY[houses.data?.find((h) => h.account === match.p1)?.difficulty ?? 0] ?? 'easy'} bot · refereed on chain` : 'Player · staked the same pot') : '';
+  const dragCard = drag.dragging && drag.client && selectedCard ? selectedCard : null;
+
+  const rails = (
+    <>
+      <div className="rail rail--left">
+        <Link className="rail-back" to={practice ? '/app/practice' : '/app'}><Icon name="chevL" size={18} />{practice ? 'Practice rivals' : 'Lobby'}</Link>
+        <FoeCard name={foeName} sub={foeSub} art={foeArt} bot={rivalIsBot} fighterId={sim?.players[foeSeat]?.deck[0]?.fighterId} />
+        <Scoreboard sim={sim} seat={perspective} you="You" foe={foeName} />
+        <PotCard match={match} practice={practice} />
+        <DeckCycle sim={sim} seat={perspective} />
+        {practice && (
+          <div className="rail-actions">
+            <button className="btn btn--white btn--sm" onClick={() => window.location.reload()}><Icon name="replay" size={16} />Restart</button>
+            <Link className="btn btn--gold btn--sm" to="/app/houses">Stake NEAR</Link>
+          </div>
+        )}
+      </div>
+      <div className="rail rail--right">
+        {error && !settled && <StateBox kind="error" title="Heads up">{shortError(error, 240)}</StateBox>}
+        {practice ? <ArenaPulse /> : <ChainFeed txs={txs} settled={settled} />}
+        {!practice && match && (
+          <section className="rail-card" aria-labelledby="m-title">
+            <div className="rail-head"><h2 id="m-title" className="rail-title">Match #{matchId}</h2>{match && <span className={`chip ${match.state === 2 ? 'chip--live' : match.state === 3 ? 'chip--gold' : ''}`}>{STATE_NAMES[match.state] ?? match.state}</span>}</div>
+            <ol className="rail-steps">
+              {steps.map((s) => (
+                <li key={s.t} data-state={s.done ? 'done' : s.now ? 'now' : 'todo'}>
+                  <span className="dot" aria-hidden>{s.done ? <Icon name="check" size={12} /> : ''}</span>
+                  <span className="rail-steps-t">{s.t}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+        <section className="rail-card" aria-label={practice ? 'Today\'s signed prices per fighter' : 'Market read stored at kick-off'}>
+          <div className="rail-head">
+            <h2 className="rail-title">{practice ? 'Today\'s market' : 'Market at kick-off'}</h2>
+            <button className={`chip chip--btn ${stripSide === 'you' ? 'chip--gold' : 'chip--crimson'}`}
+              onClick={() => setStripSide((v) => (v === 'you' ? 'foe' : 'you'))} aria-label={`Showing ${stripSide === 'you' ? 'your' : 'the rival\'s'} market read. Switch.`}>
+              {stripSide === 'you' ? 'You' : 'Rival'} <Icon name="replay" size={12} />
+            </button>
+          </div>
+          <div className="mstrip">{marketRead(stripSide === 'you' ? (match ? seat : 0) : (match ? (1 - seat) as 0 | 1 : 1))}</div>
+        </section>
+      </div>
+    </>
+  );
+
   return (
-    <div className={`battle${details ? ' battle--details' : ''}`}>
+    <div className={`battle${details ? ' battle--details' : ''}`} data-practice={practice ? 1 : 0}>
       <div className="arena-stack">
         <div className="bhud bhud--row">
           <Link className="battle-back btn btn--white btn--icon" to={practice ? '/app/practice' : '/app'} aria-label="Leave battle"><Icon name="chevL" size={20}/></Link>
           <span className="plate plate--foe">
-            {rivalIsBot ? <BotAvatar size={34} ring="crimson" /> : <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />}
-            <span className="plate-name">{practice ? rivalName : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
+            {foeArt ? <span className="avatar avatar--crimson plate-art" style={{ width: 36, height: 36 }}><Art src={foeArt} eager fallback={<Icon name="castle" size={16} />} /></span> : rivalIsBot ? <BotAvatar size={36} ring="crimson" /> : <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={36} ring="crimson" />}
+            <span className="plate-name">{foeName}</span>
           </span>
-          <span className={`clock${overtime ? ' clock--ot' : ''}`} aria-live="polite">
+          <span className={`clock${overtime ? ' clock--ot' : ''}${sim && !ended && clock <= 10 ? ' clock--low' : ''}`} aria-live="polite">
             <b>{sim ? `${Math.floor(clock / 60)}:${String(clock % 60).padStart(2, '0')}` : '–:––'}</b>
-            <span className="crowns" aria-label={`You ${myCrowns}, opponent ${theirCrowns} crowns`}><span className="me">{myCrowns}</span><Icon name="crown" size={15} /><span className="them">{theirCrowns}</span></span>
+            <span className="crowns" aria-label={`You ${myCrowns}, rival ${theirCrowns} crowns`}><span className="me">{myCrowns}</span><Icon name="crown" size={16} /><span className="them">{theirCrowns}</span></span>
           </span>
           {overtime && <span className="ot-badge">Overtime</span>}
         </div>
-        <div className="board-box">
+        <div className={`board-box${shake ? ' is-shaking' : ''}`}>
           <BattleBoard perspective={perspective} placing={selected !== null && !replay} spell={selectedCard?.archetype === Archetype.Spell}
             onPlace={place} preview={drag.preview} fighterId={selectedCard?.fighterId} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
+          {sim && !ended && !replay && selected === null && hand.length > 0 && !intro && (sim.tick < 60 || (practice && (practiceRef.current?.inputs.filter((i) => i.player === 0).length ?? 0) === 0)) && (
+            <div className="board-hint" aria-hidden><Icon name="arrow" size={18} />Drag a card onto your side</div>
+          )}
           {practice && intro && sim && (
             <VsIntro you="You" foe={rivalName} foeBot={rivalIsBot} youDeck={sim.players[0].deck.map((c) => c.fighterId)} foeDeck={sim.players[1].deck.map((c) => c.fighterId)}
               note="Practice · local · no stake" count={intro === 'count' ? count : null}
@@ -301,6 +359,13 @@ export function Battle({ practice = false }: { practice?: boolean }) {
               note={`${TIER_NAMES[match.tier]} · ${formatNear(BigInt(match.stake) * 2n)} NEAR pot · refereed on-chain`} count={Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} />
           )}
           {toast && <div key={toast.key} className={`crown-toast${toast.foe ? ' crown-toast--foe' : ''}`} role="status"><Art src={OBJ3D.crown} fallback={<Icon name="crown" size={28} />} /><b>{toast.text}</b></div>}
+          {!practice && lastTx && lastTx.hash && !ended && (
+            <div key={`${lastTx.key}:${lastTx.state}`} className={`tx-toast tx-toast--${lastTx.state}`} role="status">
+              {lastTx.state === 'sent' ? <span className="spinner spinner--xs" /> : lastTx.state === 'ok' ? <Icon name="check" size={13} /> : <Icon name="x" size={13} />}
+              <span>{lastTx.state === 'sent' ? 'Card sent as a transaction' : lastTx.state === 'ok' ? `On chain in ${((lastTx.ms ?? 0) / 1000).toFixed(1)} s` : 'Refused by the arena'}</span>
+              <TxLink hash={lastTx.hash}>{lastTx.hash.slice(0, 6)}… ↗</TxLink>
+            </div>
+          )}
           {replay && !replay.done && (
             <div className="replay-bar">
               <span className="chip chip--gold">Replay</span>
@@ -310,6 +375,21 @@ export function Battle({ practice = false }: { practice?: boolean }) {
               </span>
             </div>
           )}
+          {!sim && !showCeremony && (
+            <div className="ceremony ceremony--wait">
+              <div className="cer-card">
+                {match && match.state !== 2 && match.state !== 1 ? (
+                  <>
+                    <p className="fine">This match is {STATE_NAMES[match.state]?.toLowerCase()}. Its result is on chain.</p>
+                    <button className="btn btn--blue" disabled={!!busy} onClick={() => void startReplay()}>{busy ? <span className="spinner" /> : <Icon name="replay" />}{busy || 'Replay from chain'}</button>
+                  </>
+                ) : match?.state === 1 ? <p className="fine">Match #{match.id} is waiting for an opponent.</p>
+                  : error ? <StateBox kind="error" title="Could not load the match">{shortError(error, 200)}</StateBox>
+                    : <p className="fine" role="status"><span className="spinner" /> {practice ? 'Reading today\'s prices…' : 'Loading the match from chain…'}</p>}
+              </div>
+            </div>
+          )}
+          {showCeremony && <Ceremony practice={practice} rivalName={rivalName} rivalIsBot={rivalIsBot} crowns={sim ? [myCrowns, theirCrowns] : null} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
         </div>
 
         {sim && (
@@ -317,14 +397,16 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             <div className="hand" data-dragging={drag.dragging}>
               {hand.map((slot) => {
                 const c = sim.players[perspective].deck[slot];
-                const afford = elixir >= costOf(c.fighterId);
+                const cost = costOf(c.fighterId);
+                const afford = elixir >= cost;
                 return (
-                  <div key={slot} className="hand-slot" data-slot={slot} onPointerDown={e => { if (afford && !pendingCards.has(slot)) drag.start(slot,e); }} onClickCapture={drag.clickCapture}>
+                  <div key={slot} className="hand-slot" data-slot={slot} data-afford={afford ? 1 : 0} style={{ ['--fill' as string]: `${Math.min(1, elixir / cost) * 100}%` }}
+                    onPointerDown={e => { if (afford && !pendingCards.has(slot)) drag.start(slot,e); }} onClickCapture={drag.clickCapture}>
                   <FighterCard id={c.fighterId} size="sm" picked={selected === slot} className={afford ? '' : 'unaffordable'}
                     statBps={c.metaBps ?? 0} pulse={fighter(c.fighterId).kind === 'house' ? 'house' : null}
                     disabled={pendingCards.has(slot) || ended || !!replay || (!practice && !canPlay)} onClick={() => setSelected(selected === slot ? null : slot)}
-                    label={`${c.name}, ${costOf(c.fighterId)} elixir, market ${pct(c.metaBps ?? 0)}${afford ? '' : ', not enough elixir yet'}`} />
-                  {pendingCards.has(slot) && <span className="card-pending" role="status">Sending…</span>}
+                    label={`${c.name}, ${cost} elixir, market ${pct(c.metaBps ?? 0)}${afford ? '' : ', not enough elixir yet'}`} />
+                  {pendingCards.has(slot) && <span className="card-pending" role="status"><span className="spinner spinner--xs" />Sending</span>}
                   </div>
                 );
               })}
@@ -336,94 +418,24 @@ export function Battle({ practice = false }: { practice?: boolean }) {
                 <div className="elixir-fill" style={{ width: `${(elixir / cap) * 100}%` }} />
                 <div className="elixir-ticks">{Array.from({ length: 10 }, (_, i) => <span key={i} />)}</div>
               </div>
+              <button className="battle-sound" onClick={()=>setSound(!sound)} aria-pressed={sound} aria-label={sound ? 'Mute' : 'Sound on'}><Icon name={sound ? 'bolt' : 'x'} size={14} />{sound ? 'Sound' : 'Muted'}</button>
+              <button className="battle-details" aria-expanded={details} onClick={()=>setDetails(!details)}>Details</button>
             </div>
             <p className="hint sr-only" aria-live="polite">
               {replay ? `Replaying ${replay.data.inputs.length} on-chain plays through the same sim.` : ended ? 'Battle over.'
                 : !practice && !canPlay ? 'Watching: plays come from the chain.'
-                  : selectedCard ? `Tap ${selectedCard.archetype === Archetype.Spell ? 'anywhere' : 'your half'} to drop ${selectedCard.name}.` : 'Pick a card, then tap your half of the arena.'}
+                  : selectedCard ? `Tap ${selectedCard.archetype === Archetype.Spell ? 'anywhere' : 'your half'} to drop ${selectedCard.name}.` : 'Drag a card onto your half of the arena, or tap a card and then tap the arena.'}
             </p>
           </div>
         )}
-
-        <div className="battle-controls">
-          <button className="battle-sound" onClick={()=>setSound(!sound)} aria-pressed={sound}>{sound ? 'Sound on' : 'Sound off'}</button>
-          <div className="battle-tx" role="status">{error ? <span className="warn">{shortError(error,100)}</span> : !practice && txs.length ? (()=>{const t=txs[txs.length-1];return <><span>{t.state === 'no' ? 'Drop refused' : t.state === 'sent' ? 'Drop sent' : 'Confirmed'}</span>{t.hash && <TxLink hash={t.hash}/>}</>})() : <span>{practice ? 'Practice · drag a card into a lane' : 'NEAR testnet · each drop is a transaction'}</span>}</div>
-          <button className="battle-details" aria-expanded={details} onClick={()=>setDetails(!details)}>Details</button>
-        </div>
-        {!sim && !showCeremony && (
-          <div className="ceremony ceremony--wait">
-            <div className="cer-card">
-              {match && match.state !== 2 && match.state !== 1 ? (
-                <>
-                  <p className="fine">This match is {STATE_NAMES[match.state]?.toLowerCase()}. Its result is on chain.</p>
-                  <button className="btn btn--blue" disabled={!!busy} onClick={() => void startReplay()}>{busy ? <span className="spinner" /> : <Icon name="replay" />}{busy || 'Replay from chain'}</button>
-                </>
-              ) : match?.state === 1 ? <p className="fine">Match #{match.id} is waiting for an opponent.</p>
-                : error ? <StateBox kind="error" title="Could not load the match">{shortError(error, 200)}</StateBox>
-                  : <p className="fine" role="status"><span className="spinner" /> {practice ? 'Reading today\'s prices…' : 'Loading the match from chain…'}</p>}
-            </div>
-          </div>
-        )}
-        {showCeremony && <Ceremony practice={practice} rivalName={rivalName} rivalIsBot={rivalIsBot} crowns={sim ? [myCrowns, theirCrowns] : null} sim={sim} seat={seat} match={match} me={me} claim={claim} busy={busy} onReplay={() => void startReplay()} replay={replay?.data ?? null} />}
       </div>
 
-      <aside className="bside" aria-label="Match details">
-        <nav className="crumbs bside-back" aria-label="Breadcrumb"><Link to={practice ? '/app/practice' : '/app'}><Icon name="chevL" size={16} />{practice ? 'Practice rivals' : 'Lobby'}</Link></nav>
-        {error && !settled && <StateBox kind="error" title="Heads up">{shortError(error, 240)}</StateBox>}
-        {practice ? (
-          <section className="card stack">
-            <div className="card-head"><h2 className="h3">Practice</h2><span className="chip">no chain</span></div>
-            <p className="fine">A local Rush against {house ? <><b>{house.name}</b>: its on-chain deck and the {HOUSE_DIFFICULTY[house.difficulty] ?? 'normal'} bot the referee plays for it</> : 'the training bot'}, with your deck and today&apos;s signed prices. Nothing is staked and nothing touches the chain.</p>
-            <div className="cta-row">
-              <button className="btn btn--white btn--sm" onClick={() => window.location.reload()}><Icon name="replay" size={16} />Restart</button>
-              <Link className="btn btn--white btn--sm" to="/app/practice">Rivals</Link>
-              <Link className="btn btn--gold btn--sm" to="/app#play">Stake NEAR</Link>
-            </div>
-          </section>
-        ) : (
-          <section className="card stack" aria-labelledby="m-title">
-            <div className="card-head">
-              <h2 id="m-title" className="h3">Match #{matchId}</h2>
-              {match && <span className={`chip ${match.state === 2 ? 'chip--live' : match.state === 3 ? 'chip--gold' : ''}`}>{STATE_NAMES[match.state] ?? match.state}</span>}
-            </div>
-            {match && <p className="fine">{shortAcct(match.p0)} vs {match.house !== null ? `house ${shortAcct(match.p1)}` : match.p1 ? shortAcct(match.p1) : '—'} · seed <span className="mono">{match.seed}</span></p>}
-            <ol className="rail">
-              {steps.map((s) => (
-                <li key={s.t} data-state={s.done ? 'done' : s.now ? 'now' : 'todo'}>
-                  <span className="dot" aria-hidden>{s.done ? <Icon name="check" size={13} /> : ''}</span>
-                  <div><div className="rail-title">{s.t}</div><div className="rail-sub">{s.s}</div></div>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-        <section className="card stack" aria-label={practice ? 'Practice: today\'s signed prices per fighter' : 'Market read stored at kick-off'}>
-          <div className="card-head">
-            <h2 className="h3">{practice ? 'Today\'s market' : 'Market at kick-off'}</h2>
-            <button className={`chip chip--btn ${stripSide === 'you' ? 'chip--gold' : 'chip--crimson'}`}
-              onClick={() => setStripSide((v) => (v === 'you' ? 'foe' : 'you'))} aria-label={`Showing ${stripSide === 'you' ? 'your' : 'the opponent\'s'} market read. Switch.`}>
-              {stripSide === 'you' ? 'You' : 'Foe'} <Icon name="replay" size={12} />
-            </button>
-          </div>
-          <div className="mstrip">{marketRead(stripSide === 'you' ? (match ? seat : 0) : (match ? (1 - seat) as 0 | 1 : 1))}</div>
-        </section>
-        {!practice && (
-          <section className="card stack" aria-labelledby="tx-title">
-            <div className="card-head"><h2 id="tx-title" className="h3">On chain, live</h2><span className={`chip${txs.length ? ' chip--live' : ''}`}>{txs.length} tx</span></div>
-            {txs.length === 0 ? <p className="fine">{settled ? 'Every drop of this match is stored by the arena; Replay from chain rebuilds it.' : 'No plays yet. Drops are signed by this match\'s session key, so there are no pop-ups.'}</p> : (
-              <ul className="txfeed">
-                {[...txs].reverse().map((t) => (
-                  <li key={t.key} className="txrow">
-                    <span className={`chip ${t.state === 'in' ? 'chip--crimson' : t.state === 'ok' ? 'chip--jade' : t.state === 'no' ? 'chip--crimson' : ''}`}>{t.state === 'in' ? 'In' : t.state === 'ok' ? 'Done' : t.state === 'no' ? 'Refused' : 'Sent'}</span>
-                    <span className="txrow-label">{t.label}{t.ms != null && t.state === 'ok' ? ` · ${t.ms} ms` : ''}</span>
-                    {t.hash ? <TxLink hash={t.hash}>{t.hash.slice(0, 6)}…</TxLink> : <span />}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
-      </aside>
+      <aside className="bside" aria-label="Match details">{rails}</aside>
+      {dragCard && drag.client && (
+        <div className={`drag-card${drag.preview ? ' is-over' : ''}`} style={{ left: drag.client.x, top: drag.client.y }} aria-hidden>
+          <FighterCard id={dragCard.fighterId} size="sm" statBps={dragCard.metaBps ?? 0} />
+        </div>
+      )}
     </div>
   );
 }

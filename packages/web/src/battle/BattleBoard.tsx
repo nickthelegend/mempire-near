@@ -19,6 +19,8 @@ const RB = RIVER_BOT / FP;
 const BRIDGES = BRIDGE_X.map((x) => x / FP);
 const BRIDGE_W = (BRIDGE_HALF_W / FP) * 2;
 const RADIUS: Record<number, number> = { [Archetype.Tank]: 1.3, [Archetype.Swarm]: 0.72, [Archetype.Ranged]: 0.95, [Archetype.Splash]: 1.05, [Archetype.Support]: 0.95 };
+/** Fighters are drawn larger than their hit circle so they read on a phone; the sim's ranges are unchanged. */
+const UNIT_SCALE = 1.32;
 const COLORS = { home: '#3d8bff', foe: '#ff4b5c', jade: '#2fcf5a', gold: '#ffb800', ink: '#2a1d5c' };
 
 export { dropDecision } from './placement';
@@ -57,7 +59,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label, previ
       const after = new Map(sim.units.map((u) => [u.id, u]));
       for (const u of sim.units) {
         const p = before.get(u.id);
-        if (!p) { s.fx.push({ kind: 'spawn', x: u.x / FP, y: u.y / FP, t0: now, dur: 420, owner: u.owner, r: RADIUS[u.archetype] ?? 0.7 }); continue; }
+        if (!p) { s.fx.push({ kind: 'spawn', x: u.x / FP, y: u.y / FP, t0: now, dur: 560, owner: u.owner, r: (RADIUS[u.archetype] ?? 0.7) * 1.5 }); continue; }
         if (u.hp < p.hp) s.fx.push({ kind: 'dmg', x: u.x / FP, y: u.y / FP, t0: now, dur: 800, owner: u.owner, text: `−${p.hp - u.hp}` });
         // An attacker's cooldown resets right after it strikes.
         if (u.cooldown > p.cooldown && u.state === 'attack') {
@@ -78,7 +80,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label, previ
         if (!p) return;
         if (t.hp < p.hp) s.fx.push({ kind: 'hit', x:t.x/FP, y:t.y/FP, t0:now, dur:220, owner:t.owner, r:1.4 });
         if (t.hp < p.hp) s.fx.push({ kind: 'dmg', x: t.x / FP, y: t.y / FP + (t.owner === 0 ? 1.2 : -1.2), t0: now, dur: 800, owner: t.owner, text: `−${p.hp - t.hp}` });
-        if (t.hp <= 0 && p.hp > 0) s.fx.push({ kind: 'tower', x: t.x / FP, y: t.y / FP, t0: now, dur: 1400, owner: t.owner, r: 3 });
+        if (t.hp <= 0 && p.hp > 0) s.fx.push({ kind: 'tower', x: t.x / FP, y: t.y / FP, t0: now, dur: 1800, owner: t.owner, r: 4.2 });
       });
       const spellsNow = new Set(sim.spells.map((sp) => `${sp.owner}:${sp.explodeTick}:${sp.x}:${sp.y}`));
       for (const sp of s.prev.spells) if (!spellsNow.has(`${sp.owner}:${sp.explodeTick}:${sp.x}:${sp.y}`)) s.fx.push({ kind: 'blast', x: sp.x / FP, y: sp.y / FP, t0: now, dur: 800, owner: sp.owner, r: 2.5 });
@@ -204,7 +206,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label, previ
           }
           const hop = !reduce && u.state === 'advance' ? Math.abs(Math.sin(now / 140 + u.id)) * k * 0.14 : 0;
           const fighterId = sim.players[u.owner].deck[u.cardIndex]?.fighterId ?? 0;
-          list.push({ y, draw: () => drawUnit(ctx, u, x, y, hop, (RADIUS[u.archetype] ?? 0.7) * k, u.owner === seat, fighterId) });
+          list.push({ y, draw: () => drawUnit(ctx, u, x, y, hop, (RADIUS[u.archetype] ?? 0.7) * k * UNIT_SCALE, u.owner === seat, fighterId) });
         }
         list.sort((a, b) => a.y - b.y).forEach((d) => d.draw());
 
@@ -218,7 +220,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label, previ
           if (f.kind === 'dmg') {
             ctx.globalAlpha = Math.min(1, (1 - e) * 1.5);
             const pop = reduce ? 1 : 1 + Math.max(0, 0.35 - e) * 1.4;
-            ctx.font = `900 ${Math.max(12, k * 0.7 * pop)}px Urbanist, sans-serif`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+            ctx.font = `900 ${Math.max(15, k * 0.95 * pop)}px Urbanist, sans-serif`; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
             ctx.lineWidth = Math.max(3, k * 0.18); ctx.strokeStyle = COLORS.ink; ctx.fillStyle = f.owner === seat ? '#ff9aa5' : '#ffffff';
             const yy = y - k * (0.9 + (reduce ? 0 : e * 1.3));
             ctx.strokeText(f.text ?? '', x, yy); ctx.fillText(f.text ?? '', x, yy);
