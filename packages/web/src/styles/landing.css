@@ -78,6 +78,7 @@
 .lx-fighter-top b { font-family: var(--display); font-weight: 400; font-size: 24px; }
 .lx-fighter-name { font-size: 13px; color: var(--dim); font-weight: 700; }
 .lx-fighter-px { font-size: 14px; font-weight: 800; }
+.lx-fighter-src { justify-self: start; margin-top: 2px; }
 
 /* Steps */
 .lx-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }

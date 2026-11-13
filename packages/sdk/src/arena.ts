@@ -34,8 +34,12 @@ export interface MatchView {
   checkpoint_tick: number | null;
 }
 export interface Play { tick: number; seat: 0 | 1; deck_index: number; x: number; y: number }
-export interface PriceRow { fighter_id: number; ticker: string; open_e8: string; last_e8: string; ts_ms: string; status: number; stat_bps: number }
-export interface Prices { source: string; max_age_ms: string; prices: PriceRow[] }
+/** Who supplied a fighter's price: OutLayer's TEE price oracle, the signed relayer fallback, or nobody yet. */
+export type PriceSourceName = 'oracle' | 'relayer' | 'none';
+export interface PriceRow { fighter_id: number; ticker: string; open_e8: string; last_e8: string; ts_ms: string; status: number; stat_bps: number; source?: PriceSourceName; oracle_asset?: string | null }
+export interface Prices { source: string; oracle?: string | null; oracle_refreshes?: string; oracle_updates?: string; max_age_ms: string; prices: PriceRow[] }
+export interface OracleFighter { ticker: string; asset: string | null; open_source: string | null; spot_e8: string; spot_ms: string; open_e8: string; open_ms: string; price_source: PriceSourceName }
+export interface OracleView { oracle: string | null; min_deposit: string; refreshes: string; updates: string; fighters: OracleFighter[] }
 export interface HouseView { index: number; account: string; name: string; difficulty: number; tier: number; stake: string; deck: number[]; treasury: string; in_play: string; wins: number; losses: number; draws: number }
 export interface SeasonView { season: number; start_ms: string; end_ms: string; pool: string; top: { account: string; points: number }[]; finalized: boolean; paid: { account: string; amount: string }[]; rolled_over: string }
 export interface Totals { matches: string; settled: string; volume: string; to_treasury: string; season_paid: string; refereed_ticks: string; houses: number }
@@ -48,6 +52,7 @@ export class ArenaReader {
   private v<T>(method: string, args: unknown = {}) { return view<T>(this.net.rpc, this.net.arena, method, args); }
   config() { return this.v<ArenaConfig>('get_config'); }
   prices() { return this.v<Prices>('get_prices'); }
+  oracle() { return this.v<OracleView>('get_oracle'); }
   houses() { return this.v<HouseView[]>('get_houses'); }
   match(id: string | number | bigint) { return this.v<MatchView | null>('get_match', { id: String(id) }); }
   plays(id: string | number | bigint, from = 0) { return this.v<Play[]>('get_plays', { id: String(id), from }); }

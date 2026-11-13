@@ -59,7 +59,7 @@ export function DeckScreen() {
       <section className="stack" aria-labelledby="market-title">
         <div className="section-title">
           <h2 id="market-title" className="h3">Market fighters</h2>
-          <p className="fine">BTC, ETH, NEAR, SOL and ZEC. At kick-off the arena stores twice each one&apos;s 24 h move (relayer price, testnet) as its hit-point and damage change, capped at ±15%. A buff earns the epic frame.</p>
+          <p className="fine">BTC, ETH, NEAR, SOL and ZEC. At kick-off the arena stores twice each one&apos;s 24 h move (priced by OutLayer&apos;s TEE oracle) as its hit-point and damage change, capped at ±15%. A buff earns the epic frame.</p>
         </div>
         <ul className="card-grid">{marketFighters.map((f) => card(f.fighterId))}</ul>
       </section>

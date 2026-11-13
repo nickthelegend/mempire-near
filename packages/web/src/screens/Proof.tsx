@@ -91,7 +91,8 @@ export function Proof() {
             <ul className="kv">
               <li><span>Arena</span><AddrLink address={net.arena} /></li>
               <li><span>Treasury</span><AddrLink address={deploymentInfo.treasury} /></li>
-              <li><span>Relayer</span><AddrLink address={deploymentInfo.relayer} /></li>
+              <li><span>Price oracle (OutLayer TEE)</span><AddrLink address="price-oracle.testnet" /></li>
+              <li><span>Relayer (fallback prices)</span><AddrLink address={deploymentInfo.relayer} /></li>
               {deploymentInfo.deployTxs.slice(0, 4).map((d) => <li key={d.hash}><span>{d.step}</span><TxLink hash={d.hash} /></li>)}
             </ul>
           </section>

@@ -55,6 +55,8 @@
 .cmarket--house { background: #f4f6fb; box-shadow: inset 0 0 0 2px #e3e9f3; }
 .cmarket-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .cmarket-row > div { display: grid; gap: 4px; justify-items: start; }
+.cmarket-src { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.cmarket-src code { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
 .cmarket-row b { font-family: var(--display); font-weight: 400; font-size: 22px; }
 .cdetail-cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .cdetail-cta .btn { flex: 1 1 220px; }

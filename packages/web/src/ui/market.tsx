@@ -11,7 +11,7 @@ export function MarketTicker() {
   const m = useMarket();
   const priced = m.list.filter((p) => p.state !== 'house');
   return (
-    <section className="ticker" aria-label="Market: 24 hour moves from the signed relayer price and the stat change each becomes">
+    <section className="ticker" aria-label="Market: 24 hour moves priced by the OutLayer TEE oracle and the stat change each becomes">
       <div className="ticker-head"><Icon name="bolt" size={16} />Market</div>
       {m.loading && !priced.length ? <div className="ticker-track ticker-track--still"><span className="tick">Reading the arena&apos;s prices…</span></div>
         : m.error && !priced.length ? <div className="ticker-track ticker-track--still"><span className="tick tick--err">Prices unavailable: {shortError(m.error, 60)}</span></div>

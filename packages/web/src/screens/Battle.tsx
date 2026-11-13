@@ -78,7 +78,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const addTx = (row: TxRow) => setTxs((old) => [...old.filter((t) => t.key !== row.key).slice(-40), row]);
   useEffect(() => { if (matchId && txs.length) saveBrowserTxs(matchId, txs); }, [matchId, txs]);
 
-  // Practice: a local sim against the scripted bot with today's signed prices. Nothing touches the chain.
+  // Practice: a local sim against the scripted bot with today's oracle prices. Nothing touches the chain.
   const marketReady = !market.loading || !!market.error;
   useEffect(() => {
     if (!practice || !marketReady || !rivalReady || practiceRef.current) return;
@@ -252,7 +252,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
 
   const steps = [
     { t: 'Stakes escrowed', s: match ? `${formatNear(BigInt(match.stake) * 2n)} NEAR pot · ${TIER_NAMES[match.tier]} · ${FORMAT_NAMES[match.format]}` : '', done: !!match && match.state >= 2 },
-    { t: 'Market read at kick-off', s: 'Signed relayer prices, stored per card', done: !!match && match.state >= 2 },
+    { t: 'Market read at kick-off', s: 'OutLayer TEE oracle prices, stored per card', done: !!match && match.state >= 2 },
     { t: 'Playing', s: 'Each drop is a play transaction from a session key', done: ended || settled, now: !ended && !settled && started },
     { t: 'Referee replays the log', s: claim ? `This browser computed ${claim.winner === 2 ? 'a draw' : `seat ${claim.winner}`} at tick ${claim.end_tick}` : 'Opens 6 s after the last tick', done: settled, now: ended && !settled },
     { t: 'Paid out', s: settled && match ? `${match.winner === 2 ? 'Draw' : `Seat ${match.winner} won`} · ${match.referee_calls} referee call${match.referee_calls === 1 ? '' : 's'}` : 'In the settle transaction', done: settled },

@@ -7,7 +7,7 @@ import { useConfig, useHouses, useRecent, useSeason, useTotals } from '../state/
 import { useMarket } from '../state/market';
 import { CLASS_NAMES, HOUSE_LEVEL, TIER_BADGES, characterOf, costOf, pct, shortAcct, shortError } from '../lib/fighters';
 import { ART, badgeArt, houseArt, OBJ3D } from '../lib/art';
-import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, Logo } from '../ui/kit';
+import { Art, Avatar, BrandMark, Countdown, FighterCard, Icon, Loading, MoveChip, SourceTag, StateBox, Logo } from '../ui/kit';
 import { MarketTicker, money } from '../ui/market';
 import { MatchCard, PotSplit } from './Proof';
 
@@ -86,7 +86,7 @@ function Roster() {
         <div>
           <p className="lx-eyebrow">The roster</p>
           <h2 id="fighters-title" className="lx-h2">Today&apos;s move becomes tomorrow&apos;s hit points.</h2>
-          <p className="lx-sub">Each market fighter is a live ticker. At kick-off the arena stores twice its 24 h move as a hit-point and damage change, capped at ±15%. Prices are a relayer price (testnet): Coinbase 24 h stats signed with a key the contract checks.</p>
+          <p className="lx-sub">Each market fighter is a live ticker. At kick-off the arena stores twice its 24 h move as a hit-point and damage change, capped at ±15%. Prices come from OutLayer&apos;s TEE price oracle on NEAR testnet, not from a key we hold.</p>
         </div>
         <div className="lx-arrows">
           <button className="btn btn--white btn--icon" onClick={() => scroll(-1)} aria-label="Previous fighters"><Icon name="chevL" /></button>
@@ -108,6 +108,7 @@ function Roster() {
                     : p?.price != null ? <>{money(p.price)}{p.moveBps != null && <> · <span className={p.moveBps >= 0 ? 'up' : 'down'}>{pct(p.moveBps, 2)}</span> 24 h</>}</>
                       : market.loading ? 'Reading price…' : market.error ? 'Price unavailable' : 'No price yet'}
                 </span>
+                {isMarket && p && <SourceTag source={p.source} short className="lx-fighter-src" />}
               </div>
             </li>
           );
@@ -254,7 +255,7 @@ const TECH = [
   { k: 'Function-call access keys', icon: 'key' as const, v: 'Per-match session keys limited to play. A sandbox test proves the key cannot stake, settle or transfer.' },
   { k: 'NEP-366 meta transactions', icon: 'layers' as const, v: 'Adding and deleting session keys, settling and cancelling are signed in the browser and paid for by the relayer. Only the stake costs the player gas.' },
   { k: 'Sub-accounts', icon: 'user' as const, v: 'Players are sub-accounts the relayer creates for a key made in the browser; houses and the treasury are sub-accounts of the arena.' },
-  { k: 'On-chain ed25519 checks', icon: 'shield' as const, v: 'post_prices checks env::ed25519_verify against the relayer key before a price counts, and refuses stale or tampered snapshots.' },
+  { k: 'OutLayer TEE price oracle', icon: 'shield' as const, v: 'refresh_prices asks price-oracle.testnet for each fighter\'s spot price and 24 h open, fetched inside an Intel TDX enclave; only the oracle\'s callback can set a price. A signed relayer snapshot is the labelled fallback.' },
   { k: 'Deterministic replay in WASM', icon: 'cpu' as const, v: 'The TypeScript sim is ported line for line to Rust; a parity test replays 60 recorded matches and compares the state hash every 40 ticks.' },
   { k: 'Weekly season, paid on-chain', icon: 'trophy' as const, v: '3% of each pot funds the season. The first settle of a new season pays the previous top three 50 / 30 / 20.' },
 ];

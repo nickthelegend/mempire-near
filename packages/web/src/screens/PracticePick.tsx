@@ -17,7 +17,7 @@ export function PracticePick() {
       <section className="pp-hero" aria-labelledby="pp-title">
         <div>
           <h1 id="pp-title" className="h1 pp-title">Pick a rival</h1>
-          <p className="pp-lede">A 30-second Rush in your browser with your own deck and today&apos;s signed prices. No account, no stake.</p>
+          <p className="pp-lede">A 30-second Rush in your browser with your own deck and today&apos;s oracle prices. No account, no stake.</p>
         </div>
         <div className="pp-quick-wrap">
           <figure className="pp-bot">

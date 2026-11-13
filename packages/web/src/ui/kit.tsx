@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { accountUrl, txUrl } from '../lib/net';
 import { artOf, characterOf, costOf, fighter, pct, rarityOf, shortAcct, CLASS_NAMES } from '../lib/fighters';
 import { ART, OBJ3D } from '../lib/art';
-import type { PulseState } from '../state/market';
+import { SOURCE_LABEL, SOURCE_SHORT, type PulseState } from '../state/market';
+import type { PriceSourceName } from '@mempire/sdk';
 
 /* ── Icons: chunky line glyphs drawn here ──────────────────────────────── */
 export type IconName = 'swords' | 'cards' | 'trophy' | 'scroll' | 'flame' | 'lock' | 'out' | 'wallet' | 'clock' | 'check' | 'x'
@@ -92,13 +93,25 @@ export function Logo({ small }: { small?: boolean }) {
 export function MoveChip({ statBps, state, small }: { statBps: number | null | undefined; state?: PulseState | 'stored' | null; small?: boolean }) {
   const sm = small ? ' move--sm' : '';
   if (state === 'house') return <span className={`move move--flat${sm}`} title="House fighter: no price, always neutral">House</span>;
-  if (state === 'stale') return <span className={`move move--flat${sm}`} title="Relayer price older than 6 h: neutral">Stale</span>;
-  if (state === 'noprice') return <span className={`move move--flat${sm}`} title="No signed price yet: neutral">No price</span>;
+  if (state === 'stale') return <span className={`move move--flat${sm}`} title="Price older than 6 h: neutral">Stale</span>;
+  if (state === 'noprice') return <span className={`move move--flat${sm}`} title="No price yet: neutral">No price</span>;
   if (statBps == null) return <span className={`move move--flat${sm}`} aria-label="Market loading">…</span>;
   const dir = statBps > 0 ? 'up' : statBps < 0 ? 'down' : 'flat';
   return (
-    <span className={`move move--${dir}${sm}`} title="Stat change: twice the 24 h move (relayer price, testnet), capped at ±15%">
+    <span className={`move move--${dir}${sm}`} title="Stat change: twice the 24 h move, capped at ±15%">
       {dir !== 'flat' && <Icon name={dir === 'up' ? 'up' : 'down'} size={small ? 11 : 13} />}{pct(statBps)}
+    </span>
+  );
+}
+
+/** Who priced this fighter: OutLayer's TEE price oracle, or the signed relayer fallback. */
+export function SourceTag({ source, short, className }: { source: PriceSourceName | undefined; short?: boolean; className?: string }) {
+  const s = source ?? 'none';
+  const title = s === 'oracle' ? 'Spot price from the price-oracle.testnet feed and the 24 h open from Coinbase, both fetched inside an OutLayer TEE (Intel TDX) and delivered to the arena by the oracle contract'
+    : s === 'relayer' ? 'Fallback: a Coinbase snapshot signed by the Mempire relayer key, used only while no live oracle price exists' : 'No price stored yet: plays neutral';
+  return (
+    <span className={`srctag srctag--${s}${short ? ' srctag--sm' : ''}${className ? ` ${className}` : ''}`} title={title}>
+      <Icon name={s === 'oracle' ? 'cpu' : s === 'relayer' ? 'key' : 'clock'} size={short ? 12 : 14} />{short ? SOURCE_SHORT[s] : SOURCE_LABEL[s]}
     </span>
   );
 }

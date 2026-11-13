@@ -8,10 +8,10 @@ import { useAccount } from '../state/account';
 import { useOpen, usePlayer, useRecent, useSeason, useTotals } from '../state/data';
 import { statFor, useMarket } from '../state/market';
 import { useMatchmaking, type Matchmaking } from '../state/matchmaking';
-import { characterOf, costOf, pct, TIER_BADGES, shortAcct, shortError } from '../lib/fighters';
+import { costOf, pct, TIER_BADGES, shortAcct, shortError } from '../lib/fighters';
 import { badgeArt, houseArt, OBJ3D } from '../lib/art';
 import type { Step } from '../lib/play';
-import { AddrLink, Art, Avatar, Big, Countdown, FighterCard, Icon, Loading, MoveChip, StateBox, TxLink } from '../ui/kit';
+import { AddrLink, Art, Avatar, Big, Countdown, FighterCard, Icon, Loading, MoveChip, SourceTag, StateBox, TxLink } from '../ui/kit';
 import { ago, money } from '../ui/market';
 import { MatchCard } from './Proof';
 
@@ -323,16 +323,16 @@ function MarketTable() {
     <section className="panel" aria-labelledby="mk-title">
       <div className="panel-head">
         <h2 id="mk-title" className="title-lg">Live market fighters</h2>
-        <span className="fine">{newest ? `Posted ${ago(newest)}` : m.loading ? 'Reading…' : ''}</span>
+        <span className="fine">{newest ? `Updated ${ago(newest)}` : m.loading ? 'Reading…' : ''}</span>
       </div>
       {m.loading && !priced.length ? <Loading label="Reading prices" lines={4} /> : m.error && !priced.length ? <StateBox kind="error" title="Prices unavailable">{shortError(m.error)}</StateBox> : (
         <div className="tbl-wrap">
           <table className="tbl">
-            <thead><tr><th>Fighter</th><th>Price</th><th>24 h</th><th>In battle</th></tr></thead>
+            <thead><tr><th>Fighter · priced by</th><th>Price</th><th>24 h</th><th>In battle</th></tr></thead>
             <tbody>
               {priced.map((p) => (
                 <tr key={p.fighterId}>
-                  <td><span className="tbl-f"><Avatar id={p.fighterId} size={34} /><b>{p.ticker}</b><span className="fine hide-sm">{characterOf(p.fighterId)}</span></span></td>
+                  <td><span className="tbl-f"><Avatar id={p.fighterId} size={34} /><span className="tbl-f-src"><b>{p.ticker}</b><SourceTag source={p.source} short /></span></span></td>
                   <td className="num">{money(p.price)}</td>
                   <td className={`num ${p.moveBps != null && p.moveBps >= 0 ? 'up' : 'down'}`}>{p.moveBps != null ? pct(p.moveBps, 2) : '—'}</td>
                   <td><MoveChip statBps={p.statBps} state={p.state} small /></td>
@@ -342,7 +342,7 @@ function MarketTable() {
           </table>
         </div>
       )}
-      <p className="fine">Relayer price (testnet): Coinbase 24 h stats, signed by the relayer key and verified by the arena with ed25519. Each fighter gets twice its move at kick-off, capped at ±15%.</p>
+      <p className="fine">Priced by OutLayer&apos;s TEE price oracle (<AddrLink address={m.oracle ?? 'price-oracle.testnet'} />): spot from its feed, 24 h open from Coinbase, both fetched inside an Intel TDX enclave. Each fighter gets twice its move at kick-off, capped at ±15%. A fighter marked Relayer fallback uses our signed snapshot.</p>
     </section>
   );
 }

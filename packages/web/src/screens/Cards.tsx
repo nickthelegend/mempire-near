@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // The card collection and one card's page. Every number is the sim's own (level 1, trait folded in) and the market
-// change is the relayer price the arena holds right now; nothing here is a guess.
+// change is the oracle price the arena holds right now (OutLayer TEE, or the labelled relayer fallback).
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { roster } from '@mempire/sdk';
@@ -8,8 +8,9 @@ import { useAccount } from '../state/account';
 import { loadDeck, saveDeck } from '../state/deck';
 import { PULSE_LABEL, statFor, useMarket } from '../state/market';
 import { CLASS_BLURB, CLASS_NAMES, artOf, characterOf, fighter, pct, rarityOf, shortError, statsOf } from '../lib/fighters';
-import { Art, FighterCard, Icon, MoveChip, StateBox, type IconName } from '../ui/kit';
+import { Art, FighterCard, Icon, MoveChip, SourceTag, StateBox, type IconName } from '../ui/kit';
 import { OBJ3D } from '../lib/art';
+import { accountUrl } from '../lib/net';
 import { ago, money } from '../ui/market';
 
 type Filter = 'all' | 'market' | 'house';
@@ -146,7 +147,7 @@ export function CardDetail() {
             {f.kind === 'house' ? (
               <p className="fine"><b>No price.</b> House fighters are never buffed or nerfed, so their numbers above never change.</p>
             ) : !p ? (
-              <p className="fine" role="status">{market.loading ? 'Reading the signed price from the arena…' : market.error ? `Price unavailable: ${shortError(market.error, 120)}` : 'No signed price stored yet: this fighter plays neutral.'}</p>
+              <p className="fine" role="status">{market.loading ? 'Reading the price from the arena…' : market.error ? `Price unavailable: ${shortError(market.error, 120)}` : 'No price stored yet: this fighter plays neutral.'}</p>
             ) : (
               <>
                 <div className="cmarket-row">
@@ -154,7 +155,8 @@ export function CardDetail() {
                   <div><span className="label">24 h move</span><b className={`num ${p.moveBps != null && p.moveBps >= 0 ? 'up' : 'down'}`}>{p.moveBps != null ? pct(p.moveBps, 2) : '—'}</b></div>
                   <div><span className="label">In battle</span><span className="cmarket-buff">{p.statBps !== 0 && p.state === 'live' && <Art className="cmarket-token" src={p.statBps > 0 ? OBJ3D.up : OBJ3D.down} alt="" width={36} height={36} fallback={<span />} />}<MoveChip statBps={p.statBps} state={p.state} /></span></div>
                 </div>
-                <p className="fine">{PULSE_LABEL[p.state]} · relayer price (testnet), posted {p.updatedAt ? ago(p.updatedAt) : '—'}. At kick-off the arena stores twice the 24 h move, capped at ±15%, as this card&apos;s hit-point and damage change{p.state !== 'live' ? '; a stale or missing price plays neutral' : ''}.</p>
+                <div className="cmarket-src"><SourceTag source={p.source} />{p.oracleAsset && p.source === 'oracle' && <span className="fine">feed <code>{p.oracleAsset}</code> on <a href={accountUrl(market.oracle ?? 'price-oracle.testnet')} target="_blank" rel="noreferrer">{market.oracle ?? 'price-oracle.testnet'}</a></span>}</div>
+                <p className="fine">{PULSE_LABEL[p.state]} · {p.source === 'oracle' ? 'OutLayer TEE oracle' : 'relayer fallback'}, updated {p.updatedAt ? ago(p.updatedAt) : '—'}. At kick-off the arena stores twice the 24 h move, capped at ±15%, as this card&apos;s hit-point and damage change{p.state !== 'live' ? '; a stale or missing price plays neutral' : ''}.</p>
               </>
             )}
           </div>
