@@ -243,7 +243,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const clock = Math.max(0, Math.ceil(remainingTicks / 20));
   const myCrowns = sim ? crownsTaken(sim, perspective) : 0;
   const theirCrowns = sim ? crownsTaken(sim, (1 - perspective) as 0 | 1) : 0;
-  const opponent = match ? (match.house !== null ? 'House bot' : seat === 0 ? match.p1 : match.p0) : null;
+  const opponent = match ? (seat === 0 ? match.p1 : match.p0) : null;
   const ended = sim?.phase === 'ended';
   const canPlay = !practice && !!runner && !!me && !!match && (match.p0 === me || match.p1 === me) && match.house !== undefined;
   const selectedCard = selected !== null && sim ? sim.players[perspective].deck[selected] : null;
