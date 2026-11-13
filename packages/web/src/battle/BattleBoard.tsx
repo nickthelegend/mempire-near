@@ -20,7 +20,7 @@ const BRIDGES = BRIDGE_X.map((x) => x / FP);
 const BRIDGE_W = (BRIDGE_HALF_W / FP) * 2;
 const RADIUS: Record<number, number> = { [Archetype.Tank]: 1.3, [Archetype.Swarm]: 0.72, [Archetype.Ranged]: 0.95, [Archetype.Splash]: 1.05, [Archetype.Support]: 0.95 };
 /** Fighters are drawn larger than their hit circle so they read on a phone; the sim's ranges are unchanged. */
-const UNIT_SCALE = 1.32;
+const UNIT_SCALE = 1.5;
 const COLORS = { home: '#3d8bff', foe: '#ff4b5c', jade: '#2fcf5a', gold: '#ffb800', ink: '#2a1d5c' };
 
 export { dropDecision } from './placement';

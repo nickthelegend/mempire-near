@@ -344,3 +344,16 @@
 .cycle-slot.is-hand { opacity: 1; }
 .cycle-slot.is-next { opacity: .85; transform: translateY(-3px); }
 @media (max-width: 760px) { .hand .fcard-move { display: none; } }
+
+/* Wide screens: the HUD floats over the top corners of the field (the foe king's bar stays clear in the middle), so the
+   field gets the full column height above the hand. */
+@media (min-width: 1100px) {
+  .battle { --hand-h: clamp(140px, 17.5dvh, 200px); }
+  .arena-stack { position: relative; grid-template-rows: minmax(0, 1fr) var(--hand-h); width: min(700px, calc((100dvh - 40px - var(--hand-h)) * .62 + 24px)); }
+  .bhud--row { position: absolute; z-index: 8; top: 22px; left: 12px; right: 12px; min-height: 0; pointer-events: none; justify-content: space-between; }
+  .bhud--row > * { pointer-events: auto; }
+  .bhud--row .plate { flex: 0 1 auto; max-width: 34%; min-height: 42px; font-size: 15px; box-shadow: 0 3px 0 var(--ink); }
+  .bhud--row .clock { min-height: 44px; box-shadow: 0 3px 0 rgba(42, 29, 92, .6); }
+  .bhud--row .clock b { font-size: 28px; min-width: 60px; }
+  .ot-badge { top: 76px; }
+}
