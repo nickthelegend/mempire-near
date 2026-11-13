@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+import { useCardDrag } from '../battle/useCardDrag';
 import { PlaySessionSigner } from '../lib/signing';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
@@ -47,7 +48,6 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const startedRef = useRef(!practice);
   const [toast, setToast] = useState<{ text: string; key: number; foe: boolean } | null>(null);
   const crownsSeen = useRef<[number, number]>([0, 0]);
-  const [lastDrop, setLastDrop] = useState<{ fid: number; key: number } | null>(null);
   const [, bump] = useState(0);
   const signer = useAccount((s) => s.signer);
   const me = useAccount((s) => s.device?.accountId ?? null);
@@ -59,6 +59,8 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const perspective = useMatch((s) => s.perspective);
   const [runner, setRunner] = useState<MatchRunner | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [sound, setSound] = useState(false);
+  const [details, setDetails] = useState(false);
   const [txs, setTxs] = useState<TxRow[]>([]);
   const [claim, setClaim] = useState<Claim | null>(null);
   const [match, setMatch] = useState<MatchView | null>(null);
@@ -112,7 +114,6 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     crownsSeen.current = [mine, theirs];
   }, [sim, perspective]);
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 1800); return () => clearTimeout(t); }, [toast]);
-  useEffect(() => { if (!lastDrop) return; const t = setTimeout(() => setLastDrop(null), 650); return () => clearTimeout(t); }, [lastDrop]);
   // Re-render twice a second so the kick-off countdown moves before the first sim state arrives.
   useEffect(() => { const t = setInterval(() => bump((x) => x + 1), 500); return () => clearInterval(t); }, []);
   const botLevel = useRef<'easy' | 'normal' | 'hard'>('normal');
@@ -174,8 +175,8 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     const mine = me && (match.p0 === me || match.p1 === me);
     if (!mine) return;
     resultSound.current = true;
-    void new Audio(match.winner === seat ? '/sfx/sfx_victory.mp3' : '/sfx/sfx_defeat.mp3').play().catch(() => {});
-  }, [settled, match, seat, me, replay]);
+    if (sound) void new Audio(match.winner === seat ? '/sfx/sfx_victory.mp3' : '/sfx/sfx_defeat.mp3').play().catch(() => {});
+  }, [settled, match, seat, me, replay, sound]);
 
   // Replay from the chain's own log, house bot included.
   useEffect(() => {
@@ -201,21 +202,23 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     } catch (e) { setError((e as Error).message); } finally { setBusy(''); }
   }
 
-  function place(x: number, y: number) {
-    if (selected === null || !sim || sim.phase === 'ended' || replay) return;
-    const card = sim.players[perspective].deck[selected];
+  function place(x: number, y: number, slot = selected) {
+    if (slot === null || !sim || sim.phase === 'ended' || replay) return;
+    const card = sim.players[perspective].deck[slot];
+    if (!sim.players[perspective].cycle.slice(0,4).includes(slot) || sim.players[perspective].elixirFP < costOf(card.fighterId)*FP) return;
     const point = card.archetype === Archetype.Spell ? { x, y } : dropDecision(perspective, x, y);
     if (!point) return;
     const xFp = Math.round(point.x * FP), yFp = Math.round(point.y * FP);
-    if (practice) practiceRef.current?.inputs.push({ tick: practiceRef.current.sim.tick + 2, player: 0, deckIndex: selected, x: xFp, y: yFp });
+    if (practice) practiceRef.current?.inputs.push({ tick: practiceRef.current.sim.tick + 2, player: 0, deckIndex: slot, x: xFp, y: yFp });
     else {
       if (!runner) { setError('The match is still loading'); return; }
-      try { runner.queuePlay(selected, xFp, yFp); } catch (e) { console.warn('queue failed', e); setError((e as Error).message); return; }
+      try { runner.queuePlay(slot, xFp, yFp); } catch (e) { console.warn('queue failed', e); setError((e as Error).message); return; }
     }
-    void new Audio('/sfx/sfx_deploy.mp3').play().catch(() => {});
-    setLastDrop({ fid: card.fighterId, key: Date.now() });
+    if (sound) void new Audio('/sfx/sfx_deploy.mp3').play().catch(() => {});
     setSelected(null);
   }
+
+  const drag = useCardDrag(perspective, !!sim && sim.phase !== 'ended' && !replay && (practice ? startedRef.current : !!runner), setSelected, place);
 
   if (!practice && !matchId) return <div className="screen"><StateBox art title="No match" action={<Link className="btn btn--gold btn--sm" to="/app#play">Pick a fight</Link>}>Open a staked match from the Arena or play a free practice match.</StateBox></div>;
 
@@ -263,9 +266,10 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   };
 
   return (
-    <div className="battle">
+    <div className={`battle${details ? ' battle--details' : ''}`}>
       <div className="arena-stack">
         <div className="bhud bhud--row">
+          <Link className="battle-back btn btn--white btn--icon" to={practice ? '/app/practice' : '/app'} aria-label="Leave battle"><Icon name="chevL" size={20}/></Link>
           <span className="plate plate--foe">
             {rivalIsBot ? <BotAvatar size={34} ring="crimson" /> : <Avatar id={sim?.players[foeSeat]?.deck[0]?.fighterId ?? 0} size={34} ring="crimson" />}
             <span className="plate-name">{practice ? rivalName : opponent ? <span className="mono">{shortAcct(opponent)}</span> : 'Loading…'}</span>
@@ -278,7 +282,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
         </div>
         <div className="board-box">
           <BattleBoard perspective={perspective} placing={selected !== null && !replay} spell={selectedCard?.archetype === Archetype.Spell}
-            onPlace={place} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
+            onPlace={place} preview={drag.preview} fighterId={selectedCard?.fighterId} label={selectedCard ? `Tap where ${selectedCard.name} should land` : 'Battle arena'} />
           {practice && intro && sim && (
             <VsIntro you="You" foe={rivalName} foeBot={rivalIsBot} youDeck={sim.players[0].deck.map((c) => c.fighterId)} foeDeck={sim.players[1].deck.map((c) => c.fighterId)}
               note="Practice · local · no stake" count={intro === 'count' ? count : null}
@@ -290,7 +294,6 @@ export function Battle({ practice = false }: { practice?: boolean }) {
               note={`${TIER_NAMES[match.tier]} · ${formatNear(BigInt(match.stake) * 2n)} NEAR pot · refereed on-chain`} count={Math.max(0, Math.ceil((Number(match.start_ms) - Date.now()) / 1000))} />
           )}
           {toast && <div key={toast.key} className={`crown-toast${toast.foe ? ' crown-toast--foe' : ''}`} role="status"><Art src={OBJ3D.crown} fallback={<Icon name="crown" size={28} />} /><b>{toast.text}</b></div>}
-          {lastDrop && <span key={lastDrop.key} className="drop-ghost" aria-hidden><Avatar id={lastDrop.fid} size={64} ring="gold" /></span>}
           {replay && !replay.done && (
             <div className="replay-bar">
               <span className="chip chip--gold">Replay</span>
@@ -304,15 +307,17 @@ export function Battle({ practice = false }: { practice?: boolean }) {
 
         {sim && (
           <div className="hand-bar" data-can-play={canPlay ? 1 : 0} data-runner={runner ? 1 : 0} data-ended={ended ? 1 : 0}>
-            <div className="hand">
+            <div className="hand" data-dragging={drag.dragging}>
               {hand.map((slot) => {
                 const c = sim.players[perspective].deck[slot];
                 const afford = elixir >= costOf(c.fighterId);
                 return (
-                  <FighterCard key={slot} id={c.fighterId} size="sm" picked={selected === slot} className={afford ? '' : 'unaffordable'}
+                  <div key={slot} className="hand-slot" data-slot={slot} onPointerDown={e => { if (afford) drag.start(slot,e); }} onClickCapture={drag.clickCapture}>
+                  <FighterCard id={c.fighterId} size="sm" picked={selected === slot} className={afford ? '' : 'unaffordable'}
                     statBps={c.metaBps ?? 0} pulse={fighter(c.fighterId).kind === 'house' ? 'house' : null}
                     disabled={ended || !!replay || (!practice && !canPlay)} onClick={() => setSelected(selected === slot ? null : slot)}
                     label={`${c.name}, ${costOf(c.fighterId)} elixir, market ${pct(c.metaBps ?? 0)}${afford ? '' : ', not enough elixir yet'}`} />
+                  </div>
                 );
               })}
               {next !== undefined && <div className="next"><span className="label">Next</span><FighterCard id={sim.players[perspective].deck[next].fighterId} size="xs" showName={false} /></div>}
@@ -324,7 +329,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
                 <div className="elixir-ticks">{Array.from({ length: 10 }, (_, i) => <span key={i} />)}</div>
               </div>
             </div>
-            <p className="hint" aria-live="polite">
+            <p className="hint sr-only" aria-live="polite">
               {replay ? `Replaying ${replay.data.inputs.length} on-chain plays through the same sim.` : ended ? 'Battle over.'
                 : !practice && !canPlay ? 'Watching: plays come from the chain.'
                   : selectedCard ? `Tap ${selectedCard.archetype === Archetype.Spell ? 'anywhere' : 'your half'} to drop ${selectedCard.name}.` : 'Pick a card, then tap your half of the arena.'}
@@ -332,6 +337,11 @@ export function Battle({ practice = false }: { practice?: boolean }) {
           </div>
         )}
 
+        <div className="battle-controls">
+          <button className="battle-sound" onClick={()=>setSound(!sound)} aria-pressed={sound}>{sound ? 'Sound on' : 'Sound off'}</button>
+          <div className="battle-tx" role="status">{error ? <span className="warn">{shortError(error,100)}</span> : !practice && txs.length ? (()=>{const t=txs[txs.length-1];return <><span>{t.state === 'no' ? 'Drop refused' : t.state === 'sent' ? 'Drop sent' : 'Confirmed'}</span>{t.hash && <TxLink hash={t.hash}/>}</>})() : <span>{practice ? 'Practice · drag a card into a lane' : 'NEAR testnet · each drop is a transaction'}</span>}</div>
+          <button className="battle-details" aria-expanded={details} onClick={()=>setDetails(!details)}>Details</button>
+        </div>
         {!sim && !showCeremony && (
           <div className="ceremony ceremony--wait">
             <div className="cer-card">

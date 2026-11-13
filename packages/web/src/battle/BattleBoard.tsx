@@ -21,19 +21,8 @@ const BRIDGE_W = (BRIDGE_HALF_W / FP) * 2;
 const RADIUS: Record<number, number> = { [Archetype.Tank]: 1.3, [Archetype.Swarm]: 0.72, [Archetype.Ranged]: 0.95, [Archetype.Splash]: 1.05, [Archetype.Support]: 0.95 };
 const COLORS = { home: '#3d8bff', foe: '#ff4b5c', jade: '#2fcf5a', gold: '#ffb800', ink: '#2a1d5c' };
 
-/** The deploying player's own half, in tiles. */
-function ownHalf(seat: 0 | 1) {
-  return seat === 0 ? { minX: 0.5, maxX: W - 0.5, minY: 0.5, maxY: RT - 0.5 } : { minX: 0.5, maxX: W - 0.5, minY: RB + 0.5, maxY: H - 0.5 };
-}
-const FORGIVEN_TILES = 1.5;
-/** A troop drop near the line snaps into your half; one deep in enemy territory is refused. */
-export function dropDecision(seat: 0 | 1, x: number, y: number): { x: number; y: number } | null {
-  const h = ownHalf(seat);
-  const past = Math.max(h.minY - y, y - h.maxY, h.minX - x, x - h.maxX);
-  if (past <= 0) return { x, y };
-  if (past > FORGIVEN_TILES) return null;
-  return { x: Math.min(Math.max(x, h.minX), h.maxX), y: Math.min(Math.max(y, h.minY), h.maxY) };
-}
+export { dropDecision } from './placement';
+import { dropDecision, screenToField, type Point } from './placement';
 
 const images = new Map<string, HTMLImageElement>();
 function img(src: string) {
@@ -44,14 +33,14 @@ function img(src: string) {
 
 type Fx = { kind: 'hit' | 'blast' | 'tower' | 'spawn' | 'tracer' | 'dmg' | 'death'; x: number; y: number; x2?: number; y2?: number; t0: number; dur: number; owner: 0 | 1; text?: string; r?: number; splash?: boolean };
 
-export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
-  perspective: 0 | 1; placing: boolean; spell: boolean; onPlace: (x: number, y: number) => void; label: string;
+export function BattleBoard({ perspective, placing, spell, onPlace, label, preview, fighterId }: {
+  preview?: Point | null; fighterId?: number; perspective: 0 | 1; placing: boolean; spell: boolean; onPlace: (x: number, y: number) => void; label: string;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const state = useRef<{ prev: SimState | null; curr: SimState | null; at: number; fx: Fx[]; lunge: Map<number, { tx: number; ty: number; t0: number }>; pointer: { x: number; y: number } | null }>({ prev: null, curr: null, at: 0, fx: [], lunge: new Map(), pointer: null });
-  const props = useRef({ perspective, placing, spell });
-  props.current = { perspective, placing, spell };
+  const props = useRef({ perspective, placing, spell, preview, fighterId });
+  props.current = { perspective, placing, spell, preview, fighterId };
 
   // Follow the sim and turn state changes into effects.
   useEffect(() => {
@@ -87,6 +76,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
       sim.towers.forEach((t, i) => {
         const p = s.prev!.towers[i];
         if (!p) return;
+        if (t.hp < p.hp) s.fx.push({ kind: 'hit', x:t.x/FP, y:t.y/FP, t0:now, dur:220, owner:t.owner, r:1.4 });
         if (t.hp < p.hp) s.fx.push({ kind: 'dmg', x: t.x / FP, y: t.y / FP + (t.owner === 0 ? 1.2 : -1.2), t0: now, dur: 800, owner: t.owner, text: `−${p.hp - t.hp}` });
         if (t.hp <= 0 && p.hp > 0) s.fx.push({ kind: 'tower', x: t.x / FP, y: t.y / FP, t0: now, dur: 1400, owner: t.owner, r: 3 });
       });
@@ -201,7 +191,7 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
         type Drawable = { y: number; draw: () => void };
         const list: Drawable[] = [];
         for (const t of sim.towers) {
-          list.push({ y: sy(t.y / FP), draw: () => drawTower(ctx, t.owner === seat, t.kind === 'king', sx(t.x / FP), sy(t.y / FP) + (t.kind === 'king' ? 1.2 : 0.9) * k, k, t.hp, t.maxHp, !!arenaArt && t.kind === 'king') });
+          list.push({ y: sy(t.y / FP), draw: () => { const hit = !reduce && s.fx.find(f=>f.kind==='hit' && Math.abs(f.x-t.x/FP)<.1 && Math.abs(f.y-t.y/FP)<.1 && now-f.t0<220); ctx.save(); if(hit)ctx.translate(Math.sin((now-hit.t0)/17)*k*.14,0); drawTower(ctx, t.owner === seat, t.kind === 'king', sx(t.x / FP), sy(t.y / FP) + (t.kind === 'king' ? 1.2 : 0.9) * k, k, t.hp, t.maxHp, !!arenaArt && t.kind === 'king'); ctx.restore(); } });
         }
         for (const u of sim.units) {
           const p = pos(u);
@@ -272,12 +262,15 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
       }
 
       // Drop preview under the pointer.
-      if (isPlacing && s.pointer) {
-        const t = s.pointer;
+      if (isPlacing && (props.current.preview || s.pointer)) {
+        const t = props.current.preview || s.pointer!;
         const d = isSpell ? { x: t.x, y: t.y } : dropDecision(seat, t.x, t.y);
         const ok = !!d;
         const px = sx(d?.x ?? t.x), py = sy(d?.y ?? t.y);
         ctx.save();
+        if (ok) { const laneX = d!.x < 9 ? .5 : 9; ctx.fillStyle = 'rgba(255, 216, 77, .25)'; const top = Math.min(sy(seat===0?14.5:31.5),sy(seat===0?.5:17.5)); ctx.fillRect(sx(seat===0?laneX:laneX+8.5),top,8.5*k,14*k); }
+        const ghost = props.current.fighterId === undefined ? null : img(artOf(props.current.fighterId));
+        if (ghost) { ctx.globalAlpha = .72; const h = k*4.2, w=h*ghost.naturalWidth/ghost.naturalHeight; ctx.drawImage(ghost,px-w/2,py-h,w,h); ctx.globalAlpha=1; }
         ctx.fillStyle = ok ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 75, 92, 0.25)';
         ctx.beginPath(); ctx.arc(px, py, (isSpell ? 2.5 : 0.9) * k, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = ok ? '#ffffff' : COLORS.foe; ctx.lineWidth = k * 0.12; ctx.setLineDash([k * 0.3, k * 0.2]);
@@ -289,21 +282,13 @@ export function BattleBoard({ perspective, placing, spell, onPlace, label }: {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const toTiles = (clientX: number, clientY: number) => {
-    const el = wrap.current!;
-    const r = el.getBoundingClientRect();
-    const k = Math.min(r.width / W, r.height / H);
-    const ox = (r.width - k * W) / 2, oy = (r.height - k * H) / 2;
-    const vx = (clientX - r.left - ox) / k, vy = (clientY - r.top - oy) / k;
-    const seat = props.current.perspective;
-    return { x: seat === 0 ? vx : W - vx, y: seat === 0 ? H - vy : vy };
-  };
+  const toTiles = (x: number, y: number) => screenToField(wrap.current!.getBoundingClientRect(), x, y, props.current.perspective);
 
   return (
     <div ref={wrap} className="board-wrap" data-placing={placing} role="application" aria-label={label}
       onPointerMove={(e) => { state.current.pointer = toTiles(e.clientX, e.clientY); }}
       onPointerLeave={() => { state.current.pointer = null; }}
-      onPointerDown={(e) => { if (!props.current.placing) return; const t = toTiles(e.clientX, e.clientY); state.current.pointer = t; onPlace(t.x, t.y); }}>
+      onPointerDown={(e) => { if (!props.current.placing) return; const t = toTiles(e.clientX, e.clientY); state.current.pointer = t; if (t) onPlace(t.x, t.y); }}>
       <canvas ref={canvas} />
     </div>
   );
@@ -439,13 +424,13 @@ function drawTower(g: CanvasRenderingContext2D, mine: boolean, king: boolean, cx
   }
   g.restore();
   if (hp > 0) {
-    const bw = (king ? 3.2 : 2.6) * k, bh = Math.max(7, k * 0.42);
-    const bx = cx - bw / 2, by = base - th - bh - k * 0.15;
+    const bw = (king ? 4.0 : 3.4) * k, bh = Math.max(12, k * 0.65);
+    const bx = cx - bw / 2, by = Math.max(8, base - th - bh - k * 0.15);
     g.fillStyle = COLORS.ink; roundRect(g, bx - 2, by - 2, bw + 4, bh + 4, (bh + 4) / 2); g.fill();
     g.fillStyle = 'rgba(255, 255, 255, 0.18)'; roundRect(g, bx, by, bw, bh, bh / 2); g.fill();
     g.fillStyle = mine ? COLORS.home : COLORS.foe; roundRect(g, bx, by, Math.max(bh, bw * (hp / maxHp)), bh, bh / 2); g.fill();
     g.fillStyle = 'rgba(255, 255, 255, 0.35)'; roundRect(g, bx + 2, by + 1, Math.max(0, bw * (hp / maxHp) - 4), bh * 0.35, bh / 4); g.fill();
-    g.font = `900 ${Math.max(10, k * 0.46)}px Urbanist, sans-serif`;
+    g.font = `900 ${Math.max(13, k * 0.64)}px Urbanist, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
     g.lineWidth = Math.max(2, k * 0.12); g.strokeStyle = COLORS.ink; g.fillStyle = '#fff';
     g.strokeText(String(hp), cx, by + bh / 2 + 1); g.fillText(String(hp), cx, by + bh / 2 + 1);
