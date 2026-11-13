@@ -21,8 +21,8 @@ Testnet reads need internet access; public RPC rate limits can delay them.
 3. Run `pnpm --filter @mempire/web preview` and keep that terminal open - see the app at
    <http://127.0.0.1:5199/>. The lobby may show **Setup required: relayer**; the steps below do not need it.
 4. Open <http://127.0.0.1:5199/app/practice>, choose **Quick practice**, then **Start battle** on the first visit -
-   see the countdown and a local 30-second match against the training bot. Select a card, then click your half of the
-   field to drop it. At the bell, see crowns and towers left. Practice sends no transactions.
+   see the countdown and a local 30-second match against the training bot. Drag a card into either lane, or tap a card and then your half of the
+   field to drop it. The full-height battle shows a placement ghost, live health bars and four cards with refilling energy. At the bell, see crowns and towers left. Practice sends no transactions.
 5. Open <http://127.0.0.1:5199/app/match/8> - see the recorded testnet match receipt and its automatic browser replay.
    After the reads finish, see **Verified: same winner, same final tick, same state hash**. This checks the stored
    on-chain result without signing a transaction; the previous browser run is recorded in [TESTING.md](TESTING.md).

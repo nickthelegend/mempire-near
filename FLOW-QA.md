@@ -123,3 +123,21 @@ Screenshots were captured locally during QA and are not committed.
 `pnpm test` passed **22 JavaScript tests** (sim 4, SDK 5, relayer 3, web 10). All workspace typechecks passed. The production build passed with VITE_QA_SIGNER=1 and its release guard confirmed that QA code was excluded. Existing bundle warnings remain.
 
 The automation is explicitly a development Wallet Selector signer backed by a real repo-owned testnet account, not a simulated success. Meteor's AddKey/DeleteKey action conversion was tested through its actual Wallet Selector codec. A human Meteor popup/extension approval was not automated; cancelling an approval remains a wallet/user action. No AddKey API refusal was observed, so item 2 is not BLOCKED. Production never loads the QA signer.
+
+## V3 playable battle — November 13, 2026
+
+Owner requested a battle-only rebuild after judging film v1 5/10 for its small, passive arena. Other app screens, palette, fonts and art stay unchanged. The portrait stage now fills the viewport: at 1440×1080 the field is **488×860 px**, with the timer/crowns above and four large cards, next-card preview and energy below. At 390×844 and 375×844 the stage fills the screen; document overflow and page scrolling are both zero. Match details are secondary, opened explicitly. Sound starts muted.
+
+| Check | Result | Evidence |
+|---|---|---|
+| Mouse drag, 1440 | PASS | Real unit spawned, energy spent and card cycle advanced |
+| Tap-card / tap-field | PASS | Separate native click path deployed another real unit |
+| Release outside the field | PASS | No card cycle change or deployment |
+| Touch drag, 390 | PASS | Real CDP touch events, placement ghost, unit spawned |
+| Placement mapping | PASS | Both perspectives, letterbox gutters, river snap, invalid coordinates and drag threshold tested |
+| Console/page errors | PASS | Zero in desktop and phone interaction runs |
+| Tests/build | PASS | 26 workspace JavaScript tests (14 web); production build and QA-signer exclusion pass |
+
+Before screenshots: `before-battle-1440.png`, `before-battle-390.png`, `before-battle-375.png`. After: `after-battle-1440.png`, `after-battle-390.png`, `after-battle-375.png`. Interaction stills: `after-drag-ghost-1440.png`, `after-touch-ghost-390.png`, `after-play-1440.png`, `after-play-390.png`. Local gallery group: `mempire-near/v3`; machine-readable layouts and interaction results: `after.json`, `interactions.json`. Screenshots were captured locally during QA and are not committed.
+
+Only presentation and input handling changed. The same deterministic simulation, temporary play key, arena play method, referee settlement and receipt verification remain in use. A fresh film run and its hashes are recorded separately below once completed; older matches are not relabelled as new.

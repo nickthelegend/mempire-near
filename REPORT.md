@@ -37,3 +37,9 @@
 - The public testnet RPCs (fastnear, rpc.testnet.near.org) rate-limit this machine's IP, which other builds share. The
   SDK caps concurrent reads, shares identical ones and falls back between endpoints, but late plays still happen under
   429s; the arena refuses them instead of backdating.
+
+## V3 battle and film revision
+
+Nick's v1 verdict is authoritative: **5/10**, due to the long title and small, passive game view. V1 is preserved. This revision changes only the battle surface in the sky-blue app on main: 860px field at 1080p, a full-screen phone view, draggable cards, tap fallback, lane/ghost preview, readable health bars and compact transaction feedback. Game rules and signing/settlement code are unchanged. Mouse and actual browser-emulated touch passed; physical iOS/Android hardware was unavailable and is not claimed. Sound is muted until enabled.
+
+The design detector flags existing energy tick borders, the established spring animation and energy width transition. These belong to the approved game language; no unrelated restyle was made. The new film omits subtitles and starts on real gameplay. Its opening will reuse an excerpt of the same freshly filmed match shown in full later, explicitly identified as that match rather than pretending a second match occurred.
