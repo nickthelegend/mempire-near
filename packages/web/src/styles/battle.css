@@ -211,7 +211,7 @@
 
 /* Rails (wide screens) and the Details sheet (phones). */
 .bside { display: none; }
-.rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
+.brail { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
 .rail-back { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; min-height: 44px; padding: 0 16px 0 10px; border-radius: 999px; background: #fff; color: var(--ink); font-weight: 900; text-decoration: none; box-shadow: 0 3px 0 rgba(42, 29, 92, .25); }
 .rail-card { background: #fff; border-radius: 24px; padding: 16px; box-shadow: var(--panel-edge); display: grid; gap: 12px; min-width: 0; }
 .rail-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -301,16 +301,16 @@
   .battle { display: grid; grid-template-columns: minmax(250px, 350px) auto minmax(280px, 390px); gap: clamp(16px, 2vw, 34px); height: 100dvh; padding: 0 clamp(12px, 2vw, 28px); align-items: stretch; }
   .arena-stack { grid-column: 2; grid-row: 1; width: min(660px, calc((100dvh - 88px - var(--hand-h)) * .66 + 20px)); padding: 12px 0; }
   .bside { display: contents; }
-  .rail { padding: 14px 0; overflow: auto; scrollbar-width: none; }
-  .rail--left { grid-column: 1; grid-row: 1; }
-  .rail--right { grid-column: 3; grid-row: 1; }
+  .brail { padding: 14px 0; overflow: auto; scrollbar-width: none; }
+  .brail--left { grid-column: 1; grid-row: 1; }
+  .brail--right { grid-column: 3; grid-row: 1; }
   .battle-back { display: none; }
 }
 /* Phones and tablets: the arena is the screen; details open as a sheet. */
 @media (max-width: 1099px) {
   .battle-details { display: inline-flex; }
   .battle--details .bside { display: block; position: fixed; z-index: 60; left: 6px; right: 6px; bottom: 6px; max-height: 72dvh; overflow: auto; padding: 12px; border-radius: 24px; background: var(--sky-hi); box-shadow: 0 -10px 40px rgba(42, 29, 92, .3); }
-  .battle--details .rail { margin-bottom: 12px; }
+  .battle--details .brail { margin-bottom: 12px; }
   .battle--details .rail-back { display: none; }
 }
 @media (max-width: 760px) {

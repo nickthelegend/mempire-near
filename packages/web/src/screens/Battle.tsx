@@ -284,7 +284,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
 
   const rails = (
     <>
-      <div className="rail rail--left">
+      <div className="brail brail--left">
         <Link className="rail-back" to={practice ? '/app/practice' : '/app'}><Icon name="chevL" size={18} />{practice ? 'Practice rivals' : 'Lobby'}</Link>
         <FoeCard name={foeName} sub={foeSub} art={foeArt} bot={rivalIsBot} fighterId={sim?.players[foeSeat]?.deck[0]?.fighterId} />
         <Scoreboard sim={sim} seat={perspective} you="You" foe={foeName} />
@@ -297,7 +297,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
           </div>
         )}
       </div>
-      <div className="rail rail--right">
+      <div className="brail brail--right">
         {error && !settled && <StateBox kind="error" title="Heads up">{shortError(error, 240)}</StateBox>}
         {practice ? <ArenaPulse /> : <ChainFeed txs={txs} settled={settled} />}
         {!practice && match && (
