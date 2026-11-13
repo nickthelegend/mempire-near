@@ -9,8 +9,12 @@
 //! Money: winner 92 %, season pool 3 %, protocol treasury 5 %. The weekly season pays its top
 //! three 50/30/20 when the first match of the next season settles (or when anyone calls
 //! `finalize_season`). Houses are sub-accounts with a treasury held here on their behalf.
+//!
+//! Prices: market fighters are priced by OutLayer's TEE price oracle (`oracle.rs`). The older
+//! ed25519-signed relayer snapshot (`post_prices`) is kept only as a labelled fallback.
 
 pub mod bot;
+pub mod oracle;
 pub mod sim;
 
 use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
@@ -52,7 +56,7 @@ const GAS_RESERVE: Gas = Gas::from_tgas(40);
 #[serde(crate = "near_sdk::serde")]
 pub struct Fighter {
     pub ticker: String,
-    /// 0 house fighter (always neutral), 1 market fighter (relayer price).
+    /// 0 house fighter (always neutral), 1 market fighter (oracle price, relayer fallback).
     pub kind: u8,
     pub archetype: u8,
     pub trait_id: u8,
@@ -64,7 +68,13 @@ pub struct PriceEntry {
     pub open_e8: u128,
     pub last_e8: u128,
     pub ts_ms: u64,
+    /// `SRC_NONE`, `SRC_RELAYER` or `SRC_ORACLE`: who supplied this price.
+    pub source: u8,
 }
+
+pub const SRC_NONE: u8 = 0;
+pub const SRC_RELAYER: u8 = 1;
+pub const SRC_ORACLE: u8 = 2;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone)]
 #[borsh(crate = "near_sdk::borsh")]
@@ -217,6 +227,14 @@ pub struct Arena {
     treasury_total: u128,
     season_paid_total: u128,
     refereed_ticks: u64,
+    /// OutLayer TEE price oracle (`price-oracle.testnet`); `None` until `set_oracle`.
+    oracle: Option<AccountId>,
+    /// Oracle asset id per roster index ("" = not priced by the oracle).
+    oracle_assets: Vec<String>,
+    /// The two halves of each oracle reading, combined into `prices` once both are fresh.
+    oracle_halves: Vec<oracle::OracleHalf>,
+    oracle_refreshes: u64,
+    oracle_updates: u64,
 }
 
 fn trait_for(ticker: &str) -> u8 {
@@ -287,12 +305,18 @@ impl Arena {
             treasury_total: 0,
             season_paid_total: 0,
             refereed_ticks: 0,
+            oracle: None,
+            oracle_assets: vec![String::new(); n],
+            oracle_halves: vec![oracle::OracleHalf::default(); n],
+            oracle_refreshes: 0,
+            oracle_updates: 0,
         }
     }
 
     // ── Prices ──────────────────────────────────────────────────────────────────────────────
 
-    /// Anyone may submit a snapshot; only the relayer key's signature makes it count.
+    /// Fallback only. Anyone may submit a snapshot; only the relayer key's signature makes it count,
+    /// and it never overwrites a fighter whose OutLayer oracle price is still live.
     pub fn post_prices(&mut self, payload: String, signature: Base64VecU8) -> u32 {
         let sig: [u8; 64] = signature.0.as_slice().try_into().unwrap_or_else(|_| env::panic_str("signature must be 64 bytes"));
         let pk: [u8; 32] = self.relayer_pk.as_slice().try_into().unwrap();
@@ -308,13 +332,15 @@ impl Arena {
             let open: u128 = row.1.parse().unwrap_or_else(|_| env::panic_str("bad open price"));
             let last: u128 = row.2.parse().unwrap_or_else(|_| env::panic_str("bad last price"));
             require!(open > 0 && last > 0, "prices must be positive");
-            if p.ts_ms > self.prices[i].ts_ms {
-                self.prices[i] = PriceEntry { open_e8: open, last_e8: last, ts_ms: p.ts_ms };
+            let cur = &self.prices[i];
+            let oracle_live = cur.source == SRC_ORACLE && now <= cur.ts_ms + MAX_PRICE_AGE_MS;
+            if !oracle_live && p.ts_ms > cur.ts_ms {
+                self.prices[i] = PriceEntry { open_e8: open, last_e8: last, ts_ms: p.ts_ms, source: SRC_RELAYER };
                 updated += 1;
             }
         }
         self.price_source = p.source;
-        env::log_str(&format!("prices posted: {updated} updated at {}", p.ts_ms));
+        env::log_str(&format!("relayer fallback prices posted: {updated} updated at {}", p.ts_ms));
         updated
     }
 
@@ -851,6 +877,7 @@ impl Arena {
             "tier_stakes": self.tier_stakes.iter().map(|s| U128(*s)).collect::<Vec<_>>(),
             "roster": self.roster,
             "price_source": self.price_source,
+            "oracle": self.oracle,
             "genesis_ms": U64(self.genesis_ms),
             "first_season_end_ms": U64(self.first_season_end_ms),
             "week_ms": U64(WEEK_MS),
@@ -872,14 +899,24 @@ impl Arena {
             .filter(|(_, (f, _))| f.kind == 1)
             .map(|(i, (f, p))| {
                 let status = if p.ts_ms == 0 { STATUS_NO_PRICE } else if now > p.ts_ms + MAX_PRICE_AGE_MS { STATUS_STALE } else { STATUS_LIVE };
+                let asset = &self.oracle_assets[i];
                 near_sdk::serde_json::json!({
                     "fighter_id": i, "ticker": f.ticker, "open_e8": U128(p.open_e8), "last_e8": U128(p.last_e8),
                     "ts_ms": U64(p.ts_ms), "status": status,
                     "stat_bps": if status == STATUS_LIVE { stat_bps(p.open_e8, p.last_e8) } else { 0 },
+                    "source": oracle::source_name(p.source),
+                    "oracle_asset": if asset.is_empty() { None } else { Some(asset) },
                 })
             })
             .collect();
-        near_sdk::serde_json::json!({ "source": self.price_source, "max_age_ms": U64(MAX_PRICE_AGE_MS), "prices": rows })
+        near_sdk::serde_json::json!({
+            "source": self.price_source,
+            "oracle": self.oracle,
+            "oracle_refreshes": U64(self.oracle_refreshes),
+            "oracle_updates": U64(self.oracle_updates),
+            "max_age_ms": U64(MAX_PRICE_AGE_MS),
+            "prices": rows,
+        })
     }
 
     pub fn get_houses(&self) -> near_sdk::serde_json::Value {
