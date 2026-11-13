@@ -1,0 +1,232 @@
+{
+  "network": "testnet",
+  "arena": "mempire-arena-41966.testnet",
+  "oracle": "price-oracle.testnet",
+  "assets": [
+    [
+      "BTC",
+      "nbtc.bridge.near"
+    ],
+    [
+      "ETH",
+      "aurora"
+    ],
+    [
+      "NEAR",
+      "wrap.near"
+    ],
+    [
+      "SOL",
+      "22.contract.portalbridge.near"
+    ],
+    [
+      "ZEC",
+      "zec.omft.near"
+    ]
+  ],
+  "wasmSha256": "e2ff6e8bec0e6a68dcae9cd83fb353cce07ddc5e2bfa06b0568dde3dd9c4489a",
+  "wasmBytes": 376392,
+  "hash": "BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS",
+  "url": "https://testnet.nearblocks.io/txns/BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS",
+  "logs": [
+    "price oracle set to price-oracle.testnet for 5 fighters"
+  ],
+  "before": {
+    "balance": 9.5851,
+    "totals": {
+      "matches": "29",
+      "settled": "26",
+      "volume": "520000000000000000000000",
+      "to_treasury": "26000000000000000000000",
+      "season_paid": "3840000000000000000000",
+      "refereed_ticks": "15600",
+      "houses": 3
+    },
+    "prices": {
+      "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+      "max_age_ms": "21600000",
+      "prices": [
+        {
+          "fighter_id": 6,
+          "ticker": "BTC",
+          "open_e8": "7168109000000",
+          "last_e8": "6871428000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -827
+        },
+        {
+          "fighter_id": 7,
+          "ticker": "ETH",
+          "open_e8": "200542000000",
+          "last_e8": "193020000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -750
+        },
+        {
+          "fighter_id": 8,
+          "ticker": "NEAR",
+          "open_e8": "341470000",
+          "last_e8": "351490000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": 586
+        },
+        {
+          "fighter_id": 9,
+          "ticker": "SOL",
+          "open_e8": "8134000000",
+          "last_e8": "7963000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -420
+        },
+        {
+          "fighter_id": 10,
+          "ticker": "ZEC",
+          "open_e8": "95466000000",
+          "last_e8": "95107000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -75
+        }
+      ]
+    }
+  },
+  "after": {
+    "balance": 9.5822,
+    "totals": {
+      "matches": "29",
+      "settled": "26",
+      "volume": "520000000000000000000000",
+      "to_treasury": "26000000000000000000000",
+      "season_paid": "3840000000000000000000",
+      "refereed_ticks": "15600",
+      "houses": 3
+    },
+    "prices": {
+      "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+      "oracle": "price-oracle.testnet",
+      "oracle_refreshes": "0",
+      "oracle_updates": "0",
+      "max_age_ms": "21600000",
+      "prices": [
+        {
+          "fighter_id": 6,
+          "ticker": "BTC",
+          "open_e8": "7168109000000",
+          "last_e8": "6871428000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -827,
+          "source": "relayer",
+          "oracle_asset": "nbtc.bridge.near"
+        },
+        {
+          "fighter_id": 7,
+          "ticker": "ETH",
+          "open_e8": "200542000000",
+          "last_e8": "193020000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -750,
+          "source": "relayer",
+          "oracle_asset": "aurora"
+        },
+        {
+          "fighter_id": 8,
+          "ticker": "NEAR",
+          "open_e8": "341470000",
+          "last_e8": "351490000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": 586,
+          "source": "relayer",
+          "oracle_asset": "wrap.near"
+        },
+        {
+          "fighter_id": 9,
+          "ticker": "SOL",
+          "open_e8": "8134000000",
+          "last_e8": "7963000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -420,
+          "source": "relayer",
+          "oracle_asset": "22.contract.portalbridge.near"
+        },
+        {
+          "fighter_id": 10,
+          "ticker": "ZEC",
+          "open_e8": "95466000000",
+          "last_e8": "95107000000",
+          "ts_ms": "1794587779933",
+          "status": 0,
+          "stat_bps": -75,
+          "source": "relayer",
+          "oracle_asset": "zec.omft.near"
+        }
+      ]
+    },
+    "oracle": {
+      "oracle": "price-oracle.testnet",
+      "min_deposit": "20000000000000000000000",
+      "refreshes": "0",
+      "updates": "0",
+      "fighters": [
+        {
+          "ticker": "BTC",
+          "asset": "nbtc.bridge.near",
+          "open_source": "https://api.exchange.coinbase.com/products/BTC-USD/stats",
+          "spot_e8": "0",
+          "spot_ms": "0",
+          "open_e8": "0",
+          "open_ms": "0",
+          "price_source": "relayer"
+        },
+        {
+          "ticker": "ETH",
+          "asset": "aurora",
+          "open_source": "https://api.exchange.coinbase.com/products/ETH-USD/stats",
+          "spot_e8": "0",
+          "spot_ms": "0",
+          "open_e8": "0",
+          "open_ms": "0",
+          "price_source": "relayer"
+        },
+        {
+          "ticker": "NEAR",
+          "asset": "wrap.near",
+          "open_source": "https://api.exchange.coinbase.com/products/NEAR-USD/stats",
+          "spot_e8": "0",
+          "spot_ms": "0",
+          "open_e8": "0",
+          "open_ms": "0",
+          "price_source": "relayer"
+        },
+        {
+          "ticker": "SOL",
+          "asset": "22.contract.portalbridge.near",
+          "open_source": "https://api.exchange.coinbase.com/products/SOL-USD/stats",
+          "spot_e8": "0",
+          "spot_ms": "0",
+          "open_e8": "0",
+          "open_ms": "0",
+          "price_source": "relayer"
+        },
+        {
+          "ticker": "ZEC",
+          "asset": "zec.omft.near",
+          "open_source": "https://api.exchange.coinbase.com/products/ZEC-USD/stats",
+          "spot_e8": "0",
+          "spot_ms": "0",
+          "open_e8": "0",
+          "open_ms": "0",
+          "price_source": "relayer"
+        }
+      ]
+    }
+  },
+  "at": "2026-11-13T21:28:35.711Z"
+}

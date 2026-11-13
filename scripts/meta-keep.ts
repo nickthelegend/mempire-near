@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// FALLBACK ONLY (pnpm meta:relayer-post / meta:relayer-keep). Fighters are priced by the OutLayer TEE oracle
+// (scripts/oracle-refresh.ts); the arena ignores relayer prices for any fighter whose oracle price is live.
 // Uses the same signed Coinbase snapshot as the HTTP relayer, through the running HTTP relayer's shared signing queue.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';

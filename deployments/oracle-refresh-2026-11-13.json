@@ -1,0 +1,152 @@
+{
+  "network": "testnet",
+  "arena": "mempire-arena-41966.testnet",
+  "oracle": "price-oracle.testnet",
+  "refreshes": [
+    {
+      "at": "2026-11-13T21:30:28.802Z",
+      "hash": "698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m",
+      "url": "https://testnet.nearblocks.io/txns/698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m",
+      "sender": "mempire-relay-41966.testnet",
+      "depositNear": 0.02,
+      "senderBalanceBefore": 6.0873,
+      "senderBalanceAfter": 6.0637,
+      "gasTokensBurnt": "3634259578595100000000",
+      "logs": [
+        "mempire-arena-41966.testnet: refresh #1: asked price-oracle.testnet (OutLayer TEE) for 5 spot prices and 24 h opens",
+        "outlayer.testnet: Resolved project: zavodil2.testnet/price-oracle, version: \"3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0\", source: WasmUrl { url: \"https://wasmhub.testnet.fastfs.io/fastfs.testnet/3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0.wasm\", hash: \"3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0\", build_target: Some(\"wasm32-wasip2\") }, uuid: p000000000",
+        "outlayer.testnet: Retrieving large output from storage for request_id: 40911",
+        "outlayer.testnet: [[yNEAR charged: \"2822000300000000000000\"]]",
+        "outlayer.testnet: Execution completed successfully. Output: Json(829 bytes), Resources: { instructions: 3802895, time_ms: 18220 }, Cost: 2822000300000000000000 yoctoNEAR, Refund: 7177999700000000000000 yoctoNEAR, Cached WASM from 2026-10-02T18:51:55.432626+00:00",
+        "mempire-arena-41966.testnet: Priced by OutLayer TEE oracle: BTC $68432.46 buff -8.47%, ETH $1933.85 buff -8.05%, NEAR $3.51 buff +6.90%, SOL $79.40 buff -4.65%, ZEC $942.31 buff -0.24%",
+        "mempire-arena-41966.testnet: EVENT_JSON:{\"standard\":\"mempire\",\"version\":\"1.0.0\",\"event\":\"oracle_prices\",\"data\":[{\"ticker\":\"BTC\",\"asset\":\"nbtc.bridge.near\",\"open_e8\":\"7146182000000\",\"last_e8\":\"6843246833333\",\"ts_ms\":\"1794605410000\",\"stat_bps\":-847},{\"ticker\":\"ETH\",\"asset\":\"aurora\",\"open_e8\":\"201504000000\",\"last_e8\":\"193385833333\",\"ts_ms\":\"1794605410000\",\"stat_bps\":-805},{\"ticker\":\"NEAR\",\"asset\":\"wrap.near\",\"open_e8\":\"339380000",
+        "outlayer.testnet: Resolved project: zavodil2.testnet/price-oracle, version: \"3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0\", source: WasmUrl { url: \"https://wasmhub.testnet.fastfs.io/fastfs.testnet/3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0.wasm\", hash: \"3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0\", build_target: Some(\"wasm32-wasip2\") }, uuid: p000000000",
+        "outlayer.testnet: [[yNEAR charged: \"1191600000000000000000\"]]",
+        "outlayer.testnet: Execution completed successfully. Output: Json(325 bytes), Resources: { instructions: 693860, time_ms: 1916 }, Cost: 1191600000000000000000 yoctoNEAR, Refund: 8808400000000000000000 yoctoNEAR, Cached WASM from 2026-10-02T18:51:55.432626+00:00"
+      ],
+      "failures": [],
+      "prices": {
+        "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats",
+        "oracle": "price-oracle.testnet",
+        "oracle_refreshes": "1",
+        "oracle_updates": "1",
+        "max_age_ms": "21600000",
+        "prices": [
+          {
+            "fighter_id": 6,
+            "ticker": "BTC",
+            "open_e8": "7146182000000",
+            "last_e8": "6843246833333",
+            "ts_ms": "1794605410000",
+            "status": 0,
+            "stat_bps": -847,
+            "source": "oracle",
+            "oracle_asset": "nbtc.bridge.near"
+          },
+          {
+            "fighter_id": 7,
+            "ticker": "ETH",
+            "open_e8": "201504000000",
+            "last_e8": "193385833333",
+            "ts_ms": "1794605410000",
+            "status": 0,
+            "stat_bps": -805,
+            "source": "oracle",
+            "oracle_asset": "aurora"
+          },
+          {
+            "fighter_id": 8,
+            "ticker": "NEAR",
+            "open_e8": "339380000",
+            "last_e8": "351100000",
+            "ts_ms": "1794605410000",
+            "status": 0,
+            "stat_bps": 690,
+            "source": "oracle",
+            "oracle_asset": "wrap.near"
+          },
+          {
+            "fighter_id": 9,
+            "ticker": "SOL",
+            "open_e8": "8130000000",
+            "last_e8": "7940887499",
+            "ts_ms": "1794605410000",
+            "status": 0,
+            "stat_bps": -465,
+            "source": "oracle",
+            "oracle_asset": "22.contract.portalbridge.near"
+          },
+          {
+            "fighter_id": 10,
+            "ticker": "ZEC",
+            "open_e8": "94345000000",
+            "last_e8": "94231233333",
+            "ts_ms": "1794605410000",
+            "status": 0,
+            "stat_bps": -24,
+            "source": "oracle",
+            "oracle_asset": "zec.omft.near"
+          }
+        ]
+      },
+      "oracle": {
+        "oracle": "price-oracle.testnet",
+        "min_deposit": "20000000000000000000000",
+        "refreshes": "1",
+        "updates": "1",
+        "fighters": [
+          {
+            "ticker": "BTC",
+            "asset": "nbtc.bridge.near",
+            "open_source": "https://api.exchange.coinbase.com/products/BTC-USD/stats",
+            "spot_e8": "6843246833333",
+            "spot_ms": "1794605426549",
+            "open_e8": "7146182000000",
+            "open_ms": "1794605410000",
+            "price_source": "oracle"
+          },
+          {
+            "ticker": "ETH",
+            "asset": "aurora",
+            "open_source": "https://api.exchange.coinbase.com/products/ETH-USD/stats",
+            "spot_e8": "193385833333",
+            "spot_ms": "1794605426549",
+            "open_e8": "201504000000",
+            "open_ms": "1794605410000",
+            "price_source": "oracle"
+          },
+          {
+            "ticker": "NEAR",
+            "asset": "wrap.near",
+            "open_source": "https://api.exchange.coinbase.com/products/NEAR-USD/stats",
+            "spot_e8": "351100000",
+            "spot_ms": "1794605426549",
+            "open_e8": "339380000",
+            "open_ms": "1794605410000",
+            "price_source": "oracle"
+          },
+          {
+            "ticker": "SOL",
+            "asset": "22.contract.portalbridge.near",
+            "open_source": "https://api.exchange.coinbase.com/products/SOL-USD/stats",
+            "spot_e8": "7940887499",
+            "spot_ms": "1794605426549",
+            "open_e8": "8130000000",
+            "open_ms": "1794605410000",
+            "price_source": "oracle"
+          },
+          {
+            "ticker": "ZEC",
+            "asset": "zec.omft.near",
+            "open_source": "https://api.exchange.coinbase.com/products/ZEC-USD/stats",
+            "spot_e8": "94231233333",
+            "spot_ms": "1794605426549",
+            "open_e8": "94345000000",
+            "open_ms": "1794605410000",
+            "price_source": "oracle"
+          }
+        ]
+      }
+    }
+  ]
+}

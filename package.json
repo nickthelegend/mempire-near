@@ -13,8 +13,11 @@
     "test:contract": "cd packages/contract && cargo test",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
     "typecheck": "pnpm -r --if-present typecheck",
-    "meta:keep": "tsx scripts/meta-keep.ts",
-    "meta:post": "tsx scripts/meta-keep.ts --once"
+    "meta:keep": "tsx scripts/oracle-refresh.ts --keep",
+    "meta:post": "tsx scripts/oracle-refresh.ts",
+    "meta:relayer-keep": "tsx scripts/meta-keep.ts",
+    "meta:relayer-post": "tsx scripts/meta-keep.ts --once",
+    "oracle:upgrade": "tsx scripts/oracle-upgrade.ts"
   },
   "devDependencies": {
     "tsx": "^4.20.6",
