@@ -18,3 +18,7 @@ export function dropDecision(seat: 0 | 1, x: number, y: number): Point | null {
   if (past > 1.5) return null;
   return { x: Math.max(.5, Math.min(17.5, x)), y: Math.max(h.minY, Math.min(h.maxY, y)) };
 }
+/** Reserve queued card energy until the authoritative hand cycles it out. */
+export function pendingEnergy(hand: readonly number[], pending: ReadonlyMap<number, number>): number {
+  return hand.reduce((sum, slot) => sum + (pending.get(slot) ?? 0), 0);
+}

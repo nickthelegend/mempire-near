@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+import { pendingEnergy } from '../battle/placement';
 import { useCardDrag } from '../battle/useCardDrag';
 import { PlaySessionSigner } from '../lib/signing';
 import { useEffect, useRef, useState } from 'react';
@@ -59,6 +60,8 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const perspective = useMatch((s) => s.perspective);
   const [runner, setRunner] = useState<MatchRunner | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [pendingCards, setPendingCards] = useState<Map<number,number>>(new Map());
+  const pendingHashes = useRef(new Map<string,number>());
   const [sound, setSound] = useState(false);
   const [details, setDetails] = useState(false);
   const [txs, setTxs] = useState<TxRow[]>([]);
@@ -149,9 +152,9 @@ export function Battle({ practice = false }: { practice?: boolean }) {
             else if (e.type === 'match') setMatch(e.match);
             else if (e.type === 'claim') setClaim(e.claim);
             else if (e.type === 'error') { console.warn('runner', e.error); setError(e.error.message); }
-            else if (e.type === 'playSent') addTx({ key: e.hash, label: `You dropped slot ${e.deckIndex + 1} for tick ${e.tick}`, hash: e.hash, state: 'sent' });
+            else if (e.type === 'playSent') { pendingHashes.current.set(e.hash,e.deckIndex); addTx({ key: e.hash, label: `You dropped slot ${e.deckIndex + 1} for tick ${e.tick}`, hash: e.hash, state: 'sent' }); }
             else if (e.type === 'playLanded') setTxs((old) => old.map((t) => (t.key === e.hash ? { ...t, state: 'ok', ms: e.ms } : t)));
-            else if (e.type === 'playRefused') { console.warn('play refused', e.error); setTxs((old) => (old.some((t) => t.key === e.hash && e.hash) ? old.map((t) => (t.key === e.hash ? { ...t, state: 'no', label: `${t.label}: refused (${shortError(e.error, 60)})` } : t)) : [...old, { key: `r${Date.now()}`, label: `A drop was not sent: ${shortError(e.error, 80)}`, state: 'no' }])); }
+            else if (e.type === 'playRefused') { const slot=pendingHashes.current.get(e.hash ?? ''); if(slot!==undefined)setPendingCards(old=>{const next=new Map(old);next.delete(slot);return next;}); console.warn('play refused', e.error); setTxs((old) => (old.some((t) => t.key === e.hash && e.hash) ? old.map((t) => (t.key === e.hash ? { ...t, state: 'no', label: `${t.label}: refused (${shortError(e.error, 60)})` } : t)) : [...old, { key: `r${Date.now()}`, label: `A drop was not sent: ${shortError(e.error, 80)}`, state: 'no' }])); }
             else if (e.type === 'opponentPlay') addTx({ key: `o${e.input.tick}-${e.input.deckIndex}-${Math.random()}`, label: `Opponent dropped slot ${e.input.deckIndex + 1} at tick ${e.input.tick}`, state: 'in' });
           },
         });
@@ -202,10 +205,13 @@ export function Battle({ practice = false }: { practice?: boolean }) {
     } catch (e) { setError((e as Error).message); } finally { setBusy(''); }
   }
 
+  useEffect(()=>{if(!sim)return;const hand=sim.players[perspective].cycle.slice(0,4);setPendingCards(old=>{if(!old.size||[...old.keys()].every(slot=>hand.includes(slot)))return old;return new Map([...old].filter(([slot])=>hand.includes(slot)));});},[sim,perspective]);
+
   function place(x: number, y: number, slot = selected) {
     if (slot === null || !sim || sim.phase === 'ended' || replay) return;
     const card = sim.players[perspective].deck[slot];
-    if (!sim.players[perspective].cycle.slice(0,4).includes(slot) || sim.players[perspective].elixirFP < costOf(card.fighterId)*FP) return;
+    const hand=sim.players[perspective].cycle.slice(0,4);
+    if (pendingCards.has(slot) || !hand.includes(slot) || sim.players[perspective].elixirFP/FP - pendingEnergy(hand,pendingCards) < costOf(card.fighterId)) return;
     const point = card.archetype === Archetype.Spell ? { x, y } : dropDecision(perspective, x, y);
     if (!point) return;
     const xFp = Math.round(point.x * FP), yFp = Math.round(point.y * FP);
@@ -214,6 +220,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
       if (!runner) { setError('The match is still loading'); return; }
       try { runner.queuePlay(slot, xFp, yFp); } catch (e) { console.warn('queue failed', e); setError((e as Error).message); return; }
     }
+    setPendingCards(old=>new Map(old).set(slot,costOf(card.fighterId)));
     if (sound) void new Audio('/sfx/sfx_deploy.mp3').play().catch(() => {});
     setSelected(null);
   }
@@ -225,7 +232,7 @@ export function Battle({ practice = false }: { practice?: boolean }) {
   const meSim = sim?.players[perspective];
   const hand = meSim?.cycle.slice(0, 4) ?? [];
   const next = meSim?.cycle[4];
-  const elixir = meSim ? meSim.elixirFP / FP : 0;
+  const elixir = meSim ? Math.max(0,meSim.elixirFP / FP - pendingEnergy(hand,pendingCards)) : 0;
   const cap = sim ? sim.format.elixirCapFP / FP : 10;
   const regulation = sim?.format.regulationTicks ?? 0;
   const overtime = sim ? sim.tick >= regulation : false;
@@ -312,11 +319,12 @@ export function Battle({ practice = false }: { practice?: boolean }) {
                 const c = sim.players[perspective].deck[slot];
                 const afford = elixir >= costOf(c.fighterId);
                 return (
-                  <div key={slot} className="hand-slot" data-slot={slot} onPointerDown={e => { if (afford) drag.start(slot,e); }} onClickCapture={drag.clickCapture}>
+                  <div key={slot} className="hand-slot" data-slot={slot} onPointerDown={e => { if (afford && !pendingCards.has(slot)) drag.start(slot,e); }} onClickCapture={drag.clickCapture}>
                   <FighterCard id={c.fighterId} size="sm" picked={selected === slot} className={afford ? '' : 'unaffordable'}
                     statBps={c.metaBps ?? 0} pulse={fighter(c.fighterId).kind === 'house' ? 'house' : null}
-                    disabled={ended || !!replay || (!practice && !canPlay)} onClick={() => setSelected(selected === slot ? null : slot)}
+                    disabled={pendingCards.has(slot) || ended || !!replay || (!practice && !canPlay)} onClick={() => setSelected(selected === slot ? null : slot)}
                     label={`${c.name}, ${costOf(c.fighterId)} elixir, market ${pct(c.metaBps ?? 0)}${afford ? '' : ', not enough elixir yet'}`} />
+                  {pendingCards.has(slot) && <span className="card-pending" role="status">Sending…</span>}
                   </div>
                 );
               })}
