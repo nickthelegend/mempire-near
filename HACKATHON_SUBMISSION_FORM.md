@@ -26,7 +26,7 @@ Track proposal is best-fit first; cards are not tokenised, so no `nfts` track is
 ## X post draft
 
 The human posts this. The demo is local-only, so attach a video showing an action and its result; screenshots alone
-are insufficient under Q-012. The completed v3 film shows a fresh wallet-funded testnet match, referee result, Verified receipt, explorer transactions and podium; no subtitles. The development test signer and local-hosting limits are disclosed.
+are insufficient under Q-012. The v4 film (2:46, no subtitles, gameplay first) shows the full-height mobile-game battle, a won testnet match #29 with a tower falling (each card drop a transaction), the Victory result, the Verified receipt, NearBlocks Lite views of the stake, two drops and the settlement, the podium and profile. The development test signer, the scripted drags and local hosting are disclosed in REPORT.md.
 
 ```text
 can you trust a staked game result? mempire replays every move inside a NEAR contract before payout. built at NEAR HACKATHON on testnet. try practice + verify a match locally via the repo README. feedback welcome @NEARProtocol #NEARHackathon
