@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // The lobby: next match, house duel and practice cards, the player card, the record, live matches, the deck and the season.
+import { CountUp, PlaysTicker } from '../ui/live';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { formatNear, FORMAT_NAMES, TIER_NAMES } from '@mempire/sdk';
@@ -111,7 +112,7 @@ function NextMatch({ mm }: { mm: Matchmaking }) {
   return (
     <section className="hero-card" id="play" aria-labelledby="fight-title">
       <h1 id="fight-title" className="hero-title">{TIER_NAMES[tier]} arena<br />{FORMAT_NAMES[format]} PvP</h1>
-      <p className="hero-kicker">{totals.data ? `${totals.data.settled} matches refereed on-chain so far` : 'Real players, refereed on-chain'}</p>
+      <p className="hero-kicker">{totals.data ? <><CountUp value={Number(totals.data.settled)} /> matches refereed on-chain so far</> : 'Real players, refereed on-chain'}</p>
       <Art className="hero-mascot" src={OBJ3D.crown} width={300} height={300} eager fallback={<span />} />
       <div className="hero-panel">
         {waiting ? (
@@ -362,6 +363,7 @@ export function Arena() {
           {mm.error && <StateBox kind="error" title="That didn't go through">{shortError(mm.error, 260)}</StateBox>}
         </div>
       )}
+      <PlaysTicker />
       <RecordTiles me={me} />
       <div className="lobby-row">
         <LiveMatches me={me} />

@@ -8,6 +8,7 @@ import { ladder, mascotOf, useHistory, winRate, type LadderRow } from '../state/
 import { artOf, shortAcct, shortError } from '../lib/fighters';
 import { ART, OBJ3D } from '../lib/art';
 import { Art, Avatar, Countdown, Icon, Loading, StateBox } from '../ui/kit';
+import { CountUp, Since } from '../ui/live';
 
 const PODIUM = [1, 0, 2];
 const name = (a: string, me: string | null) => (a === me ? 'You' : shortAcct(a).split('.')[0]);
@@ -56,6 +57,7 @@ export function Leaderboard() {
           <Art className="lb-hero-obj obj-bob" src={OBJ3D.trophy} alt="" width={84} height={84} eager fallback={<span />} />
           <h1 id="lb-title" className="h1 lb-title">Who rules the arena</h1>
           <p className="lb-lede">Ranked by wins, then NEAR won. Computed from every match the on-chain referee settled; house bots are on their own page.</p>
+          <span className="lb-live"><span className="pulse" aria-hidden />Live · <CountUp value={history.matches?.filter((m) => m.state === 3).length ?? null} /> settled matches · <Since at={history.readAt} /></span>
           {myRank >= 0 && <span className="chip chip--gold">You are #{myRank + 1} of {rows.length}</span>}
         </div>
         {history.loading && !history.matches ? <Loading label="Reading every match" lines={2} /> : rows.length > 0 && <Podium rows={rows} me={me} />}

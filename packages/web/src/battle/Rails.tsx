@@ -10,6 +10,7 @@ import { crownsTaken } from '../lib/match';
 import { fighter, shortAcct } from '../lib/fighters';
 import { houseArt, ART, OBJ3D } from '../lib/art';
 import { Art, Avatar, BotAvatar, Icon, TxLink } from '../ui/kit';
+import { CountUp } from '../ui/live';
 import { useRecent, useTotals } from '../state/data';
 import { HOUSE_ACCOUNTS } from '../state/history';
 
@@ -103,8 +104,8 @@ export function ChainFeed({ txs, settled }: { txs: TxRow[]; settled: boolean }) 
     <section className="rail-card feed" aria-label="On chain, live">
       <div className="rail-head"><h2 className="rail-title"><span className="pulse" aria-hidden />On chain, live</h2><span className="rail-note">NEAR testnet</span></div>
       <div className="feed-stats">
-        <div><b className="num">{mine.filter((t) => t.hash).length}</b><span>transactions</span></div>
-        <div><b className="num">{ok.length}</b><span>confirmed</span></div>
+        <div><b><CountUp value={mine.filter((t) => t.hash).length} ms={400} /></b><span>transactions</span></div>
+        <div><b><CountUp value={ok.length} ms={400} /></b><span>confirmed</span></div>
         <div><b className="num">{avg === null ? '–' : `${(avg / 1000).toFixed(1)}s`}</b><span>avg to land</span></div>
       </div>
       {txs.length === 0 ? <p className="fine feed-empty">{settled ? 'Every drop of this match is stored by the arena.' : 'Drag a card into a lane: each drop is signed by this match\'s play key and sent as a transaction. No pop-ups.'}</p> : (
@@ -145,7 +146,7 @@ export function ArenaPulse({ title = 'Live on the arena' }: { title?: string }) 
     <section className="rail-card pulse-card" aria-label={title}>
       <div className="rail-head"><h2 className="rail-title"><span className="pulse" aria-hidden />{title}</h2><span className="rail-note">polled every 15 s</span></div>
       <div className="feed-stats">
-        <div><b className="num">{totals.data ? totals.data.settled : '–'}</b><span>refereed</span></div>
+        <div><b><CountUp value={totals.data ? Number(totals.data.settled) : null} /></b><span>refereed</span></div>
         <div><b className="num">{totals.data ? formatNear(totals.data.volume, 2) : '–'}</b><span>NEAR staked</span></div>
         <div><b className="num">{totals.data ? (Number(totals.data.refereed_ticks) / 20 / 60).toFixed(0) : '–'}</b><span>min replayed</span></div>
       </div>
