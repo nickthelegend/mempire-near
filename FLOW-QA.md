@@ -159,3 +159,20 @@ Only presentation and input handling changed. The same deterministic simulation,
 [Public evidence and every explorer link](deployments/mobile-battle-v3-2026-11-13.json). Opening is explicitly match #20 highlights (accepted drag, fighting, tower falling); the complete main match is #21 after the fix. Full gameplay is 1x; only measured countdown/confirmation waits are 4x, visibly badged. Every new hash is shown on the testnet explorer. No new write was repeated to improve the edit.
 
 The film's first v3 cut received 8.7/10 in internal frame review; the revised cut received 9.0/10 internally after a clearer prize explanation and ready explorer views with full hash labels. Nick's v1 score remains 5/10; no new external score is claimed. Reviews and retained stills live with the versioned film assets. Public hosting and human wallet approvals are not shown; mainnet, card tokens and other-token stakes remain unbuilt.
+
+## v4 mobile-game battle stage and liveness — November 13, 2026 (Claude)
+
+Nick's v1 verdict (5/10: "the game UI is very small… not playable") and an honest re-judge of the v3 cut (about 4/10: the arena was a narrow column in a 1920 frame with empty sky either side, a "LIVE ·" strip on every scene, both filmed matches lost, white frames and a disclaimer box) drove this pass. Only the battle screen was restructured; the approved sky-blue palette, fonts, art and components are unchanged.
+
+| Area | Before | After |
+|---|---|---|
+| Wide screens | A 410 px arena column centred in empty sky; HUD text 11 px; details hidden behind a link | Three-column game stage at full height: rival portrait, live scoreboard (three towers per side from the sim), pot and deck cycle on the left; the portrait arena in the middle; the chain feed (practice: live arena matches and counters) and the market read on the right |
+| Arena | Fighters drawn at hit-circle size | Fighters drawn 1.32x (ranges unchanged), larger damage numbers, bigger deploy pop and tower-fall burst, board shake when a tower falls, crown banner 30 px, victory rays |
+| Hand | 101 px cards, grey when unaffordable | Cards fill a 150–214 px hand; unaffordable cards charge up with elixir; the card follows the finger while dragging and hands over to the troop ghost over the field |
+| On-chain feedback | One 11 px status line under the hand | A small toast on the board per drop (sending → on chain in N s, with explorer link), plus the full feed with avatars, latency and hashes in the right rail; nothing covers the lanes |
+| Phone 390 | Arena + 132 px hand | Same full-screen arena with a 132–170 px hand; **Details** opens the rails as a bottom sheet |
+| Liveness | Static counters | Count-up numbers when chain counters change, a moving ticker of the latest card drops stored on chain (lobby), live match list with fresh-row flash (practice rail), a live read-age chip on the leaderboard |
+
+Screenshots (local, not committed; `/Volumes/Extreme SSD/Projects/grokbot/orchestration/shots/mempire-near/`): before `before/_app_practice_bot_play_1440.png`, `before/_app_practice_bot_play_390.png`; after `v4/_app_practice_kumo_play_1440.png`, `v4/_app_practice_kumo_play_1920.png`, `v4/_app_practice_kumo_play_390.png`; drag states `v4/drag-lift_*.png`, `v4/drag-over_*.png`, `v4/drag-drop_*.png`; result `v4/_app_practice_kumo_full_*.png`; other routes `screens/*_1440.png`. Every capture reported 0 px horizontal overflow.
+
+Fixes found while filming: the app's fallback RPC `rpc.testnet.near.org` is deprecated and answers 429 to everything, and FastNEAR rate-limits this machine's shared IP; two filmed card drops landed after their 5 s window and were refused by the arena ("play landed too late for its tick"). The default RPC list is now two FastNEAR hosts plus dRPC (both send CORS headers). A Rush match no longer shows "Overtime" at the bell. The rail containers were renamed so the global step-rail styles stop splitting feed rows.
