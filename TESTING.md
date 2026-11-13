@@ -87,3 +87,11 @@ See [R3 evidence](deployments/r3-2026-11-12.json) and [FLOW-QA.md](FLOW-QA.md) f
 Screenshots were captured locally during QA and are not committed.
 
 R3 executed checks: `pnpm test` passed **22 JavaScript tests** (sim 4, SDK 5, relayer 3, web 10); `pnpm typecheck` passed for every workspace; the production build passed even with VITE_QA_SIGNER=1, and its release guard confirmed no QA signer was emitted. Existing dependency/bundle warnings are non-blocking.
+
+## Full-height playable battle — November 13, 2026
+
+`pnpm test` passed 27 JavaScript tests: sim 4, SDK 5, relayer 3, web 15. New placement/input coverage checks both perspectives, letterbox gutters, invalid/outside points, river snapping, drag threshold and pending-energy reservation. All workspace typechecks and the web production build passed; the release guard excludes the DEV QA signer. No Rust tests were rerun because the contract is unchanged.
+
+Mouse drag, tap placement, outside-field cancellation and CDP touch passed in the real practice UI. Before/after and interaction screenshots cover 1440, 390 and 375; zero layout overflow or console/page errors were recorded. The field measures 860 px tall at desktop 1080p. Physical phone hardware and 60 fps performance were not benchmarked.
+
+The first new wallet match #20 accepted three plays and revealed stale-hand feedback; pending-card handling was fixed. The final match #21 accepted six of six drags, settled, replayed Verified and deleted its exact key. Independent read-back matches both referee results. Eighteen unique successful FINAL outcomes, price post, key permissions/deletion and conservative 0.0463495808885464-NEAR combined cost are in [v3 live evidence](deployments/mobile-battle-v3-2026-11-13.json). Main live capture had no console/page errors, overflow or operator-relayer requests. See [FLOW-QA.md](FLOW-QA.md) for the complete per-step result and film provenance.

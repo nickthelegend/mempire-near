@@ -26,7 +26,7 @@ Track proposal is best-fit first; cards are not tokenised, so no `nfts` track is
 ## X post draft
 
 The human posts this. The demo is local-only, so attach a video showing an action and its result; screenshots alone
-are insufficient under Q-012. No video exists in `/Volumes/Extreme SSD/Projects/grokbot/videos/mempire-near/`.
+are insufficient under Q-012. The completed v3 film shows a fresh wallet-funded testnet match, referee result, Verified receipt, explorer transactions and podium; no subtitles. The development test signer and local-hosting limits are disclosed.
 
 ```text
 can you trust a staked game result? mempire replays every move inside a NEAR contract before payout. built at NEAR HACKATHON on testnet. try practice + verify a match locally via the repo README. feedback welcome @NEARProtocol #NEARHackathon
@@ -34,7 +34,7 @@ can you trust a staked game result? mempire replays every move inside a NEAR con
 
 Post character count: **241** (limit: 280).
 
-attach: video TBD
+attach: /Volumes/Extreme SSD/Projects/grokbot/videos/mempire-near/mempire-near-film-share.mp4
 
-Before submission, Nick fills the other-project names in the README disclosure, publishes the repository, records
-and posts the demo, and completes the fields above. Do not submit this draft or post on Nick's behalf.
+Before submission, Nick fills the other-project names in the README disclosure, publishes the repository, reviews
+and posts the completed demo, and completes the fields above. Do not submit this draft or post on Nick's behalf.

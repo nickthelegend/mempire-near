@@ -30,7 +30,7 @@ Testnet reads need internet access; public RPC rate limits can delay them.
 
 7. For a new staked match without an operator relayer, open `/app#signin` and choose **Connect NEAR wallet** - see Meteor Wallet connect your own funded NEAR testnet player account. The guest relayer setup message does not block this option. Contract accounts are not used as player wallets.
 8. Open **Houses**, leave **Rush** selected and choose **Challenge Kumo** - approve adding a per-match function-call key limited to arena `play` with a **0.25 NEAR gas allowance**, then approve the smallest **0.01 NEAR stake**. These are separate wallet transactions because the key belongs to your account and the stake goes to the arena. The allowance is a spending limit, not another stake or transfer.
-9. Select cards and tap your half of the field - see each drop land as its own transaction, signed by the local play key with no card-drop wallet prompts. Approve referee settlement and play-key deletion when the wallet asks. Open the match receipt - see **Verified: same winner, same final tick, same state hash**. If key removal is cancelled, the existing error panel reports it; reload the match to retry cleanup.
+9. Drag cards onto your half of the field, or select a card and tap to place it - see each accepted drop land as its own transaction, signed by the local play key with no card-drop wallet prompts. Approve referee settlement and play-key deletion when the wallet asks. Open the match receipt - see **Verified: same winner, same final tick, same state hash**. If key removal is cancelled, the existing error panel reports it; reload the match to retry cleanup.
 
 Guest account creation and guest-sponsored staking still need a configured, funded testnet relayer. That operator path is below in [Run it](#run-it). Wallet house matches use the player's account for setup, stake, settlement and deletion and do not use the operator relayer.
 Email codes still need provider setup. See [BLOCKED.md](BLOCKED.md) for hosting and other unfinished integrations.
@@ -59,6 +59,8 @@ Sources: [deployment accounts and transactions](deployments/testnet.json),
 
 The first fresh staked matches tested on the approved sky-blue client in R3 are **#17 at 1440px** and **#18 at 375px**. Each recorded six card drops, settled through the referee, replayed Verified and removed its play key. Both were losses to Kumo; the house received 0.0184 NEAR per match. The local development QA signer used real repo-owned testnet funds through Wallet Selector; no operator relayer ran during play. [All hashes, balance checks and the cumulative budget](deployments/r3-2026-11-12.json). See [FLOW-QA.md](FLOW-QA.md) for executed checks and the distinction between QA automation and human Meteor approvals.
 
+The November 13 battle revision adds a full-height portrait field, mouse/touch dragging, lane and placement previews, and a pending-card state. In the final filmed wallet run, **#21**, all six drags became six play transactions. The referee and browser replay agreed on Kumo winning at tick 600, hash 193130042, and the exact play key was deleted. The opener uses separately labelled highlights from fresh match #20, which exposed the pending-hand issue fixed before #21. [All eighteen new transaction hashes and both replay checks](deployments/mobile-battle-v3-2026-11-13.json). The film is 2:45.6, starts on gameplay and has no subtitles. See [FLOW-QA.md](FLOW-QA.md) for before/after captures and limits.
+
 ## Keeping market prices fresh
 
 Start the configured HTTP relayer with `RELAYER_PORT=5399 RELAYER_PRICES=0 pnpm --filter @mempire/relayer start`. It needs the operator's funded testnet account and credentials described below. Then run `pnpm meta:post` - see one real signed Coinbase snapshot posted, or confirmation that the current ten-minute epoch already has one. `pnpm meta:keep` checks each minute and posts each new ten-minute epoch while it runs. Ctrl-C stops it. `META_RELAY_URL` can override `http://127.0.0.1:5399`. For guest sign-in with that port, build the web app with `VITE_RELAYER_URL=http://127.0.0.1:5399 pnpm --filter @mempire/web build`. To reuse the standard port-5299 relayer instead, set `META_RELAY_URL=http://127.0.0.1:5299` for either keeper command.
@@ -70,7 +72,7 @@ The fresh main-branch post is [AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi](htt
 ## How it works
 
 1. **Session key.** Before staking, the player's account adds a function-call key limited to the arena's `play`, with a
-   0.25 NEAR allowance (added by NEP-366 meta transaction; the relayer pays the gas). It is deleted after the match.
+   0.25 NEAR allowance. A connected wallet approves this directly; guests use a NEP-366 meta transaction with relayer-paid gas. It is deleted after the match.
 2. **Stake and kick-off.** `create_match` / `join_match` / `challenge_house` escrow the stake. At kick-off the arena reads
    each card's signed price, stores twice the 24 h move per card (capped at ±15 %), and derives the seed from
    `env::random_seed()`.
@@ -204,6 +206,8 @@ or run `git diff ea74ac8..9094248` locally. This range includes UI/art changes a
 See [REPORT.md](REPORT.md) for scope and limits, [TESTING.md](TESTING.md) for recorded validation and [FLOW-QA.md](FLOW-QA.md) for the approved sky-blue client’s latest full flow.
 
 The market-price keeper on `main` was written on **November 11, 2026**, inside the NEAR HACKATHON window (November 1–14). It was developed on the separate NEAR `monad-client` branch (`b42ae15`, `7a93c34`), then ported here without that branch's UI. It is new NEAR work, not part of the October Monad baseline.
+
+The battle-only portrait layout, drag/tap placement previews and pending-card handling were built on **November 13, 2026**, inside the NEAR window. They reuse the existing art and game rules; the contract, simulation and signing paths are unchanged.
 
 The imported Monad client lives **only on branch `monad-client` and is NOT the submitted app**. The submitted app is the approved sky-blue **`packages/web` on `main`**.
 

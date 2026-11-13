@@ -1,0 +1,716 @@
+{
+  "at": "2026-11-13T14:18:42.778Z",
+  "network": "testnet",
+  "client": "packages/web",
+  "branch": "main",
+  "note": "V3 filming: first take exposed pending-hand UX, fixed before the six-for-six full run. Opening uses accepted-play/tower-fall highlights from match20; main match21 is complete. No v1 txs reused.",
+  "account": "aiko-8197.mempire-relay-41966.testnet",
+  "transactions": [
+    {
+      "account": "mempire-relay-41966.testnet",
+      "hash": "Fvknx2s3jzknrsKQrC5ebc9nRF3q3o4vRFNA41dctdCV",
+      "deposit": "0",
+      "kind": "price",
+      "tokensBurnt": "229309170674600000000",
+      "ok": true,
+      "url": "https://testnet.nearblocks.io/txns/Fvknx2s3jzknrsKQrC5ebc9nRF3q3o4vRFNA41dctdCV",
+      "actualSender": "mempire-relay-41966.testnet",
+      "publicKey": "ed25519:21evkjtwdHWvDiUY7n7sNszWMvFXfbcMSETcnvs4rwce",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "aiko-8197.mempire-relay-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "232084084743441300000000",
+      "actions": [
+        {
+          "type": "addKey"
+        }
+      ],
+      "hash": "8cTUkr2oWQdEiSVogo7UsNReU7YcrZPiLiqdyPzTurRT",
+      "at": "2026-11-13T14:00:09.878Z",
+      "kind": "addKey",
+      "tokensBurnt": "42057350331000000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/8cTUkr2oWQdEiSVogo7UsNReU7YcrZPiLiqdyPzTurRT",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "10000000000000000000000",
+      "balanceBefore": "232042027393110300000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "challenge_house",
+          "gas": "30000000000000"
+        }
+      ],
+      "hash": "2fuRcbqK5PjaPkhHof12BFgNWyHJQAoUYGLgzhF1CoiH",
+      "at": "2026-11-13T14:00:14.079Z",
+      "kind": "challenge_house",
+      "tokensBurnt": "228582919189900000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/2fuRcbqK5PjaPkhHof12BFgNWyHJQAoUYGLgzhF1CoiH",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "221813444473920400000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "6eQyai7gC4SzVJ1bKfcvZYRBjGuRsNM25WZ8KfB4Y3Pq",
+      "at": "2026-11-13T14:00:24.629Z",
+      "kind": "play",
+      "tokensBurnt": "238598723177000000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/6eQyai7gC4SzVJ1bKfcvZYRBjGuRsNM25WZ8KfB4Y3Pq",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "221574845750743400000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "61b872ka39Ak8YG8qocdr464YHoknHvcujHaQ9sHPH4E",
+      "at": "2026-11-13T14:00:28.593Z",
+      "kind": "play",
+      "tokensBurnt": "240785655171600000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/61b872ka39Ak8YG8qocdr464YHoknHvcujHaQ9sHPH4E",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "205655553038107900000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "EhLgdHKyqwPYAjJFJopE71LqBMwXWr5LT1PZJLSfxGVq",
+      "at": "2026-11-13T14:00:32.289Z",
+      "kind": "play",
+      "tokensBurnt": "241096943606600000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/EhLgdHKyqwPYAjJFJopE71LqBMwXWr5LT1PZJLSfxGVq",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "221092963151965200000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "R1Rzv5YF1hgMqE423ZKzFcJLNJ7JAutPkXYv9W7QDG2",
+      "at": "2026-11-13T14:00:36.507Z",
+      "kind": "play",
+      "tokensBurnt": "241339202813200000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/R1Rzv5YF1hgMqE423ZKzFcJLNJ7JAutPkXYv9W7QDG2",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "220851623949152000000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "3SFwvC3MVPWWFrvmf9C1uqveydsVrsgyZzbkYuP2pfmd",
+      "at": "2026-11-13T14:00:40.835Z",
+      "kind": "play",
+      "tokensBurnt": "241582037949000000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/3SFwvC3MVPWWFrvmf9C1uqveydsVrsgyZzbkYuP2pfmd",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "220610041911203000000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "2SsnxcL9VdTkuVh2mBWBTJC6nVLYZHsrJD8SHkE4UeGY",
+      "at": "2026-11-13T14:00:44.888Z",
+      "kind": "play",
+      "tokensBurnt": "241823474399600000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+      "url": "https://testnet.nearblocks.io/txns/2SsnxcL9VdTkuVh2mBWBTJC6nVLYZHsrJD8SHkE4UeGY",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "220368218436803400000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "settle",
+          "gas": "200000000000000"
+        }
+      ],
+      "hash": "qtzSn7wYdpkx49r5dytFwQeKmykm9uhmHd3PeZDAKdA",
+      "at": "2026-11-13T14:01:05.895Z",
+      "kind": "settle",
+      "tokensBurnt": "1737810518409100000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/qtzSn7wYdpkx49r5dytFwQeKmykm9uhmHd3PeZDAKdA",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "aiko-8197.mempire-relay-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "218630407918394300000000",
+      "actions": [
+        {
+          "type": "deleteKey"
+        }
+      ],
+      "hash": "GB8QMh86JQfEq3gmh7Ewe5sDLRJUqCFnQWzfEmCzWKoJ",
+      "at": "2026-11-13T14:01:09.546Z",
+      "kind": "deleteKey",
+      "tokensBurnt": "40601225000000000000",
+      "ok": true,
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/GB8QMh86JQfEq3gmh7Ewe5sDLRJUqCFnQWzfEmCzWKoJ",
+      "matchId": "21"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "aiko-8197.mempire-relay-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "244710078411266100000000",
+      "actions": [
+        {
+          "type": "addKey"
+        }
+      ],
+      "hash": "HXL2ftwmqjPxekup7usqcfqzhF5sXFaX5g7PwKRCdEEW",
+      "at": "2026-11-13T13:51:51.909Z",
+      "kind": "addKey",
+      "ok": true,
+      "tokensBurnt": "42057350331000000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/HXL2ftwmqjPxekup7usqcfqzhF5sXFaX5g7PwKRCdEEW",
+      "methods": [],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "10000000000000000000000",
+      "balanceBefore": "244668021060935100000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "challenge_house",
+          "gas": "30000000000000"
+        }
+      ],
+      "hash": "AQw5W2Sst69tdiQ8WZgqWKtvjqicoBF4XvcQGC4ZDpKn",
+      "at": "2026-11-13T13:51:55.987Z",
+      "kind": "challenge_house",
+      "ok": true,
+      "tokensBurnt": "228596001010300000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/AQw5W2Sst69tdiQ8WZgqWKtvjqicoBF4XvcQGC4ZDpKn",
+      "methods": [
+        "challenge_house"
+      ],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "234439425059924800000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "HdZY21ByhAVumz3uFVhtPtWAZWRhSTZY51RWXMABWs8w",
+      "at": "2026-11-13T13:52:06.594Z",
+      "kind": "play",
+      "ok": true,
+      "tokensBurnt": "238598723177000000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:FNLGEB4XsYVfdk4Wir7jKRqyPqYu8g7mwzSTcK8Hz1Ks",
+      "url": "https://testnet.nearblocks.io/txns/HdZY21ByhAVumz3uFVhtPtWAZWRhSTZY51RWXMABWs8w",
+      "methods": [
+        "play"
+      ],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "234200826336747800000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "4UhE6Aokm4wDnT4ymfvHSwGviMyHWFscrME7ThcE5aVt",
+      "at": "2026-11-13T13:52:14.154Z",
+      "kind": "play",
+      "ok": true,
+      "tokensBurnt": "240785655171600000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:FNLGEB4XsYVfdk4Wir7jKRqyPqYu8g7mwzSTcK8Hz1Ks",
+      "url": "https://testnet.nearblocks.io/txns/4UhE6Aokm4wDnT4ymfvHSwGviMyHWFscrME7ThcE5aVt",
+      "methods": [
+        "play"
+      ],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "233960040681576200000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "play",
+          "gas": "15000000000000"
+        }
+      ],
+      "hash": "EQghaTuEUjYDsYf9b92fm3Wpf6gZDiFMpNCFFZMfYqMV",
+      "at": "2026-11-13T13:52:22.414Z",
+      "kind": "play",
+      "ok": true,
+      "tokensBurnt": "241096943606600000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:FNLGEB4XsYVfdk4Wir7jKRqyPqYu8g7mwzSTcK8Hz1Ks",
+      "url": "https://testnet.nearblocks.io/txns/EQghaTuEUjYDsYf9b92fm3Wpf6gZDiFMpNCFFZMfYqMV",
+      "methods": [
+        "play"
+      ],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "mempire-arena-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "233718943737969600000000",
+      "actions": [
+        {
+          "type": "functionCall",
+          "method": "settle",
+          "gas": "200000000000000"
+        }
+      ],
+      "hash": "Bd2mgyr5n7wCMf8YaaiAjdxWC9bDtb5er25sjPAbSeG2",
+      "at": "2026-11-13T13:52:47.591Z",
+      "kind": "settle",
+      "ok": true,
+      "tokensBurnt": "1594257769528300000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/Bd2mgyr5n7wCMf8YaaiAjdxWC9bDtb5er25sjPAbSeG2",
+      "methods": [
+        "settle"
+      ],
+      "matchId": "20"
+    },
+    {
+      "account": "aiko-8197.mempire-relay-41966.testnet",
+      "receiver": "aiko-8197.mempire-relay-41966.testnet",
+      "deposit": "0",
+      "balanceBefore": "232124685968441300000000",
+      "actions": [
+        {
+          "type": "deleteKey"
+        }
+      ],
+      "hash": "CbSGVoFzZFBFrLptVEJ3N4J4a2cjxQAuTTDGhFhKiMK9",
+      "at": "2026-11-13T13:52:51.211Z",
+      "kind": "deleteKey",
+      "ok": true,
+      "tokensBurnt": "40601225000000000000",
+      "actualSender": "aiko-8197.mempire-relay-41966.testnet",
+      "publicKey": "ed25519:6YtToMac6LfMSDhxR8ix4A5o74n9JXKDBgYgeprTWwxU",
+      "url": "https://testnet.nearblocks.io/txns/CbSGVoFzZFBFrLptVEJ3N4J4a2cjxQAuTTDGhFhKiMK9",
+      "methods": [],
+      "matchId": "20"
+    }
+  ],
+  "matches": [
+    {
+      "id": "20",
+      "chain": {
+        "id": "20",
+        "p0": "aiko-8197.mempire-relay-41966.testnet",
+        "p1": "kumo.mempire-arena-41966.testnet",
+        "house": 0,
+        "stake": "10000000000000000000000",
+        "tier": 0,
+        "format": 1,
+        "state": 3,
+        "winner": 1,
+        "deck0": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "deck1": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9
+        ],
+        "mods": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          -766,
+          1325,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          -766,
+          100
+        ],
+        "status": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "seed": 2935894880,
+        "created_ms": "1794577913629",
+        "start_ms": "1794577923629",
+        "close_ms": "1794577959629",
+        "plays0": 3,
+        "plays1": 0,
+        "session0": "ed25519:FNLGEB4XsYVfdk4Wir7jKRqyPqYu8g7mwzSTcK8Hz1Ks",
+        "session1": null,
+        "end_tick": 600,
+        "final_hash": 351631571,
+        "paid": "18400000000000000000000",
+        "to_season": "600000000000000000000",
+        "to_treasury": "1000000000000000000000",
+        "season": 1,
+        "referee_calls": 1,
+        "settled_ms": "1794577964411",
+        "checkpoint_tick": null
+      },
+      "plays": [
+        {
+          "tick": 75,
+          "seat": 0,
+          "deck_index": 7,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 239,
+          "seat": 0,
+          "deck_index": 2,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 400,
+          "seat": 0,
+          "deck_index": 5,
+          "x": 13472,
+          "y": 14090
+        }
+      ],
+      "replay": {
+        "winner": 1,
+        "endTick": 600,
+        "finalHash": 351631571,
+        "matchesChain": true
+      },
+      "playKeyDeleted": true,
+      "permission": {
+        "FunctionCall": {
+          "allowance": "250000000000000000000000",
+          "method_names": [
+            "play"
+          ],
+          "receiver_id": "mempire-arena-41966.testnet"
+        }
+      },
+      "gestureAttempts": 6,
+      "acceptedPlays": 3
+    },
+    {
+      "id": "21",
+      "chain": {
+        "id": "21",
+        "p0": "aiko-8197.mempire-relay-41966.testnet",
+        "p1": "kumo.mempire-arena-41966.testnet",
+        "house": 0,
+        "stake": "10000000000000000000000",
+        "tier": 0,
+        "format": 1,
+        "state": 3,
+        "winner": 1,
+        "deck0": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "deck1": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9
+        ],
+        "mods": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          -766,
+          1325,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          -766,
+          100
+        ],
+        "status": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "seed": 213497442,
+        "created_ms": "1794578411855",
+        "start_ms": "1794578421855",
+        "close_ms": "1794578457855",
+        "plays0": 6,
+        "plays1": 0,
+        "session0": "ed25519:AMUQySNYA2KcfUHpqgiSTmj1RdH1qwXspofF9Gij9bmS",
+        "session1": null,
+        "end_tick": 600,
+        "final_hash": 193130042,
+        "paid": "18400000000000000000000",
+        "to_season": "600000000000000000000",
+        "to_treasury": "1000000000000000000000",
+        "season": 1,
+        "referee_calls": 1,
+        "settled_ms": "1794578462697",
+        "checkpoint_tick": null
+      },
+      "plays": [
+        {
+          "tick": 74,
+          "seat": 0,
+          "deck_index": 1,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 149,
+          "seat": 0,
+          "deck_index": 3,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 236,
+          "seat": 0,
+          "deck_index": 7,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 314,
+          "seat": 0,
+          "deck_index": 5,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 397,
+          "seat": 0,
+          "deck_index": 6,
+          "x": 13472,
+          "y": 14090
+        },
+        {
+          "tick": 473,
+          "seat": 0,
+          "deck_index": 4,
+          "x": 13472,
+          "y": 14090
+        }
+      ],
+      "replay": {
+        "winner": 1,
+        "endTick": 600,
+        "finalHash": 193130042,
+        "matchesChain": true
+      },
+      "playKeyDeleted": true,
+      "permission": {
+        "FunctionCall": {
+          "allowance": "250000000000000000000000",
+          "method_names": [
+            "play"
+          ],
+          "receiver_id": "mempire-arena-41966.testnet"
+        }
+      },
+      "gestureAttempts": 6,
+      "acceptedPlays": 6
+    }
+  ],
+  "budget": {
+    "gasBurntYocto": "6349580888546400000000",
+    "playerStakesYocto": "20000000000000000000000",
+    "houseStakesYocto": "20000000000000000000000",
+    "conservativeSpentYocto": "46349580888546400000000",
+    "capNear": "0.1"
+  },
+  "qa": {
+    "mainMatch": "21",
+    "mainMatchConsoleOrPageErrors": 0,
+    "mainMatchOverflow": 0,
+    "mainMatchRelayerRequests": 0,
+    "widths": [
+      1440,
+      390,
+      375
+    ],
+    "desktopFieldHeightPx": 860,
+    "mouseDrag": true,
+    "tapPlacement": true,
+    "browserEmulatedTouch": true,
+    "physicalPhoneTested": false,
+    "humanMeteorApprovalsFilmed": false,
+    "productionQaSignerExcluded": true,
+    "javascriptTests": 27,
+    "typechecks": "pass",
+    "productionBuild": "pass",
+    "filmSubtitles": false,
+    "filmSeconds": 165.587,
+    "openingMatch": "20",
+    "openingIsLabelledHighlights": true
+  }
+}

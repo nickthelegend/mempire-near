@@ -136,8 +136,26 @@ Owner requested a battle-only rebuild after judging film v1 5/10 for its small, 
 | Touch drag, 390 | PASS | Real CDP touch events, placement ghost, unit spawned |
 | Placement mapping | PASS | Both perspectives, letterbox gutters, river snap, invalid coordinates and drag threshold tested |
 | Console/page errors | PASS | Zero in desktop and phone interaction runs |
-| Tests/build | PASS | 26 workspace JavaScript tests (14 web); production build and QA-signer exclusion pass |
+| Tests/build | PASS | 27 workspace JavaScript tests (15 web); workspace typechecks, production build and QA-signer exclusion pass |
 
 Before screenshots: `before-battle-1440.png`, `before-battle-390.png`, `before-battle-375.png`. After: `after-battle-1440.png`, `after-battle-390.png`, `after-battle-375.png`. Interaction stills: `after-drag-ghost-1440.png`, `after-touch-ghost-390.png`, `after-play-1440.png`, `after-play-390.png`. Local gallery group: `mempire-near/v3`; machine-readable layouts and interaction results: `after.json`, `interactions.json`. Screenshots were captured locally during QA and are not committed.
 
-Only presentation and input handling changed. The same deterministic simulation, temporary play key, arena play method, referee settlement and receipt verification remain in use. A fresh film run and its hashes are recorded separately below once completed; older matches are not relabelled as new.
+Only presentation and input handling changed. The same deterministic simulation, temporary play key, arena play method, referee settlement and receipt verification remain in use. Fresh filmed matches and their hashes are recorded below; older matches are not relabelled as new.
+
+### V3 live integration and film — completed November 13
+
+| Step | Status | Executed result |
+|---|---|---|
+| First fresh take, #20 | FIXED | Three accepted plays from six drag attempts exposed a pending-hand race: an already-sent card remained visible until the authoritative log caught up. The UI now reserves its energy and marks that card Sending until it cycles; other cards remain available. No signing or game rules changed. |
+| Repeat full match, #21 | PASS | Six real drags produced six successful play transactions from the match's local key, against Kumo at the smallest 0.01-NEAR tier. |
+| Referee and receipt | PASS | Both matches settled and independently replayed Verified. #20: Kumo, tick 600, hash 351631571; #21: Kumo, tick 600, hash 193130042. Both paid the house 0.0184 NEAR. No win was fabricated. |
+| Access-key cleanup | PASS | Both keys were arena-play-only, allowance 0.25 NEAR; each exact key was absent after deletion. All card transactions used the corresponding session key. |
+| Operator independence | PASS | Zero relayer/auth requests during either game; the existing build-gated QA wallet signed player setup/stake/settle/delete. Human Meteor popups were not filmed. |
+| Browser checks | PASS | Mouse drag/tap/outside release at 1440 and 390; CDP touch at 390; layout checks at 1440, 390 and 375, with zero console/page errors and overflow. Main live run also recorded zero errors/overflow. Physical phone hardware was unavailable. |
+| Fresh prices and budget | PASS | One signed price snapshot, eighteen unique FINAL successful transactions overall. Conservative combined spend 0.0463495808885464 testnet NEAR, including both sides' stakes and gas; cap 0.1. No new account funding or deployment. |
+| Production and tests | PASS | 27 JavaScript tests (sim 4, SDK 5, relayer 3, web 15), all workspace typechecks and production build. Release guard confirms the development QA signer is absent. Contract tests were not rerun; no contract changed. |
+| Film | PASS | 2:45.6; 1080p H.264 and 720p 17.6 MB share, faststart; Kokoro af_nova and original music, no subtitles/title opener. All contact sheets inspected, no detected full-frame freeze >6 s or silence ≥1 s. |
+
+[Public evidence and every explorer link](deployments/mobile-battle-v3-2026-11-13.json). Opening is explicitly match #20 highlights (accepted drag, fighting, tower falling); the complete main match is #21 after the fix. Full gameplay is 1x; only measured countdown/confirmation waits are 4x, visibly badged. Every new hash is shown on the testnet explorer. No new write was repeated to improve the edit.
+
+The film's first v3 cut received 8.7/10 in internal frame review; the revised cut received 9.0/10 internally after a clearer prize explanation and ready explorer views with full hash labels. Nick's v1 score remains 5/10; no new external score is claimed. Reviews and retained stills live with the versioned film assets. Public hosting and human wallet approvals are not shown; mainnet, card tokens and other-token stakes remain unbuilt.
