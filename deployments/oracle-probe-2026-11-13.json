@@ -1,0 +1,112 @@
+{
+  "network": "testnet",
+  "oracle": "price-oracle.testnet",
+  "oracle_version": "0.7.0",
+  "oracle_code_hash": "C1frAe93wcjtGjeavZDA6znsV5EUnKJFWuX24vTmH3ZV",
+  "outlayer_project": "zavodil2.testnet/price-oracle",
+  "subsidized": false,
+  "note": "Direct probes from Mempire's relayer account before the arena change: both TEE runs succeed today and OutLayer refunds the unused deposit.",
+  "probes": [
+    {
+      "call": "request_price_data",
+      "asset_ids": [
+        "nbtc.bridge.near",
+        "aurora",
+        "wrap.near",
+        "22.contract.portalbridge.near",
+        "zec.omft.near"
+      ],
+      "deposit_near": 0.02,
+      "hash": "CQEhyDGexKNaH6Vuc46SP5JEqWJc7F8JRT1yrv4oW6Fm",
+      "url": "https://testnet.nearblocks.io/txns/CQEhyDGexKNaH6Vuc46SP5JEqWJc7F8JRT1yrv4oW6Fm",
+      "ok": true,
+      "outlayer_charged_yocto": "1882100200000000000000",
+      "outlayer_logs": [
+        "[[yNEAR charged: \"1882100200000000000000\"]]",
+        "EVENT_JSON:{\"standard\":\"near-outlayer\",\"version\":\"1.0.0\",\"event\":\"execution_completed\",\"data\":[{\"sender_id\":\"mempire-relay-41966.testnet\",\"code_source\":{\"WasmUrl\":{\"url\":\"https://wasmhub.testnet.fastfs.io/fastfs.testnet/3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0.wasm\",\"hash\":\"3585b3890f49748713b43ccb9b0ef4148f317d62f4d598db80fdaffc3f3185a0\",\"build_target\":\"wasm32-wasip2\"}},\"resources_used\":{\"instructions\":2962685,\"time_ms\":8821,\"compile_time_ms\":null},\"success\":true,\"error_message\":null,\"payment_charged\":\"1882100200000000000000\",\"payment_refunded\":\"18117899800000000000000\",\"compilation_note\":\"Cached WASM from 2026-10-02T18:51:55.432626+00:00\",\"timestamp\":1794604654245233907}]}",
+        "Execution completed successfully. Output: Json(797 bytes), Resources: { instructions: 2962685, time_ms: 8821 }, Cost: 1882100200000000000000 yoctoNEAR, Refund: 18117899800000000000000 yoctoNEAR, Cached WASM from 2026-10-02T18:51:55.432626+00:00"
+      ],
+      "result": {
+        "timestamp": "1794604654871272852",
+        "recency_duration_sec": 300,
+        "prices": [
+          {
+            "asset_id": "nbtc.bridge.near",
+            "price": {
+              "multiplier": "6854400666666",
+              "decimals": 8
+            }
+          },
+          {
+            "asset_id": "aurora",
+            "price": {
+              "multiplier": "193719666666",
+              "decimals": 8
+            }
+          },
+          {
+            "asset_id": "wrap.near",
+            "price": {
+              "multiplier": "351140000",
+              "decimals": 8
+            }
+          },
+          {
+            "asset_id": "22.contract.portalbridge.near",
+            "price": {
+              "multiplier": "7952333333",
+              "decimals": 8
+            }
+          },
+          {
+            "asset_id": "zec.omft.near",
+            "price": {
+              "multiplier": "94452816666",
+              "decimals": 8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "call": "request_custom_data",
+      "source": "https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats (json_path open)",
+      "deposit_near": 0.02,
+      "hash": "C4w4A4uzYFSiF7FWbm6a1h9ejXuefHBFUJjGHNfo1PZu",
+      "url": "https://testnet.nearblocks.io/txns/C4w4A4uzYFSiF7FWbm6a1h9ejXuefHBFUJjGHNfo1PZu",
+      "ok": true,
+      "outlayer_charged_yocto": "1134700000000000000000",
+      "result": [
+        {
+          "id": "BTC:open24h",
+          "value": 71461.82,
+          "timestamp": 1794604729
+        },
+        {
+          "id": "ETH:open24h",
+          "value": 2015.04,
+          "timestamp": 1794604729
+        },
+        {
+          "id": "NEAR:open24h",
+          "value": 3.3938,
+          "timestamp": 1794604729
+        },
+        {
+          "id": "SOL:open24h",
+          "value": 81.3,
+          "timestamp": 1794604729
+        },
+        {
+          "id": "ZEC:open24h",
+          "value": 943.45,
+          "timestamp": 1794604729
+        }
+      ],
+      "balance_before": 6.0898,
+      "balance_after": 6.0873,
+      "cost_near": 0.0025
+    }
+  ],
+  "at": "2026-11-13T21:24:00Z"
+}
