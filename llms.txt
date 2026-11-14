@@ -1,0 +1,10 @@
+# Mempire on NEAR
+
+> A staked real-time card battler on NEAR testnet. Players stake testnet NEAR; the arena contract stores every card drop and replays the match in Wasm (`settle`) to decide the winner, rejecting any claim that differs from the replay.
+
+- [Judge guide](JUDGES.md): verification command, "do X → see Y" steps, NEAR features used, limits
+- [README](README.md): product, live testnet transactions, how the referee works, run commands
+- [Arena contract](packages/contract/src/lib.rs): `create_match`, `challenge_house`, `play`, `settle`, `post_prices`, `refresh_prices`
+- [Live verifier](scripts/judge-verify.mjs): `node scripts/judge-verify.mjs` re-checks 19 on-chain proofs
+- [Blocked / not built](BLOCKED.md)
+- [Testing](TESTING.md)

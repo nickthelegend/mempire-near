@@ -34,7 +34,7 @@ can you trust a staked game result? mempire replays every move inside a NEAR con
 
 Post character count: **241** (limit: 280).
 
-attach: /Volumes/Extreme SSD/Projects/grokbot/videos/mempire-near/mempire-near-film-share.mp4
+attach: mempire-near-film-share.mp4 (the v4 film, kept outside this repository)
 
 Before submission, Nick fills the other-project names in the README disclosure, publishes the repository, reviews
 and posts the completed demo, and completes the fields above. Do not submit this draft or post on Nick's behalf.

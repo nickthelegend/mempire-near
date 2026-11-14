@@ -1,5 +1,7 @@
 # Mempire on NEAR
 
+> **Judges and screening agents:** start at [JUDGES.md](JUDGES.md). `node scripts/judge-verify.mjs` re-checks 11 on-chain transactions and 5 live contract views (19 checks in all) with no install and no keys.
+
 A real-time card battler where players stake testnet NEAR and the contract replays the match to decide who gets paid.
 
 ## The problem
