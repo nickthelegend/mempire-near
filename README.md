@@ -93,9 +93,13 @@ The fresh main-branch post is [AFbqKpE14jFjm9xuagMbyhb4WaB8MXZH3ySQkhG9KDhi](htt
 A 3-minute Standard match is up to 8x the ticks, so it may take more than one call; the checkpoint path handles that and is
 covered by a sandbox test that settles a Rush match in two 60 TGas calls. No TEE was needed.
 
-### Prices (honest label: "relayer price (testnet)")
+### Prices: OutLayer TEE oracle (live), relayer fallback
 
-This build uses signed relayer prices, not an on-chain oracle. The relayer reads Coinbase Exchange's public 24 h stats
+Market fighters are priced on testnet by OutLayer's TEE price oracle (`price-oracle.testnet`): the arena's `refresh_prices` pays it for five spot prices and 24 h opens, fetched inside an Intel TDX enclave, and the app labels each fighter "Priced by OutLayer TEE oracle" (or "Relayer fallback" when the oracle snapshot is stale). Live txs: arena upgraded in place [`BYAeK1s...`](https://testnet.nearblocks.io/txns/BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS), first refresh [`698XRi9...`](https://testnet.nearblocks.io/txns/698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m) (evidence: `deployments/oracle-refresh-2026-11-13.json`). Mainnet would use a mainnet oracle (not deployed).
+
+#### Relayer-signed prices (the fallback path)
+
+The fallback is signed relayer prices, not an on-chain oracle. The relayer reads Coinbase Exchange's public 24 h stats
 (`https://api.exchange.coinbase.com/products/{SYMBOL}-USD/stats`: `open` = 24 h ago, `last` = latest), signs the exact JSON
 payload with an ed25519 key, and anyone may submit it. `post_prices` verifies it with `env::ed25519_verify` against the key
 the arena was initialised with and refuses snapshots more than 15 minutes from the block clock. Prices older than 6 h at

@@ -450,3 +450,6 @@ span.head-obj { display: none; }
   .hud-chip small { display: none; }
   .hero-title { font-size: 26px; }
 }
+
+/* Market table at phone width: drop the avatar so the In-battle chip is not clipped by the scroller. */
+@media (max-width: 480px) { .tbl--mk .tbl-f .avatar, .tbl--mk .tbl-f > :first-child:not(.tbl-f-src) { display: none; } .tbl--mk th, .tbl--mk td { padding-left: 4px; padding-right: 4px; } }

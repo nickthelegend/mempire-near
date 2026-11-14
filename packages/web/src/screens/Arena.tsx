@@ -327,7 +327,7 @@ function MarketTable() {
       </div>
       {m.loading && !priced.length ? <Loading label="Reading prices" lines={4} /> : m.error && !priced.length ? <StateBox kind="error" title="Prices unavailable">{shortError(m.error)}</StateBox> : (
         <div className="tbl-wrap">
-          <table className="tbl">
+          <table className="tbl tbl--mk">
             <thead><tr><th>Fighter · priced by</th><th>Price</th><th>24 h</th><th>In battle</th></tr></thead>
             <tbody>
               {priced.map((p) => (
