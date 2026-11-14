@@ -18,4 +18,4 @@ Guest account creation still needs the configured relayer and email still needs 
 ## OutLayer TEE oracle upgrade (paused Nov 13 21:45 UTC on memory pressure)
 
 Done and live on testnet: the arena was upgraded in place (tx BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS) and `refresh_prices` priced all five market fighters through `price-oracle.testnet` / OutLayer TEE (tx 698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m). The app labels each fighter "Priced by OutLayer TEE oracle". Contract unit, sandbox and web tests pass.
-Not done yet: the 390px QA screenshot of the market table, README/TESTING/FLOW-QA updates, and the film v5 oracle scene (app plus explorer). The old film `videos/mempire-near/mempire-near-film.mp4` is unchanged.
+Finished Nov 14: 390 px market-table fit fixed and checked, README/TESTING updated, oracle scene added to film v5.

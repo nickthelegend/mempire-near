@@ -95,7 +95,7 @@ covered by a sandbox test that settles a Rush match in two 60 TGas calls. No TEE
 
 ### Prices: OutLayer TEE oracle (live), relayer fallback
 
-Market fighters are priced on testnet by OutLayer's TEE price oracle (`price-oracle.testnet`): the arena's `refresh_prices` pays it for five spot prices and 24 h opens, fetched inside an Intel TDX enclave, and the app labels each fighter "Priced by OutLayer TEE oracle" (or "Relayer fallback" when the oracle snapshot is stale). Live txs: arena upgraded in place [`BYAeK1s...`](https://testnet.nearblocks.io/txns/BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS), first refresh [`698XRi9...`](https://testnet.nearblocks.io/txns/698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m) (evidence: `deployments/oracle-refresh-2026-11-13.json`). Mainnet would use a mainnet oracle (not deployed).
+Market fighters are priced on testnet by OutLayer's TEE price oracle (`price-oracle.testnet`): the arena's `refresh_prices` pays it for five spot prices and 24 h opens, fetched inside an Intel TDX enclave, and the app labels each fighter "Priced by OutLayer TEE oracle" (or a relayer label where a snapshot is relayer-signed). Live txs: arena upgraded in place [`BYAeK1s...`](https://testnet.nearblocks.io/txns/BYAeK1sBRzLS3GpkWhCb7N8HRykhhj8FP49asWcXhvzS), first refresh [`698XRi9...`](https://testnet.nearblocks.io/txns/698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m) (evidence: `deployments/oracle-refresh-2026-11-13.json`). Mainnet would use a mainnet oracle (not deployed).
 
 #### Relayer-signed prices (the fallback path)
 
