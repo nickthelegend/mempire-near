@@ -225,7 +225,7 @@ The imported Monad client lives **only on branch `monad-client` and is NOT the s
 
 **Other projects by the same team in this hackathon**
 
-Lead: Manikanta. Manikanta also leads Seter (https://github.com/nickthelegend/seter-near), sealed stop-loss orders for traders. The two are independent products.
+Lead: Manikanta. Manikanta leads only Mempire in this hackathon; the team's other entries have their own leads.
 
 **License.** MIT. [LICENSE](LICENSE) retains Copyright (c) 2026 Nivesh Gajengi, also present in the sibling's MIT license.
 No NOTICE file is present in this repo.
