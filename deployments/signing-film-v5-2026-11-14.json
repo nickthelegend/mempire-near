@@ -1,0 +1,81 @@
+{
+ "network": "testnet",
+ "film": "v5 signing pass",
+ "match": "30",
+ "result": {
+  "winner": 0,
+  "endTick": 600,
+  "finalHash": 712801066,
+  "matchesChain": true,
+  "paid": "18400000000000000000000"
+ },
+ "sheets": {
+  "sheet-1-5": "Allow this match to sign your card drops (play-only key, deleted after)",
+  "sheet-2-5": "Stake 0.01 NEAR against a house",
+  "sheet-3-5": "Settle the match: the referee replay pays the winner",
+  "sheet-4-5": "Delete the play-only key from your account"
+ },
+ "oracleRefresh": "698XRi9xyBMPfyMj9yTtYm3C5vXwgnxjcVQsQuXG4n8m",
+ "transactions": [
+  {
+   "kind": "addKey",
+   "hash": "HnP6m6cthbrw6FFSa2iHGmenMMJriD2QnyXDwvnUMvUL",
+   "url": "https://testnet.nearblocks.io/txns/HnP6m6cthbrw6FFSa2iHGmenMMJriD2QnyXDwvnUMvUL"
+  },
+  {
+   "kind": "challenge_house",
+   "hash": "EUbuP94EyWYWnfDmGdpXL2PaSf3JbktNjRm1bReN75t2",
+   "url": "https://testnet.nearblocks.io/txns/EUbuP94EyWYWnfDmGdpXL2PaSf3JbktNjRm1bReN75t2"
+  },
+  {
+   "kind": "play",
+   "hash": "8kXpj9JVh5Ugcvoqh9EiQfLz7Gw6g9puKGj3pX8NBtzr",
+   "url": "https://testnet.nearblocks.io/txns/8kXpj9JVh5Ugcvoqh9EiQfLz7Gw6g9puKGj3pX8NBtzr"
+  },
+  {
+   "kind": "play",
+   "hash": "GsnZDHMqGWKUuKGvZUJMs3sUdC19srCiQ16KjVjYxWWa",
+   "url": "https://testnet.nearblocks.io/txns/GsnZDHMqGWKUuKGvZUJMs3sUdC19srCiQ16KjVjYxWWa"
+  },
+  {
+   "kind": "play",
+   "hash": "9fAz1RFPiiPa8JRYTD7CTDtRdeAuoD8psSvXGtkTDVFU",
+   "url": "https://testnet.nearblocks.io/txns/9fAz1RFPiiPa8JRYTD7CTDtRdeAuoD8psSvXGtkTDVFU"
+  },
+  {
+   "kind": "play",
+   "hash": "2cLxsmiN1G47oELhnxoosAusnPfzZ1B5M31edNiiV5Ug",
+   "url": "https://testnet.nearblocks.io/txns/2cLxsmiN1G47oELhnxoosAusnPfzZ1B5M31edNiiV5Ug"
+  },
+  {
+   "kind": "play",
+   "hash": "C1QH2ubf2jWfVfBMsSF7jeBPzsdAvfVxoha5jtvHRJh9",
+   "url": "https://testnet.nearblocks.io/txns/C1QH2ubf2jWfVfBMsSF7jeBPzsdAvfVxoha5jtvHRJh9"
+  },
+  {
+   "kind": "play",
+   "hash": "4aZkYjwDhpfBMFAdzZveAeDRUMj9DMmWE5fkHY9iEsFc",
+   "url": "https://testnet.nearblocks.io/txns/4aZkYjwDhpfBMFAdzZveAeDRUMj9DMmWE5fkHY9iEsFc"
+  },
+  {
+   "kind": "play",
+   "hash": "6emHvhRk3f2X6fSPNxX5ZuFmoe3G5eEZ4SriARwaSMav",
+   "url": "https://testnet.nearblocks.io/txns/6emHvhRk3f2X6fSPNxX5ZuFmoe3G5eEZ4SriARwaSMav"
+  },
+  {
+   "kind": "play",
+   "hash": "G4gX31bWGEmGx6UDhwYSaFPcKqyRj54eZjwUatvrpHrs",
+   "url": "https://testnet.nearblocks.io/txns/G4gX31bWGEmGx6UDhwYSaFPcKqyRj54eZjwUatvrpHrs"
+  },
+  {
+   "kind": "settle",
+   "hash": "Bndsoht6ZM9S9mbZq5eNiym7yxvVkJLPM99YSbLzqY4j",
+   "url": "https://testnet.nearblocks.io/txns/Bndsoht6ZM9S9mbZq5eNiym7yxvVkJLPM99YSbLzqY4j"
+  },
+  {
+   "kind": "deleteKey",
+   "hash": "3qma5BkmmnwXbnfUscd5hT2TksXxQL1x9L52ufZiELai",
+   "url": "https://testnet.nearblocks.io/txns/3qma5BkmmnwXbnfUscd5hT2TksXxQL1x9L52ufZiELai"
+  }
+ ]
+}
